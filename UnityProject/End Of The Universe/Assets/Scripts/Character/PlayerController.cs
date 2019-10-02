@@ -21,6 +21,8 @@ public class PlayerController : MonoBehaviour
     // Parts of Guns
     public Transform firePoint;
     public GameObject[] Gun;
+    [SerializeField]
+    private int currentGun;
     public SpriteRenderer muzzleFlash;
     public float turnFlashOff = .5f;
 
@@ -160,11 +162,38 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    void DifferentGuns()
+    {
+        switch(currentGun)
+        {
+            case 0:
+                gunDamage = 5;
+                impactForce = 50;
+                break;
+
+            case 1:
+                gunDamage = 20;
+                impactForce = 200;
+                break;
+
+            case 2:
+                gunDamage = 10;
+                impactForce = 75;
+                break;
+
+            case 3:
+                gunDamage = 20;
+                impactForce = 150;
+                break;
+        }
+    }
+
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if(other.gameObject.name == "Pistol Pickup")
         {
+            currentGun = 0;
             Gun[0].SetActive(true);
             Gun[1].SetActive(false);
             Gun[2].SetActive(false);
@@ -172,6 +201,7 @@ public class PlayerController : MonoBehaviour
         }
         if (other.gameObject.name == "ShotGun Pickup")
         {
+            currentGun = 1;
             Gun[0].SetActive(false);
             Gun[1].SetActive(true);
             Gun[2].SetActive(false);
@@ -180,6 +210,7 @@ public class PlayerController : MonoBehaviour
         }
         if (other.gameObject.name == "SMG Pickup")
         {
+            currentGun = 2;
             Gun[0].SetActive(false);
             Gun[1].SetActive(false);
             Gun[2].SetActive(true);
@@ -187,6 +218,7 @@ public class PlayerController : MonoBehaviour
         }
         if (other.gameObject.name == "Assualt Rifle Pickup")
         {
+            currentGun = 3;
             Gun[0].SetActive(false);
             Gun[1].SetActive(false);
             Gun[2].SetActive(false);
