@@ -9,17 +9,33 @@ public class HazzardHealth : MonoBehaviour
     // Crates or rocks
     public float Durability = 50f;
 
+    private void Awake()
+    {
+        // We need to define the layer as whenever the crate is not called crate
+        // The gun wont force it back or even interact with it
+        gameObject.layer = 8;
+    }
+
+    private void Update()
+    {
+        if(gameObject.name == "Mini Crate(Clone)")
+        {
+            gameObject.transform.rotation = new Quaternion(gameObject.transform.rotation.x, transform.rotation.y, transform.rotation.z, 0);
+        }
+    }
+
     public void TakeDamage(float amount)
     {
         Durability -= amount;
         if (Durability <= 0f)
         {
-            Die();
+            StartCoroutine(Die());
         }
     }
 
-    public void Die()
+    public IEnumerator Die()
     {
-        Destroy(gameObject);
+        yield return new WaitForSeconds(.4f);
+        Destroy(this.gameObject);
     }
 }
