@@ -4,19 +4,16 @@ using UnityEngine;
 
 public class Hazzard : MonoBehaviour
 {
+    // Speed Value
     public float speed = 4;
+
     private void Update()
     {
+        // Move gameObject left depending on the screen and Time
         transform.Translate(Vector3.left * speed * Time.deltaTime);
     }
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.gameObject.tag == "Player")
-        {
-            // Call GameOver Function in Level Manager
-        }
-    }
-
+    
+    // Kill Object Off screen
     public void OnBecameInvisible()
     {
         Destroy(this.gameObject);

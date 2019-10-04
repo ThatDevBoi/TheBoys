@@ -21,18 +21,21 @@ public class PlayerController : MonoBehaviour
     // Parts of Guns
     public Transform firePoint;
     public GameObject[] Gun;
-    [SerializeField]
+    // Int that changes weapon stats
     private int currentGun;
+    // Muzzle Flash Effect
     public SpriteRenderer muzzleFlash;
+    // Timer to turn off muzzle Flash
     public float turnFlashOff = .5f;
-
+    // The layer mask that helps a raycast understand what its detecting to hit
     public LayerMask whatToShoot;
 
     // Gun Stats
-    public float fireRate;
-    public float gunPower;
+    // Damage it does to a obsticle
     public int gunDamage;
+    // Force that pushes Rigidbody Objects back
     public float impactForce;
+    // How far can players shoot
     public int range;
 
     // Start is called before the first frame update
@@ -55,6 +58,7 @@ public class PlayerController : MonoBehaviour
         // Functions
         Movement();
         FireGun();
+        DifferentGuns();
 
         if (gameObject.transform.position.y > 3)
             top = true;
@@ -191,8 +195,12 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        if (other.gameObject.tag == "Death")
+            Level_Manager.gameOver = true;
+
         if(other.gameObject.name == "Pistol Pickup")
         {
+            Destroy(other.gameObject);
             currentGun = 0;
             Gun[0].SetActive(true);
             Gun[1].SetActive(false);
@@ -201,6 +209,7 @@ public class PlayerController : MonoBehaviour
         }
         if (other.gameObject.name == "ShotGun Pickup")
         {
+            Destroy(other.gameObject);
             currentGun = 1;
             Gun[0].SetActive(false);
             Gun[1].SetActive(true);
@@ -210,6 +219,7 @@ public class PlayerController : MonoBehaviour
         }
         if (other.gameObject.name == "SMG Pickup")
         {
+            Destroy(other.gameObject);
             currentGun = 2;
             Gun[0].SetActive(false);
             Gun[1].SetActive(false);
@@ -218,6 +228,7 @@ public class PlayerController : MonoBehaviour
         }
         if (other.gameObject.name == "Assualt Rifle Pickup")
         {
+            Destroy(other.gameObject);
             currentGun = 3;
             Gun[0].SetActive(false);
             Gun[1].SetActive(false);
