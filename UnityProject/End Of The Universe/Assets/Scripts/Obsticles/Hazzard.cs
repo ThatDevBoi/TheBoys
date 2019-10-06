@@ -12,10 +12,13 @@ public class Hazzard : MonoBehaviour
         // Move gameObject left depending on the screen and Time
         transform.Translate(Vector3.left * speed * Time.deltaTime);
     }
-    
+
     // Kill Object Off screen
-    public void OnBecameInvisible()
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        Destroy(this.gameObject);
+        if (other.gameObject.tag == "Death")
+        {
+            Destroy(gameObject);
+        }
     }
 }

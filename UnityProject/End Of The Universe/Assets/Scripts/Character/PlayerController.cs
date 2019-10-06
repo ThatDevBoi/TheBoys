@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -14,8 +15,10 @@ public class PlayerController : MonoBehaviour
     private bool canSwitch = true;
     // Makes it so you can change gravity mid air
     private int buttonCount = 0;
-    // Timer that changes when we can change gravuty again
-    private float SwitchTimer = 2;
+    // Timer that changes when we can change gravity again
+    public float SwitchTimer = 2;
+    //Slider variable for the cooldown display
+    public Slider cooldownSlider;
 
     // GunPlay Variables
     // Parts of Guns
@@ -49,6 +52,8 @@ public class PlayerController : MonoBehaviour
         // Find Physcis
         PCRB = GetComponent<Rigidbody2D>();
 
+        //cooldownSlider.value = SwitchTimer;
+
         muzzleFlash.enabled = false;
     }
 
@@ -70,6 +75,7 @@ public class PlayerController : MonoBehaviour
         {
             canSwitch = false;
             SwitchTimer -= Time.deltaTime;
+            cooldownSlider.value += SwitchTimer * Time.deltaTime;
             if (SwitchTimer <= 0)
             {
                 canSwitch = true;
@@ -97,12 +103,14 @@ public class PlayerController : MonoBehaviour
                 SpriteFlipping();
                 buttonCount += 1;
                 PCRB.gravityScale *= -1;
+                cooldownSlider.value = 0;
             }
 
             if (!top && Input.GetButtonDown("Jump"))
             {
                 SpriteFlipping();
                 PCRB.gravityScale *= 1;
+                cooldownSlider.value = 0;
             }
         }
         else

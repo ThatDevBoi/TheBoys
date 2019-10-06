@@ -107,6 +107,8 @@ public class Level_Manager : MonoBehaviour
         deeposcreen.enabled = true;
         alpha += 5 * Time.deltaTime;
         deeposcreen.color = new Color(GUI.color.r,GUI.color.g,GUI.color.b, alpha);
+        GameObject GravitySlider = GameObject.Find("Gravity_Slider");
+        GravitySlider.SetActive(false);
         //deeposcreen.CrossFadeAlpha(alpha += increaseAlpha, fadeDir, true);
 
     }
