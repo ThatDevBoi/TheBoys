@@ -61,6 +61,10 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (gameObject.transform.position.x != -7f)
+            gameObject.transform.position = new Vector3(-7f, -3f, 0);
+        PCRB.constraints = RigidbodyConstraints2D.FreezePositionX;
+
         // Functions
         Movement();
         FireGun();
@@ -179,7 +183,10 @@ public class PlayerController : MonoBehaviour
     {
         Level_Manager lvmanager = GameObject.Find("Level_Manager").GetComponent<Level_Manager>();
         StartCoroutine(lvmanager.GameOver());
+        
     }
+
+  
 
     void DifferentGuns()
     {

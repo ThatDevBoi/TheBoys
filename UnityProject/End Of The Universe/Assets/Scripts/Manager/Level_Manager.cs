@@ -37,7 +37,7 @@ public class Level_Manager : MonoBehaviour
         // Assign the canvas variable
         StartMenu = GameObject.Find("StartMenu").GetComponent<Canvas>();
         //restartCanvas = GameObject.Find("RestartMenu").GetComponent<Canvas>();
-
+        
         deeposcreen.color = new Color(deeposcreen.color.r, deeposcreen.color.g, deeposcreen.color.b, 0);
         deeposcreen.enabled = false;
         UIHandler.SetActive(false);
@@ -71,6 +71,8 @@ public class Level_Manager : MonoBehaviour
 
     public void StartGame()
     {
+
+        
         // Change the time so the game will play
         Time.timeScale = 1;
         // Turn off the canvas
@@ -79,10 +81,12 @@ public class Level_Manager : MonoBehaviour
 
     public void RestartGame(string levelName)
     {
+       
         //Reloads the scene
         Application.LoadLevel(levelName);
         //Turn off the canvas
         Restart.enabled = false;
+        
         gameOver = false;
     }
 
