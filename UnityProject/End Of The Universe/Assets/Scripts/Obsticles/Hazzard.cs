@@ -10,7 +10,7 @@ public class Hazzard : MonoBehaviour
     public int x;
     private void Start()
     {
-        x = 7;
+        //x = 7;
     }
     private void Update()
     {

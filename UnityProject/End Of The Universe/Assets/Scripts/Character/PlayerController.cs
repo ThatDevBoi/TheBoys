@@ -55,6 +55,7 @@ public class PlayerController : MonoBehaviour
         //cooldownSlider.value = SwitchTimer;
 
         muzzleFlash.enabled = false;
+        gameObject.transform.position = new Vector2(-7, -3.1f);
     }
 
     // Update is called once per frame
@@ -172,6 +173,12 @@ public class PlayerController : MonoBehaviour
             if (hitinfo.collider != null)
                 hitinfo.rigidbody.AddForce(-hitinfo.normal * impactForce);
         }
+    }
+
+    private void OnBecameInvisible()
+    {
+        Level_Manager lvmanager = GameObject.Find("Level_Manager").GetComponent<Level_Manager>();
+        StartCoroutine(lvmanager.GameOver());
     }
 
     void DifferentGuns()

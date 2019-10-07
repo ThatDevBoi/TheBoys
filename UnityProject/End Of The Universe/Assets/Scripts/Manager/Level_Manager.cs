@@ -13,9 +13,9 @@ public class Level_Manager : MonoBehaviour
     //Strings
     public string gameOverMessage;
     // Ints
-    int currentDistance = 1;
+    public int currentDistance = 1;
     // Float
-    float playersDistance = 1;
+    public float playersDistance = 1;
     // Booleans
     public static bool gameOver = false;
     //Gameoobjicts
@@ -33,6 +33,7 @@ public class Level_Manager : MonoBehaviour
 
     public void Awake()
     {
+        playersDistance = 1;
         // Assign the canvas variable
         StartMenu = GameObject.Find("StartMenu").GetComponent<Canvas>();
         //restartCanvas = GameObject.Find("RestartMenu").GetComponent<Canvas>();
@@ -58,8 +59,7 @@ public class Level_Manager : MonoBehaviour
         {
             StartCoroutine(GameOver());
             GameOverMessage();
-            //Time.timeScale = 0;
-            //DoFade();
+            
         }
         
         // When the game is currently not in a play state dont call the function 
@@ -101,7 +101,7 @@ public class Level_Manager : MonoBehaviour
         }
     }
 
-    void DoFade()
+    public void DoFade()
     {
         alpha = deeposcreen.color.a;
         deeposcreen.enabled = true;
@@ -134,14 +134,22 @@ public class Level_Manager : MonoBehaviour
 
     public IEnumerator DistanceCalulator()
     {
-        playersDistance += Time.deltaTime * currentDistance;
-        // Make the float value round up to an int value so it shows in UI as a whole number
-        playersDistance = Mathf.RoundToInt(Time.time * currentDistance + 1);
-        // Let the UI text update when the value increases
-        distanceMeter.text = "Miles: " + playersDistance;
-        // Console the value
-        Debug.Log(playersDistance);
-        yield break;
+        if (gameOver)
+        {
+            playersDistance = 0;
+
+        }
+        else
+        {
+            //playersDistance += Time.deltaTime * currentDistance;
+            // Make the float value round up to an int value so it shows in UI as a whole number
+            playersDistance = Mathf.RoundToInt(Time.time * currentDistance + 1);
+            // Let the UI text update when the value increases
+            distanceMeter.text = "Miles: " + playersDistance;
+            // Console the value
+            Debug.Log(playersDistance);
+            yield break;
+        }
     }
 
 
