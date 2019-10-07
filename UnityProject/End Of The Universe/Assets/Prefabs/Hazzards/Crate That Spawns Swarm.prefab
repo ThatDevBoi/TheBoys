@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 173239533}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: miniCrate Spawn Point
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45,7 +45,7 @@ GameObject:
   - component: {fileID: 8432562241426634841}
   - component: {fileID: 5302156520753768481}
   - component: {fileID: 3087703217876568360}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Crate That Spawns Swarm
   m_TagString: Death
   m_Icon: {fileID: 0}

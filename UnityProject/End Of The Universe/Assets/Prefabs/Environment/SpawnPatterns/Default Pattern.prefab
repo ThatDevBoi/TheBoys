@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1142623180108302263}
-  - component: {fileID: 6245325441991873577}
   m_Layer: 0
   m_Name: Default Pattern
   m_TagString: Untagged
@@ -33,18 +32,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6245325441991873577
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1619895968889193298}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 93a01e86fe808a74aaa53d07204a7dcd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &3816989093416193605
 GameObject:
   m_ObjectHideFlags: 0
@@ -58,7 +45,7 @@ GameObject:
   - component: {fileID: 128953860313352013}
   m_Layer: 0
   m_Name: SpawnPoint Top
-  m_TagString: Recycle_Object
+  m_TagString: Untagged
   m_Icon: {fileID: 7174288486110832750, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -129,7 +116,7 @@ GameObject:
   - component: {fileID: 1658340480430829363}
   m_Layer: 0
   m_Name: SpawnPoint Bottom
-  m_TagString: Recycle_Object
+  m_TagString: Untagged
   m_Icon: {fileID: 7174288486110832750, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

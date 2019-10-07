@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 5243278884978554814}
   - component: {fileID: 702893741492790168}
   - component: {fileID: 3781976529825817222}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Physics Crate
   m_TagString: Death
   m_Icon: {fileID: 0}
