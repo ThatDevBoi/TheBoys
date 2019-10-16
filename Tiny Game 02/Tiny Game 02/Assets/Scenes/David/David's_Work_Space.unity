@@ -278,6 +278,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -6057140222963153312, guid: f01c337ec20effe4a8a539cac749a80c,
+        type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: bac1c9e69b7b0804983eeaaa9e896ef1, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f01c337ec20effe4a8a539cac749a80c, type: 3}
 --- !u!1001 &1078743649
@@ -513,6 +518,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Turtle Mesh
       objectReference: {fileID: 0}
+    - target: {fileID: 6017849301895317170, guid: 97fc1abb94025d2408dc435339d3cd40,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: 97fc1abb94025d2408dc435339d3cd40,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -566,11 +576,6 @@ PrefabInstance:
     - target: {fileID: -4216859302048453862, guid: 97fc1abb94025d2408dc435339d3cd40,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6017849301895317170, guid: 97fc1abb94025d2408dc435339d3cd40,
-        type: 3}
-      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
