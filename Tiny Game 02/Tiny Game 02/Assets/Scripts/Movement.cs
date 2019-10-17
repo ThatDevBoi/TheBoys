@@ -5,43 +5,38 @@ using UnityEngine.AI;
 
 public class Movement : MonoBehaviour
 {
-    NavMeshAgent agent;
-    public Transform goal;
-    Rigidbody RB_pc;
-    // Start is called before the first frame update
-    void Start()
+    int speed = 10;
+    public float F=1;
+    float turnspeed = 5;
+    Rigidbody rigidbody;
+    private void Start()
     {
-       RB_pc= gameObject.GetComponent<Rigidbody>();
-       agent = GetComponent<NavMeshAgent>();
-       // agent.destination = goal.position;
+
+        rigidbody = GetComponent<Rigidbody>();
+        Physics.gravity *= 0.1f;
     }
-
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        Movement3d();
-    }
 
-    void Movement3d()
-    {
-        
-            if (Input.GetMouseButtonDown(0))
-            {
-                RaycastHit hit;
 
-                if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 100))
-                {
-                    agent.destination = hit.point;
-                }
-            }
+        float v = Input.GetAxis("Vertical");
+
+       float h = Input.GetAxis("Horizontal");
         if (Input.GetKey(KeyCode.Space))
         {
-            agent.enabled = false;
-            RB_pc.AddForce(Vector3.up * 0.1f, ForceMode.Impulse);
-            RB_pc.AddRelativeForce(Vector3.up * 0.1f, ForceMode.Impulse);
+            rigidbody.AddRelativeForce(Vector3.up * 10);
+            Debug.Log("y");
         }
-        //agent.enabled = true;
-        // transform.Translate(Vector3.up * 260 * Time.deltaTime, Space.World);
 
+       if(h!=0)
+            rigidbody.AddRelativeTorque(0,h* F*0.01f,0);
+            Debug.Log("x");
+        
+        if (v != 0)
+        {
+            rigidbody.AddRelativeForce(0,0, v * F);
+            Debug.Log("x");
+        }
     }
+
 }
