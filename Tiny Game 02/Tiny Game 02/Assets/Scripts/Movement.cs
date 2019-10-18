@@ -5,10 +5,10 @@ using UnityEngine.AI;
 
 public class Movement : MonoBehaviour
 {
-    int speed = 10;
+    private int speed = 10;
     public float F=1;
-    float turnspeed = 5;
-    Rigidbody rigidbody;
+    private float turnspeed = 5;
+    private Rigidbody rigidbody;
     private void Start()
     {
 
@@ -30,17 +30,17 @@ public class Movement : MonoBehaviour
         if (Input.GetKey(KeyCode.Space))
         {
             rigidbody.AddRelativeForce(Vector3.up * 10);
-            Debug.Log("y");
+           // Debug.Log("y");
         }
 
         if (h != 0)
             rigidbody.AddRelativeTorque(0, h * F * 0.01f, 0);
-        Debug.Log("x");
+        //Debug.Log("x");
 
         if (v != 0)
         {
             rigidbody.AddRelativeForce(0, 0, v * F);
-            Debug.Log("x");
+            //Debug.Log("x");
         }
     }
 }

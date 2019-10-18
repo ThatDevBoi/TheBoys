@@ -467,6 +467,12 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 201622767}
   m_PrefabAsset: {fileID: 0}
+--- !u!4 &488488892 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -4216859302048453862, guid: f01c337ec20effe4a8a539cac749a80c,
+    type: 3}
+  m_PrefabInstance: {fileID: 201622767}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &488488893
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -474,19 +480,17 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 488488890}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ed4d37bc1f032ee4bb1e957454451a64, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerPosition: {fileID: 0}
-  objectiveName: NaDo
+  CharachterName: 
   chatText:
   - Joe mama is having a ball
   - yeet
   arrayLength: 0
   stringChanger: 0
-  distanceToTalk: 15
   dialogueText: {fileID: 1837403126}
   DialogueCan: {fileID: 0}
 --- !u!1001 &537029987
@@ -958,6 +962,26 @@ Transform:
   m_Father: {fileID: 1780234748}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1296659572 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4847837044903874063, guid: 7be8aa8143da893428e2d808b73f3d59,
+    type: 3}
+  m_PrefabInstance: {fileID: 4847837043329795345}
+  m_PrefabAsset: {fileID: 0}
+--- !u!136 &1296659577
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1296659572}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 1
+  m_Height: 3
+  m_Direction: 2
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1343665123
 GameObject:
   m_ObjectHideFlags: 0
@@ -1915,5 +1939,84 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4847837043666611292, guid: 7be8aa8143da893428e2d808b73f3d59,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7be8aa8143da893428e2d808b73f3d59, type: 3}
+--- !u!1001 &5463997826408749692
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 488488892}
+    m_Modifications:
+    - target: {fileID: 5463997826573263605, guid: 0af6cc5978f9b3449b7178a22331be5a,
+        type: 3}
+      propertyPath: m_Name
+      value: Dialouge cube
+      objectReference: {fileID: 0}
+    - target: {fileID: 5463997826573263606, guid: 0af6cc5978f9b3449b7178a22331be5a,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 5463997826573263606, guid: 0af6cc5978f9b3449b7178a22331be5a,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -50
+      objectReference: {fileID: 0}
+    - target: {fileID: 5463997826573263606, guid: 0af6cc5978f9b3449b7178a22331be5a,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -100
+      objectReference: {fileID: 0}
+    - target: {fileID: 5463997826573263606, guid: 0af6cc5978f9b3449b7178a22331be5a,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5463997826573263606, guid: 0af6cc5978f9b3449b7178a22331be5a,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5463997826573263606, guid: 0af6cc5978f9b3449b7178a22331be5a,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5463997826573263606, guid: 0af6cc5978f9b3449b7178a22331be5a,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5463997826573263606, guid: 0af6cc5978f9b3449b7178a22331be5a,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5463997826573263606, guid: 0af6cc5978f9b3449b7178a22331be5a,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5463997826573263606, guid: 0af6cc5978f9b3449b7178a22331be5a,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5463997826573263606, guid: 0af6cc5978f9b3449b7178a22331be5a,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5463997826573263602, guid: 0af6cc5978f9b3449b7178a22331be5a,
+        type: 3}
+      propertyPath: dialogueText
+      value: 
+      objectReference: {fileID: 1837403126}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 0af6cc5978f9b3449b7178a22331be5a, type: 3}

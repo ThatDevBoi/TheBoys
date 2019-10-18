@@ -6,32 +6,34 @@ using UnityEngine.UI;
 public class UI_Talk : MonoBehaviour
 {
     // Variables
-    public Transform playerPosition;
-    public string objectiveName;
+    //public Transform playerPosition;
+    public string CharachterName;
     public string[] chatText;
     public int arrayLength;
     public int stringChanger = 0;
-    public float distanceToTalk;
+   // public float distanceToTalk;
     public Text dialogueText;
-
+    //public BoxCollider dialouge_collider;
+    private bool dialouge=false;
     public GameObject DialogueCan;
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         arrayLength = chatText.Length - 1;
         DialogueCan = GameObject.Find("DialogueCanvas");
         DialogueCan.SetActive(false);
-        gameObject.name = objectiveName;
+        gameObject.name = CharachterName;
+        //gameObject.GetComponent<BoxCollider>();
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        // Find the players position
-        playerPosition = GameObject.Find("Player").GetComponent<Transform>();
-        Interaction();
-        
+        // Change Sentence
+        if(dialouge)
+            StartCoroutine(Talk());
+
         if (stringChanger > chatText.Length)
         {
             stringChanger = 0;
@@ -39,35 +41,50 @@ public class UI_Talk : MonoBehaviour
 
     }
 
-    void Interaction()
-    {
-        // Distance
-        float distance;
-        distance = Vector3.Distance(transform.position, playerPosition.position);
-        Debug.Log(distance);
-        if (distance > distanceToTalk)
-        {
-            StartCoroutine(Talk());
-        }
-    }
-
     IEnumerator Talk()
     {
         DialogueCan.SetActive(true);
-        int arrayChanger = chatText[stringChanger].Length;
+        //int arrayChanger = chatText[stringChanger].Length;
         // Text Scroller
-        dialogueText.text = chatText[stringChanger];
-        // Change Sentence
+        dialogueText.text =CharachterName+ chatText[stringChanger];
+        Debug.Log(stringChanger);
         if (Input.GetKeyDown(KeyCode.E))
         {
+            Debug.Log("e");
             stringChanger++;
         }
-        // Scroller Check
-        else if (stringChanger >= arrayLength)
+
+        //Scroller Check
+        if (stringChanger >= arrayLength)
         {
             yield return new WaitForSeconds(0.50f);
             stringChanger = 0;
         }
         yield break;
     }
+
+    
+
+    private void OnTriggerEnter(Collider other)
+    {
+
+        
+        if (other.gameObject.name == "Player")
+        {
+            Debug.Log("in_talk");
+            dialouge = true;
+        }
+    }
+    private void OnTriggerExit(Collider other)
+    {
+
+
+        if (other.gameObject.name == "Player")
+        {
+            Debug.Log("exit_talk");
+            dialouge = false;
+            DialogueCan.SetActive(false);
+        }
+    }
+
 }
