@@ -8,12 +8,7 @@ public class Level_Manager : MonoBehaviour
     // Variables
     public Canvas StartMenu;
     public Canvas pauseMenu;
-    
-    
-
-
-
-
+   
     public void Awake()
     {
         StartMenu = GameObject.Find("StartMenu").GetComponent<Canvas>();    // Find the start canvas in the scene
@@ -70,24 +65,6 @@ public class Level_Manager : MonoBehaviour
     {
         EndApplication();
     }
-
-    //public void Fade()
-    //{
-    //    float alpha = -1f;  // Value that changes the density of a 2d image rendered on screen (example; the alpha colour of an image)
-    //    Texture2D fadeOutTexture;   // The image we will be manipulating
-    //    float fadeSpeed = 5f;   // How fast we want the image to change colour
-    //    int drawDepth = 1000;   // Order of render
-    //    int fadeDir = -1;   // Fade in or out, -1 in, 1 out
-
-    //    fadeOutTexture = Resources.Load<Texture2D>("Assets/blue") as Texture2D;
-
-
-
-    //    if (fadeOutTexture == null)
-    //    {
-    //        Debug.Log("No texture loaded");
-    //    }
-    //}
 
     public void PauseMenu()
     {
