@@ -8,11 +8,7 @@ public class Trash : MonoBehaviour
 
 
     // Variables
-    //public Transform playerPosition;
-    public string CharachterName;
-    public string[] chatText;
-    public int arrayLength;
-    public int stringChanger = 0;
+    
     // public float distanceToTalk;
     public Text dialogueText;
     //public BoxCollider dialouge_collider;
@@ -23,11 +19,8 @@ public class Trash : MonoBehaviour
     // Start is called before the first frame update
     private void Start()
     {
-        arrayLength = chatText.Length - 1;
         //DialogueCan = GameObject.Find("DialogueCanvas");
         DialogueCan.SetActive(false);
-        //gameObject.name = CharachterName;
-        //gameObject.GetComponent<BoxCollider>();
     }
 
     // Update is called once per frame
@@ -35,47 +28,54 @@ public class Trash : MonoBehaviour
     {
         // Change Sentence
         if (dialouge)
-            PickUp(player);
-
-        if (stringChanger > chatText.Length)
-        {
-            stringChanger = 0;
-        }
+            PickUp(player);       
 
     }
 
     void PickUp(GameObject other)
     {
         DialogueCan.SetActive(true);
-        // Text Scroller
+        // Text 
         dialogueText.text = ("Pick up [E]");
-        Debug.Log(stringChanger);
+        
         if (Input.GetKeyDown(KeyCode.E))
         {
             gameObject.SetActive(false);
             dialouge = false;
             DialogueCan.SetActive(false);
         }
+        
         Camera cam;
         cam = other.GetComponentInChildren<Camera>();
         cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, 40, 0.3f);//pull player closer to the character
-   
+       
     }
 
 
 
     private void OnTriggerEnter(Collider other)
     {
-
-
         if (other.gameObject.name == "Player")
         {
             Debug.Log("in_talk");
             dialouge = true;
             player = other.gameObject;
+            other.transform.LookAt(this.transform);
         }
     }
-  
+    private void OnTriggerExit(Collider other)
+    {
+        Camera cam;
+
+        if (other.gameObject.name == "Player")
+        {
+            Debug.Log("exit_talk");
+            dialouge = false;
+            DialogueCan.SetActive(false);
+            cam = other.GetComponentInChildren<Camera>();
+            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, 60, 0.3f);
+        }
+    }
 
 }
 

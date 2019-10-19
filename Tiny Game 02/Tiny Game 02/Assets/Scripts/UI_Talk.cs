@@ -50,12 +50,18 @@ public class UI_Talk : MonoBehaviour
         Debug.Log(stringChanger);
         if (Input.GetKeyDown(KeyCode.E))
         {
+
+          
             Debug.Log("e");
             stringChanger++;            
         }
+
+
+        other.transform.LookAt(this.transform);
         Camera cam;
         cam = other.GetComponentInChildren<Camera>();
         cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, 40, 0.3f);//pull player closer to the character
+        
         //Scroller Check
         if (stringChanger >= arrayLength)
         {
@@ -77,6 +83,7 @@ public class UI_Talk : MonoBehaviour
             dialouge = true;
             player = other.gameObject;
         }
+
     }
     private void OnTriggerExit(Collider other)
     {
@@ -88,7 +95,7 @@ public class UI_Talk : MonoBehaviour
             dialouge = false;
             DialogueCan.SetActive(false);
             cam = other.GetComponentInChildren<Camera>();
-            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, 60, 0.3f);
+            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, 60, 0.1f);
         }
     }
 

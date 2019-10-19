@@ -42,7 +42,7 @@ public class Movement : MonoBehaviour
         }
         else if(can.activeInHierarchy==false)
         {
-            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, startFOV, 0.2f);//reduce fov when not moving
+            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, startFOV, 0.1f);//reduce fov when not moving
         }
         //mouse input for rotation
         rotX += Input.GetAxis("Mouse X")*turnspeedX;
