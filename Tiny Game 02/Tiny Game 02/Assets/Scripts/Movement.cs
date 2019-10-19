@@ -5,42 +5,49 @@ using UnityEngine.AI;
 
 public class Movement : MonoBehaviour
 {
-    private int speed = 10;
-    public float F=1;
-    private float turnspeed = 5;
-    private Rigidbody rigidbody;
+    public Camera cam;
+    public float speed=1;
+    public float turnspeedY = 5;
+    public float turnspeedX = 5;
+    private Rigidbody RB_PC;
+    private float rotX;
+    private float rotY;
+    private float startFOV=60f;
+    private float speedFOV = 75f;
+    public GameObject can;
     private void Start()
     {
-
-        rigidbody = GetComponent<Rigidbody>();
-        Physics.gravity *= 0.1f;
+        RB_PC = GetComponent<Rigidbody>();
+        Physics.gravity *= 0.1f;//reduced gravity for emulating underwater ambient
     }
     private void Update()
     {
-
-        Move();
-     
+        Move();     
     }
 
     private void Move()
     {
         float v = Input.GetAxis("Vertical");
-
-        float h = Input.GetAxis("Horizontal");
         if (Input.GetKey(KeyCode.Space))
         {
-            rigidbody.AddRelativeForce(Vector3.up * 10);
+            RB_PC.AddRelativeForce(Vector3.up * 10);
            // Debug.Log("y");
         }
-
-        if (h != 0)
-            rigidbody.AddRelativeTorque(0, h * F * 0.01f, 0);
-        //Debug.Log("x");
-
+        
         if (v != 0)
         {
-            rigidbody.AddRelativeForce(0, 0, v * F);
+            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, speedFOV, 0.3f);//increase fov when moving
+            RB_PC.AddRelativeForce(0, 0, v * speed);
             //Debug.Log("x");
         }
-    }
-}
+        else if(can.activeInHierarchy==false)
+        {
+            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, startFOV, 0.2f);//reduce fov when not moving
+        }
+        //mouse input for rotation
+        rotX += Input.GetAxis("Mouse X")*turnspeedX;
+        rotY += Input.GetAxis("Mouse Y")*turnspeedY;
+        rotY = Mathf.Clamp(rotY, -10f, 30f);
+        transform.localRotation = Quaternion.Euler(-rotY, rotX,0);
+    }   
+}       

@@ -16,6 +16,7 @@ public class UI_Talk : MonoBehaviour
     //public BoxCollider dialouge_collider;
     private bool dialouge=false;
     public GameObject DialogueCan;
+    GameObject player;
 
     // Start is called before the first frame update
     private void Start()
@@ -32,7 +33,7 @@ public class UI_Talk : MonoBehaviour
     {
         // Change Sentence
         if(dialouge)
-            StartCoroutine(Talk());
+            StartCoroutine(Talk(player));
 
         if (stringChanger > chatText.Length)
         {
@@ -41,19 +42,20 @@ public class UI_Talk : MonoBehaviour
 
     }
 
-    IEnumerator Talk()
+    IEnumerator Talk(GameObject other)
     {
         DialogueCan.SetActive(true);
-        //int arrayChanger = chatText[stringChanger].Length;
         // Text Scroller
         dialogueText.text =CharachterName+ chatText[stringChanger];
         Debug.Log(stringChanger);
         if (Input.GetKeyDown(KeyCode.E))
         {
             Debug.Log("e");
-            stringChanger++;
+            stringChanger++;            
         }
-
+        Camera cam;
+        cam = other.GetComponentInChildren<Camera>();
+        cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, 40, 0.3f);//pull player closer to the character
         //Scroller Check
         if (stringChanger >= arrayLength)
         {
@@ -67,23 +69,26 @@ public class UI_Talk : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-
+        
         
         if (other.gameObject.name == "Player")
         {
             Debug.Log("in_talk");
             dialouge = true;
+            player = other.gameObject;
         }
     }
     private void OnTriggerExit(Collider other)
     {
-
+        Camera cam;
 
         if (other.gameObject.name == "Player")
         {
             Debug.Log("exit_talk");
             dialouge = false;
             DialogueCan.SetActive(false);
+            cam = other.GetComponentInChildren<Camera>();
+            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, 60, 0.3f);
         }
     }
 
