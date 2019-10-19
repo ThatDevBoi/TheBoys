@@ -8,7 +8,7 @@ public class Trash : MonoBehaviour
 
 
     // Variables
-    
+    public string chatText;
     // public float distanceToTalk;
     public Text dialogueText;
     //public BoxCollider dialouge_collider;
@@ -36,7 +36,7 @@ public class Trash : MonoBehaviour
     {
         DialogueCan.SetActive(true);
         // Text 
-        dialogueText.text = ("Pick up [E]");
+        dialogueText.text = chatText;
         
         if (Input.GetKeyDown(KeyCode.E))
         {

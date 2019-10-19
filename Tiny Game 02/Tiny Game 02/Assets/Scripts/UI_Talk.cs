@@ -45,45 +45,40 @@ public class UI_Talk : MonoBehaviour
     IEnumerator Talk(GameObject other)
     {
         DialogueCan.SetActive(true);
-        // Text Scroller
-        dialogueText.text =CharachterName+ chatText[stringChanger];
+        
         Debug.Log(stringChanger);
+        if (stringChanger <= arrayLength)
         if (Input.GetKeyDown(KeyCode.E))
-        {
-
-          
+        {         
             Debug.Log("e");
             stringChanger++;            
         }
-
-
+// Text Scroller
+        dialogueText.text =CharachterName+ chatText[stringChanger];
         other.transform.LookAt(this.transform);
         Camera cam;
         cam = other.GetComponentInChildren<Camera>();
         cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, 40, 0.3f);//pull player closer to the character
         
         //Scroller Check
-        if (stringChanger >= arrayLength)
-        {
-            yield return new WaitForSeconds(0.50f);
-            stringChanger = 0;
-        }
+        //if (stringChanger >= arrayLength)
+        //{
+        //    yield return new WaitForSeconds(10f);
+        //    stringChanger = 0;
+        //}
         yield break;
     }
 
     
 
     private void OnTriggerEnter(Collider other)
-    {
-        
-        
+    {       
         if (other.gameObject.name == "Player")
         {
             Debug.Log("in_talk");
             dialouge = true;
             player = other.gameObject;
         }
-
     }
     private void OnTriggerExit(Collider other)
     {
@@ -96,6 +91,7 @@ public class UI_Talk : MonoBehaviour
             DialogueCan.SetActive(false);
             cam = other.GetComponentInChildren<Camera>();
             cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, 60, 0.1f);
+            stringChanger = 0;
         }
     }
 
