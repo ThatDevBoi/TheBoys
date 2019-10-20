@@ -911,6 +911,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: FadIn
       objectReference: {fileID: 0}
+    - target: {fileID: 3087928440011292077, guid: c8ef7e54b6ce0ca4bb0fd542e7ebb601,
+        type: 3}
+      propertyPath: fadeTime
+      value: 0.08
+      objectReference: {fileID: 0}
     - target: {fileID: 3087928440011292075, guid: c8ef7e54b6ce0ca4bb0fd542e7ebb601,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -965,11 +970,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3087928440011292077, guid: c8ef7e54b6ce0ca4bb0fd542e7ebb601,
-        type: 3}
-      propertyPath: fadeTime
-      value: 0.08
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c8ef7e54b6ce0ca4bb0fd542e7ebb601, type: 3}

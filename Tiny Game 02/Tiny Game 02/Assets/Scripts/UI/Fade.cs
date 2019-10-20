@@ -4,46 +4,57 @@ using UnityEngine;
 
 public class Fade : MonoBehaviour
 {
-    public SpriteRenderer renderer;
+    public SpriteRenderer sprite_renderer;
     public string FadeFunction;
 
-    bool turnAssetsOff = false;
-    bool FadeIntoGame = false;
+    public bool turnAssetsOff = false;
+    public bool readyToFade = false;
+    public bool readyToDestroy = false;
 
-    public float fadeTime = 1f;
+    public float fadeTime = .08f;
     // Start is called before the first frame update
     void Start()
     {
-        renderer = GetComponent<SpriteRenderer>();
-        Color c = renderer.material.color;
+        sprite_renderer = GetComponent<SpriteRenderer>();
+        Color c = sprite_renderer.material.color;
         c.a = 0f;
-        renderer.material.color = c;
+        sprite_renderer.material.color = c;
 
         gameObject.name = FadeFunction;
     }
 
-    private void Update()
+    void Update()
     {
+        GameObject startMenu;
+        startMenu = GameObject.Find("StartMenu");
+        GameObject cubeSpawn;
+        cubeSpawn = GameObject.Find("Sube Spawner");
         // If we turn this Object off dont worry about it
-        if (GameObject.Find("StartMenu") == null)
+        if (startMenu == null)
             return;
-        if (GameObject.Find("Cube Spawner") == null)
+        if (cubeSpawn == null)
             return;
-
         // Turn off the bubble spawner and the startmenu
         if (turnAssetsOff)
         {
-            GameObject.Find("StartMenu").SetActive(false);
-            GameObject.Find("Cube Spawner").SetActive(false);
+            startMenu.SetActive(false);
+            cubeSpawn.SetActive(false);
         }
-
-        // FadeOut
-        if(turnAssetsOff)
+        else
         {
-            StartCoroutine(StartTheScene());
+            startMenu.SetActive(true);
+            cubeSpawn.SetActive(true);
         }
 
+    }
 
+    private void LateUpdate()
+    {
+        if (readyToFade)
+            StartCoroutine(StartTheScene());
+
+        if (readyToDestroy)
+            Destroy(gameObject, 2f);
     }
 
     public void StartFading()
@@ -60,10 +71,11 @@ public class Fade : MonoBehaviour
             case "FadeIn":
                 for (float f = .05f; f <= 1; f += .05f)
                 {
-                    Color c = renderer.material.color;
+                    Color c = sprite_renderer.material.color;
                     c.a = f;
-                    renderer.material.color = c;
+                    sprite_renderer.material.color = c;
                     turnAssetsOff = true;
+                    readyToFade = true;
                     yield return new WaitForSeconds(fadeTime);
                 }
                 break;
@@ -71,9 +83,9 @@ public class Fade : MonoBehaviour
             case "FadeOut":
                 for (float f = 1f; f >= -0.05f; f -= 0.05f)
                 {
-                    Color c = renderer.material.color;
+                    Color c = sprite_renderer.material.color;
                     c.a = f;
-                    renderer.material.color = c;
+                    sprite_renderer.material.color = c;
                     yield return new WaitForSeconds(fadeTime);
                 }
                 break;
@@ -84,6 +96,7 @@ public class Fade : MonoBehaviour
     {
         yield return new WaitForSeconds(2);
         StartCoroutine(FadeChoice("FadeOut"));
+        readyToDestroy = true;
         yield break;
     }
 
