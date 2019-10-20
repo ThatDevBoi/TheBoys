@@ -983,12 +983,7 @@ PrefabInstance:
     - target: {fileID: 5940425651796349941, guid: 405670c8ddfc9a244aae3a4f7f2516c0,
         type: 3}
       propertyPath: m_Name
-      value: Cube Spawner
-      objectReference: {fileID: 0}
-    - target: {fileID: 5940425651796349941, guid: 405670c8ddfc9a244aae3a4f7f2516c0,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
+      value: Bubble Spawner
       objectReference: {fileID: 0}
     - target: {fileID: 5940425651796349942, guid: 405670c8ddfc9a244aae3a4f7f2516c0,
         type: 3}
