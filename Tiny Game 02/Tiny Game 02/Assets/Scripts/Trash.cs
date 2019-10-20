@@ -40,7 +40,9 @@ public class Trash : MonoBehaviour
         
         if (Input.GetKeyDown(KeyCode.E))
         {
-            gameObject.SetActive(false);
+            Destroy(gameObject);
+            Trash_Spawner.maxTrash -= 1;
+            //gameObject.SetActive(false);
             dialouge = false;
             DialogueCan.SetActive(false);
         }
