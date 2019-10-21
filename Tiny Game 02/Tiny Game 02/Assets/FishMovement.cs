@@ -18,17 +18,26 @@ public class FishMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (gameObject.name == "Shark")
-            speed = 5;
-        if (gameObject.name == "Whale")
-            speed = 2;
-        if (gameObject.name == "SeaTurtle")
-            speed = 3;
-        if (gameObject.name == "Sea Horse")
-            speed = 6;
+<<<<<<< Updated upstream
+        //if (gameObject.name == "Shark")
+        //    speed = 5;
+        //if (gameObject.name == "Whale")
+        //    speed = 2;
+        //if (gameObject.name == "SeaTurtle")
+        //    speed = 3;
+        //if (gameObject.name == "Sea Horse")
+        //    speed = 6;
         // Random cooldown meter
         float nextTimeTimer = Random.Range(minNextTimeToRot, maxNextTimeToRot);
         cooldownMeter = nextTimeTimer;
+=======
+        //if (gameObject.name == "Shark")
+        //    speed = 5;
+        //if (gameObject.name == "Whale")
+        //    speed = 2;
+        //if (gameObject.name == "SeaTurtle")
+        //    speed = 3;
+>>>>>>> Stashed changes
     }
 
     // Update is called once per frame
@@ -48,8 +57,12 @@ public class FishMovement : MonoBehaviour
 
     void Movement()
     {
+<<<<<<< Updated upstream
         // Movement direction
         movedirection = Vector3.right;
+=======
+       // movedirection = Vector3.forward;
+>>>>>>> Stashed changes
         // move the object 
         transform.Translate(movedirection * speed);
 
