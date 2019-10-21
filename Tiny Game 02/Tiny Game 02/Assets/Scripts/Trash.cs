@@ -5,8 +5,6 @@ using UnityEngine.UI;
 
 public class Trash : MonoBehaviour
 {
-
-
     // Variables
     public string chatText;
     // public float distanceToTalk;
@@ -41,7 +39,10 @@ public class Trash : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.E))
         {
             Destroy(gameObject);
-            Trash_Spawner.maxTrash -= 1;
+            //Trash_Spawner.maxTrash -= 1;
+            Level_Manager lvl = GameObject.Find("Level Manager").GetComponent<Level_Manager>();
+            // Increase score by 1
+            lvl.trashScore += 1;
             //gameObject.SetActive(false);
             dialouge = false;
             DialogueCan.SetActive(false);

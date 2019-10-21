@@ -44,3 +44,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   StartMenu: {fileID: 0}
+  pauseMenu: {fileID: 0}
+  uiScore: {fileID: 0}
+  trashScore: 0

@@ -15,8 +15,8 @@ public class Trash_Spawner : MonoBehaviour
     // Trash Spawner Timers and logic
     float nextTimeToSpawn = 3f; // Next time we spawn a wave of trash
     float trashSpawnTime = 1f;  // How long it takes to spawn 1 object
-    float trashSpawnWait = 2f;  // How long we wait until we spawn another object
-    float trashCount = 5;   // How many objects we will spawn per waiting session
+    float trashSpawnWait = 0;  // How long we wait until we spawn another object
+    float trashCount = 100;   // How many objects we will spawn per waiting session
 
     // Value the game keeps in mind with how many pieces of trash are in the scene
     public static int maxTrash;
@@ -55,9 +55,9 @@ public class Trash_Spawner : MonoBehaviour
         // pick a random object
         GOchoice = Random.Range(randomGOChoiceMin, randomGOChoiceMax);
         // Spawn only if we are not at 10 trash in the scene yet
-        if (maxTrash < 10)
+        if (maxTrash < 100)
         {
-            // Spawn the trash
+            //Spawn the trash
             Instantiate(trashGOs[GOchoice], spawnPosition, Quaternion.identity);
             maxTrash += 1;  // increase value
         }

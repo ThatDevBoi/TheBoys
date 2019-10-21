@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 512394647127640696}
+  - component: {fileID: 1331656334}
   m_Layer: 0
   m_Name: Carboard Box
   m_TagString: Untagged
@@ -28,9 +29,25 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 7379982998976587893}
+  - {fileID: 8115994374773956868}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1331656334
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9081900686112194605}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b09f1a45be194a4184de88656dc8a44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  chatText: 'Pick Up Trash: [E]'
+  dialogueText: {fileID: 0}
+  DialogueCan: {fileID: 0}
 --- !u!1001 &2526593751064920943
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -108,6 +125,11 @@ PrefabInstance:
       propertyPath: m_LocalScale.z
       value: 0.25136814
       objectReference: {fileID: 0}
+    - target: {fileID: -1504981713932161579, guid: 9d26417c2cc3bb242b7f16167e8177ff,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 5428605f45d05fc478defbe2a1d0f75a, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9d26417c2cc3bb242b7f16167e8177ff, type: 3}
 --- !u!4 &7379982998976587893 stripped
@@ -115,4 +137,67 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -4216859302048453862, guid: 9d26417c2cc3bb242b7f16167e8177ff,
     type: 3}
   m_PrefabInstance: {fileID: 2526593751064920943}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &8115994374774412710
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 512394647127640696}
+    m_Modifications:
+    - target: {fileID: 172226, guid: f8b7625d440ef4db6b3ac63583af521a, type: 3}
+      propertyPath: m_Name
+      value: S_Bubbles_Water_R_S_Burst (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 472226, guid: f8b7625d440ef4db6b3ac63583af521a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 472226, guid: f8b7625d440ef4db6b3ac63583af521a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 472226, guid: f8b7625d440ef4db6b3ac63583af521a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 472226, guid: f8b7625d440ef4db6b3ac63583af521a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 472226, guid: f8b7625d440ef4db6b3ac63583af521a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 472226, guid: f8b7625d440ef4db6b3ac63583af521a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 472226, guid: f8b7625d440ef4db6b3ac63583af521a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 472226, guid: f8b7625d440ef4db6b3ac63583af521a, type: 3}
+      propertyPath: m_RootOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 472226, guid: f8b7625d440ef4db6b3ac63583af521a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 472226, guid: f8b7625d440ef4db6b3ac63583af521a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 472226, guid: f8b7625d440ef4db6b3ac63583af521a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: f8b7625d440ef4db6b3ac63583af521a, type: 3}
+--- !u!4 &8115994374773956868 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 472226, guid: f8b7625d440ef4db6b3ac63583af521a,
+    type: 3}
+  m_PrefabInstance: {fileID: 8115994374774412710}
   m_PrefabAsset: {fileID: 0}

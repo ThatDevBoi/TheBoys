@@ -8,12 +8,15 @@ public class Level_Manager : MonoBehaviour
     // Variables
     public Canvas StartMenu;
     public Canvas pauseMenu;
+
+    public Text uiScore;
+    public int trashScore = 0;
    
     public void Awake()
     {
         StartMenu = GameObject.Find("StartMenu").GetComponent<Canvas>();    // Find the start canvas in the scene
         pauseMenu = GameObject.Find("PauseMenu").GetComponent<Canvas>();    // Find the Pause menu canvas in the scene
-
+        uiScore = GameObject.Find("Game UI/Score").GetComponent<Text>();
         Time.timeScale = 0; // Pause the game while start menu is on screen
         pauseMenu.enabled = false;  // Turn off the pause menu as the game starts
         StartMenu.enabled = true;   // Turn on the start menu
@@ -34,6 +37,8 @@ public class Level_Manager : MonoBehaviour
         {
             PauseMenu();
         }
+        // Change the UI score
+        uiScore.text = "Score: " + trashScore;
         // Out of bounds check will go here
     }
 
