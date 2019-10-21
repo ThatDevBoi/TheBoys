@@ -31,6 +31,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2052713028
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5759993668730703478}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 034dbabf6dde8594c8ad6bfda6a2201e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fishAnim: {fileID: 0}
 --- !u!1001 &4381569982463350655
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -42,11 +55,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Simple_Fish W anim 02
-      objectReference: {fileID: 0}
-    - target: {fileID: -927199367670048503, guid: 51af984966dc16b4e8057a3885a99c63,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -6057140222963153312, guid: 51af984966dc16b4e8057a3885a99c63,
         type: 3}
@@ -110,6 +118,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 51af984966dc16b4e8057a3885a99c63, type: 3}
+--- !u!1 &5759993668730703478 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -927199367670048503, guid: 51af984966dc16b4e8057a3885a99c63,
+    type: 3}
+  m_PrefabInstance: {fileID: 4381569982463350655}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8769848099396369509 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -4216859302048453862, guid: 51af984966dc16b4e8057a3885a99c63,
