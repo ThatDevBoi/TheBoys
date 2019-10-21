@@ -259,7 +259,7 @@ GameObject:
   - component: {fileID: 4706107247991927033}
   - component: {fileID: 7718157867823611716}
   m_Layer: 5
-  m_Name: DialogueText
+  m_Name: TrashDialogueText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

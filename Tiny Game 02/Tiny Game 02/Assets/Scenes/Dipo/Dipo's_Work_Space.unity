@@ -669,7 +669,7 @@ PrefabInstance:
     - target: {fileID: 4175615409866733977, guid: 1982dfb69e276a941b2b4e8faffb95f3,
         type: 3}
       propertyPath: m_Name
-      value: DialogueCanvas (1)
+      value: TrashDialogueCanvas
       objectReference: {fileID: 0}
     - target: {fileID: 233840393390270806, guid: 1982dfb69e276a941b2b4e8faffb95f3,
         type: 3}
@@ -775,11 +775,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Pivot.y
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1455988504022179485, guid: 1982dfb69e276a941b2b4e8faffb95f3,
-        type: 3}
-      propertyPath: m_UiScaleMode
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1982dfb69e276a941b2b4e8faffb95f3, type: 3}
@@ -1223,7 +1218,7 @@ PrefabInstance:
     - target: {fileID: 4548269181530384221, guid: 274adf0bcff0c4e4183c17df957213af,
         type: 3}
       propertyPath: m_Name
-      value: Game UI
+      value: TrashCanvas
       objectReference: {fileID: 0}
     - target: {fileID: 4548269181530384209, guid: 274adf0bcff0c4e4183c17df957213af,
         type: 3}

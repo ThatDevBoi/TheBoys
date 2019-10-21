@@ -17,8 +17,11 @@ public class Trash : MonoBehaviour
     // Start is called before the first frame update
     private void Start()
     {
-        //DialogueCan = GameObject.Find("DialogueCanvas");
-        DialogueCan.SetActive(false);
+        DialogueCan = GameObject.Find("TrashDialogueCanvas");
+        dialogueText = GameObject.Find("TrashDialogueText").GetComponent<Text>();
+        Canvas dCanvas;
+        dCanvas = DialogueCan.GetComponent<Canvas>();
+        dCanvas.enabled = false;
     }
 
     // Update is called once per frame
@@ -32,7 +35,9 @@ public class Trash : MonoBehaviour
 
     void PickUp(GameObject other)
     {
-        DialogueCan.SetActive(true);
+        Canvas dCanvas;
+        dCanvas = DialogueCan.GetComponent<Canvas>();
+        dCanvas.enabled = true;
         // Text 
         dialogueText.text = chatText;
         
@@ -44,8 +49,8 @@ public class Trash : MonoBehaviour
             // Increase score by 1
             lvl.trashScore += 1;
             //gameObject.SetActive(false);
-            dialouge = false;
-            DialogueCan.SetActive(false);
+            dCanvas = DialogueCan.GetComponent<Canvas>();
+            dCanvas.enabled = false;
         }
         
         Camera cam;
@@ -74,7 +79,9 @@ public class Trash : MonoBehaviour
         {
             Debug.Log("exit_talk");
             dialouge = false;
-            DialogueCan.SetActive(false);
+            Canvas dCanvas;
+            dCanvas = DialogueCan.GetComponent<Canvas>();
+            dCanvas.enabled = false;
             cam = other.GetComponentInChildren<Camera>();
             cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, 60, 0.3f);
         }
