@@ -23,15 +23,21 @@ public class Trash_Spawner : MonoBehaviour
     // Where we store the positions of where we spawn the GameObjects on the x y and z
     Vector3 spawnPosition;
     // X spawn position boundaries
+    [SerializeField]
     float spawnPointMin_x = -480;
+    [SerializeField]
     float spawnPointMax_x = 480;
 
     // Y spawn position Boundaries
+    [SerializeField]
     float spawnPointMin_Y = 1;
+    [SerializeField]
     float spawnPointMax_Y = 80;
 
     // Z Spawn position Boundaries
+    [SerializeField]
     float spawnPointMin_Z = -480;
+    [SerializeField]
     float spawnPointMax_Z = 480;
     // Start is called before the first frame update
     void Start()
