@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3087928440011292076}
   - component: {fileID: 3087928440011292077}
   m_Layer: 0
-  m_Name: FadIn
+  m_Name: Fade
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -93,5 +93,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1a30ea65d9d95c43b1035c14f37349b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  renderer: {fileID: 0}
+  sprite_renderer: {fileID: 0}
   FadeFunction: FadeIn
+  turnAssetsOff: 0
+  readyToFade: 0
+  readyToDestroy: 0
+  fadeTime: 0.08
