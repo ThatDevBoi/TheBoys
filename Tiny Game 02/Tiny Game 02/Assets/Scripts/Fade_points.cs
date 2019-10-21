@@ -10,14 +10,17 @@ public class Fade_points : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        get_score=GetComponent<Level_Manager>();
-        
+        get_score=GetComponent<Level_Manager>();        
     }
 
     // Update is called once per frame
     void Update()
     {
-        fade_percentage = get_score.trashScore;
-        RenderSettings.fogDensity = 0.01f - (fade_percentage/100);        
+        if (fade_percentage != get_score.trashScore)
+        {
+            fade_percentage = get_score.trashScore;
+            RenderSettings.fogDensity = RenderSettings.fogDensity / fade_percentage;
+
+        }
     }
 }
