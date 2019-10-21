@@ -19,8 +19,10 @@ public class Fade_points : MonoBehaviour
         if (fade_percentage != get_score.trashScore)
         {
             fade_percentage = get_score.trashScore;
-            RenderSettings.fogDensity = RenderSettings.fogDensity / fade_percentage;
-
+            if (RenderSettings.fogDensity < 1)
+                RenderSettings.fogDensity = RenderSettings.fogDensity / fade_percentage;
+            else
+                RenderSettings.fogDensity = 0;
         }
     }
 }

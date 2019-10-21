@@ -15,10 +15,12 @@ public class Movement : MonoBehaviour
     private float startFOV=60f;
     private float speedFOV = 75f;
     public GameObject can;
+    CursorMode mycursor;
     private void Start()
     {
         RB_PC = GetComponent<Rigidbody>();
         Physics.gravity *= 0.1f;//reduced gravity for emulating underwater ambient
+        
     }
     private void Update()
     {
@@ -27,6 +29,8 @@ public class Movement : MonoBehaviour
 
     private void Move()
     {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
         float v = Input.GetAxis("Vertical");
         if (Input.GetKey(KeyCode.Space))
         {

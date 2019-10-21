@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Kathryn/Kathryn's_Work_Space.unity
+    guid: 46c500a4f14b4d340814a7fe7b95b51a
   m_configObjects: {}

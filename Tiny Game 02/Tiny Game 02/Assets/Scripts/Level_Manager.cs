@@ -17,6 +17,7 @@ public class Level_Manager : MonoBehaviour
    
     public void Awake()
     {
+
         StartMenu = GameObject.Find("StartMenu").GetComponent<Canvas>();    // Find the start canvas in the scene
         pauseMenu = GameObject.Find("PauseMenu").GetComponent<Canvas>();    // Find the Pause menu canvas in the scene
         endMenu = GameObject.Find("EndMenu").GetComponent<Canvas>();    // Find the end screen in the scene
@@ -24,7 +25,6 @@ public class Level_Manager : MonoBehaviour
         character = GameObject.Find("Player");  // Find the player in the scene
         character.GetComponent<Movement>().enabled = false;
         uiScore = GameObject.Find("Game UI/Score").GetComponent<Text>();
-        //Time.timeScale = 0; // Pause the game while start menu is on screen
         pauseMenu.enabled = false;  // Turn off the pause menu as the game starts
         StartMenu.enabled = true;   // Turn on the start menu
         endMenu.enabled = false;    // Turn off the end screen
@@ -53,13 +53,16 @@ public class Level_Manager : MonoBehaviour
             whale.SetActive(true);
             endMenu.enabled = true;
             character.GetComponent<Movement>().enabled = false;
+            Cursor.lockState = CursorLockMode.Confined;
+            Cursor.visible = true;
         }
         
     }
 
     public void StartGame()
     {
-        
+        Cursor.lockState = CursorLockMode.Confined;
+        Cursor.visible = true;
         character.GetComponent<Movement>().enabled = true;
         // Turn off the canvas
         StartMenu.enabled = false;
@@ -72,6 +75,8 @@ public class Level_Manager : MonoBehaviour
         character.GetComponent<Movement>().enabled = true;
         // Turn off the canvas
         pauseMenu.enabled = false;
+        Cursor.lockState = CursorLockMode.Confined;
+        Cursor.visible = true;
     }
 
     public void EndApplication()
@@ -83,6 +88,8 @@ public class Level_Manager : MonoBehaviour
     {
         character.GetComponent<Movement>().enabled = false;
         // Turn on the canvas
+        Cursor.lockState = CursorLockMode.Confined;
+        Cursor.visible = true;
         pauseMenu.enabled = true;
     }
 
