@@ -8,6 +8,9 @@ public class Level_Manager : MonoBehaviour
     // Variables
     public Canvas StartMenu;
     public Canvas pauseMenu;
+    public Canvas endMenu;
+    public GameObject character;
+    public GameObject whale;
 
     public Text uiScore;
     public int trashScore = 0;
@@ -16,10 +19,15 @@ public class Level_Manager : MonoBehaviour
     {
         StartMenu = GameObject.Find("StartMenu").GetComponent<Canvas>();    // Find the start canvas in the scene
         pauseMenu = GameObject.Find("PauseMenu").GetComponent<Canvas>();    // Find the Pause menu canvas in the scene
+        endMenu = GameObject.Find("EndMenu").GetComponent<Canvas>();    // Find the end screen in the scene
+        whale.SetActive(false);
+        character = GameObject.Find("Player");  // Find the player in the scene
+        character.GetComponent<Movement>().enabled = false;
         uiScore = GameObject.Find("Game UI/Score").GetComponent<Text>();
-        Time.timeScale = 0; // Pause the game while start menu is on screen
+        //Time.timeScale = 0; // Pause the game while start menu is on screen
         pauseMenu.enabled = false;  // Turn off the pause menu as the game starts
         StartMenu.enabled = true;   // Turn on the start menu
+        endMenu.enabled = false;    // Turn off the end screen
 
         // Debug
         if (StartMenu == null)
@@ -39,44 +47,47 @@ public class Level_Manager : MonoBehaviour
         }
         // Change the UI score
         uiScore.text = "Score: " + trashScore;
-        // Out of bounds check will go here
+
+        if (trashScore >= 10)
+        {
+            whale.SetActive(true);
+            endMenu.enabled = true;
+            character.GetComponent<Movement>().enabled = false;
+        }
+        
     }
 
     public void StartGame()
     {
-        // Change the time so the game will play
-        Time.timeScale = 1;
+        
+        character.GetComponent<Movement>().enabled = true;
         // Turn off the canvas
         StartMenu.enabled = false;
     }
 
-    public void RestartGame(string levelName)
-    {
-
-        //Reloads the scene
-        Application.LoadLevel(levelName);   // For use with out of bounds
-        
-    }
+    
 
     public void UnpauseGame()
     {
-        // Change the time so the game will play
-        Time.timeScale = 1;
+        character.GetComponent<Movement>().enabled = true;
         // Turn off the canvas
         pauseMenu.enabled = false;
     }
 
     public void EndApplication()
     {
-        EndApplication();
+        Application.Quit();
     }
 
     public void PauseMenu()
     {
-        // Change the time so the game will pause
-        Time.timeScale = 0;
+        character.GetComponent<Movement>().enabled = false;
         // Turn on the canvas
         pauseMenu.enabled = true;
     }
 
+    public void RestartGame(string levelName)
+    {
+        Application.LoadLevel(levelName);
+    }
 }
