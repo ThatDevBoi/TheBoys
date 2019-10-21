@@ -104,7 +104,7 @@ GameObject:
   - component: {fileID: 5940425651796349942}
   - component: {fileID: 5940425651796349943}
   m_Layer: 0
-  m_Name: Cube Spawner
+  m_Name: Bubble Spawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

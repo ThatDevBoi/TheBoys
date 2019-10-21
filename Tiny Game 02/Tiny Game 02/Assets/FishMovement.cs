@@ -5,12 +5,16 @@ using UnityEngine;
 public class FishMovement : MonoBehaviour
 {
     public float speed = 0;
-    public Vector3 movedirection;
-    public Quaternion rotateWhenMove;
-    public float minRotation = 10;
-    public float maxRotation = 50;
+    Vector3 movedirection;
 
+    private float minRotation = 10;
+    private float maxRotation = 50;
+
+    float minNextTimeToRot = 5;
+    float maxNextTimeToRot = 20;
     public float rotation_cooldown = 0;
+    // Value that changes rotation when another is greater than the value
+    float cooldownMeter;
     // Start is called before the first frame update
     void Start()
     {
@@ -20,6 +24,11 @@ public class FishMovement : MonoBehaviour
             speed = 2;
         if (gameObject.name == "SeaTurtle")
             speed = 3;
+        if (gameObject.name == "Sea Horse")
+            speed = 6;
+        // Random cooldown meter
+        float nextTimeTimer = Random.Range(minNextTimeToRot, maxNextTimeToRot);
+        cooldownMeter = nextTimeTimer;
     }
 
     // Update is called once per frame
@@ -27,10 +36,10 @@ public class FishMovement : MonoBehaviour
     {
         //transform.position += new Vector3(transform.position.x, transform.position.y, transform.forward.x * speed);
         Movement();
-
+        // Increase Value
         rotation_cooldown += Time.deltaTime;
 
-        if(rotation_cooldown > 6)
+        if(rotation_cooldown > cooldownMeter)
         {
             ObjectRotation();
             rotation_cooldown = 0;
@@ -39,6 +48,7 @@ public class FishMovement : MonoBehaviour
 
     void Movement()
     {
+        // Movement direction
         movedirection = Vector3.right;
         // move the object 
         transform.Translate(movedirection * speed);
@@ -49,8 +59,8 @@ public class FishMovement : MonoBehaviour
     {
         // Set up positive and negative rotation
         float plusRot = Random.Range(minRotation, maxRotation);
-
-        rotateWhenMove = new Quaternion(plusRot, gameObject.transform.rotation.y, transform.rotation.z, 0);
-        transform.rotation = rotateWhenMove;
+        float nextTimeTimer = Random.Range(minNextTimeToRot, maxNextTimeToRot);
+        cooldownMeter = nextTimeTimer;
+        transform.Rotate(transform.rotation.x, transform.rotation.y + plusRot, transform.rotation.z);
     }
 }
