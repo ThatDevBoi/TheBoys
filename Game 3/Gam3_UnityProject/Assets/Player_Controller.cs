@@ -20,6 +20,23 @@ public class Player_Controller : MonoBehaviour
     [HideInInspector]
     float xRotation = 0f;   // Value that monitors X Rotation keep it at 0 for default
     #endregion
+
+    // Ground check logic
+    public LayerMask groundCheckLayers;
+
+    // Weapon Shoot Logic
+    public Transform gun_firePoint;
+    public int gunRange;
+    // Max ammo in 1 magazine
+    public int maxAmmo = 12;
+    // current ammo that player has in the magazine
+    public int currentAmmo;
+    // the ammo the player has spare
+    public int backUpAmmo;
+    bool isReloading = false;
+    float reloadTime = 1f;
+    public LayerMask whatWeCanShoot;
+    public Animator gunAnimator;
     // Start is called before the first frame update
     void Start()
     {
@@ -27,6 +44,14 @@ public class Player_Controller : MonoBehaviour
         speed = 10;
         cameraRotationRate = 45f;
         xRotation = 0f;
+
+        // Gun
+        gunRange = 60;
+
+        currentAmmo = maxAmmo;
+
+        backUpAmmo = 90;
+
         #endregion
         #region IDE Set-Up
         // Add Rigidbody to this gameObject
@@ -41,7 +66,7 @@ public class Player_Controller : MonoBehaviour
         #endregion
         Cursor.lockState = CursorLockMode.Locked;
         #region Find Components
-        playersEyes = gameObject.transform.FindChild("Eyes/Main Camera").GetComponent<Transform>();
+        playersEyes = gameObject.transform.FindChild("Main Camera").GetComponent<Transform>();
         #endregion
         #region Debug Components
         if (playerPhysics == null)
@@ -57,7 +82,30 @@ public class Player_Controller : MonoBehaviour
     {
         // Functions
         FPSMove(speed, dirX, dirZ, movementDirection);
+        GunShoot();
+        if (Input.GetButtonDown("Jump"))
+            groundCheck();
 
+        if (currentAmmo <= 0 | Input.GetKeyDown(KeyCode.R) && !isReloading && currentAmmo > 0)
+            StartCoroutine(Reload());
+
+        if (isReloading)
+            return;
+    }
+
+    void FPSMove(float speed, float V, float H, Vector3 direction)
+    {
+        // Input
+        V = Input.GetAxis("Vertical");
+        H = Input.GetAxis("Horizontal");
+        // direction we are moving
+        direction = (transform.forward * V + (transform.right * H));
+        // Make the vector to the equal of 1
+        direction = direction.normalized * speed;
+        // move with physics
+        playerPhysics.velocity = direction * speed * Time.deltaTime;
+
+        // Camera Rotation Logic
         #region Fixed Camera Rotation
         // Input storage floats
         float mouseRotX;
@@ -83,16 +131,60 @@ public class Player_Controller : MonoBehaviour
         #endregion
     }
 
-    void FPSMove(float speed, float V, float H, Vector3 direction)
+    void groundCheck()
     {
-        // Input
-        V = Input.GetAxis("Vertical");
-        H = Input.GetAxis("Horizontal");
-        // direction we are moving
-        direction = (transform.forward * V + (transform.right * H));
-        // Make the vector to the equal of 1
-        direction = direction.normalized * speed;
-        // move with physics
-        playerPhysics.velocity = direction * speed * Time.deltaTime;
+        // Raycast Logic
+        RaycastHit hit;
+        float range = .5f;
+        if (Physics.Raycast(transform.position / 2, transform.TransformDirection(Vector3.down), out hit, range, groundCheckLayers))
+        {
+            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.down) * hit.distance, Color.green);
+            if (hit.collider != null)
+            {
+                playerPhysics.AddForce(transform.TransformDirection(Vector3.up * 1600));
+            }
+            else
+                return;
+        }
+    }
+
+    void GunShoot()
+    {
+        // Physics Driven
+        RaycastHit Hit;
+        if(Physics.Raycast(gun_firePoint.transform.position, gun_firePoint.transform.TransformDirection(Vector3.forward), out Hit, gunRange, whatWeCanShoot))
+        {
+            if(Input.GetButtonDown("Fire1"))
+            {
+                // Decrease Ammo
+                currentAmmo--;
+                Debug.Log("Hit Shit");
+                Debug.DrawRay(gun_firePoint.transform.position, gun_firePoint.TransformDirection(Vector3.forward) * Hit.distance, Color.red);
+            }
+        }
+    }
+
+    IEnumerator Reload()
+    {
+        isReloading = true;
+        Debug.Log("Reloading. . . .");
+        gunAnimator.SetBool("isReloading", true);
+
+        yield return new WaitForSeconds(reloadTime - .25f);
+        gunAnimator.SetBool("isReloading", false);
+        yield return new WaitForSeconds(.25f);
+        isReloading = false;
+ 
+        var shot = maxAmmo - currentAmmo;
+        if(backUpAmmo < shot)
+        {
+            currentAmmo = backUpAmmo;
+            backUpAmmo = 0;
+        }
+        else
+        {
+            currentAmmo += shot;
+            backUpAmmo -= shot;
+        }
     }
 }
