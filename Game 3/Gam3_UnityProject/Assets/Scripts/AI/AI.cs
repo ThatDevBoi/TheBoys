@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class AI : MonoBehaviour
 {
+    #region AI Variables
     // Game stats 
     #region AI Behaviour
     // AI States
@@ -11,48 +12,82 @@ public class AI : MonoBehaviour
     // Start state is dormant
     public NPC_States states = NPC_States.Dormant;
     // Switch values of logic when this value increases or decreases
-    public int typeOfState = 0;
-    public bool PCSeen = false;
-    #endregion
-
-    #region Move Logic
-    // Where the NPC will move
-    private Vector3 moveDirection;
-    // How fast the AI Will move
-    public float objectSpeed = 5;
-    private Rigidbody AI_Physics;
-    private CapsuleCollider AI_Collider;
+    [SerializeField]    // Remove after debugging
+    private int typeOfState = 0;    // Cant edit
+    [SerializeField]    // Remove after debugging
+    private bool PCSeen = false;    // Cant edit 
     #endregion
 
     #region Values of logic
-    // Value increases when alert (Its a timer)
-    private float playerInSight = 0;
     // Timers which balance the states of play for NPCs
+    // This value meets a random generated value which allows for the NPC to look for the player
     [SerializeField]
-    private float HuntingTime = 0;
+    private float HuntingTime = 0;  // Cant edit
+    // Value that agrees or disagrees if the ai is hunting
+    private float TimeUntilHunting = 2;
+    private float TimeUntilAlerted = 3;
+    // The time that meets the random alert time
+    // Its so the NPC can Behave alerted until the player is gone and hidden
     [SerializeField]
-    private float AlertedTime = 0;
+    private float AlertedTime = 0;  // Cant Edit
+    // How long the player can be within vision until the AI is alert
+    [SerializeField]
+    private float playerTimeInSight = 0;  // Cannot Edit
     #endregion
 
     #region Movement Logic
-    // Home 
-    Vector3 startPosition;
+    // AI Home (Its First Start Position)
+    Vector3 startPosition;  // Cannot edit
     [SerializeField]
-    public float rotationRate = 2.0f;
-
-    int walkArrayScroller = 0;  // Scroll through the movement array
-    public Vector3[] whereTheAiGoes;    // Set where the AI Goes
+    // Rate we rotate at
+    private float rotationRate = 45;
+    // Scroll through the main array for different movement positions
+    int walkArrayScroller = 0;  // Cant Edit
+    // Main array that we are going to change overtime
+    public Vector3[] whereTheAiGoes;    // Can Edit
     #endregion
 
-    #region Cone Of Sight Variables
-    private Transform playerPosition;
-    private int viewDistance = 60;  // Range
-    private int fieldOfView = 45;
-    private Vector3 rayDirection;
-    #region Ray Logics
-    public LayerMask AI_Detections;
+    #region Random Behaviour Time Values
+    // Random values to meet
+    [SerializeField]
+    public float random_Alert_Value;    // Cant Edit
+    [SerializeField]
+    public float random_Hunt_Value;     // Cant Edit
+    #endregion
+
+    #region Detecting walls
+    // If the rays return something then we have to avoid the wall
+    public bool wallDetected = false; // Can Edit
+    #region The Angle we have made with rays Values
+    public Vector3 frontSensorPosition = new Vector3(0f, 0.2f, 0.5f);   // Can Edit
+    // Left and right sensors at the front Edit to change positions of the rays
+    public float frontSideSensorPosition = 0.2f;    // Can Edit
+    // Angle Position 
+    public float frontsensorAngle = 30f;    // Can Edit
     #endregion
     #endregion
+
+    #region Cone Of Sight Variables 
+    private Transform playerPosition;   // Cant Edit
+    public int viewDistance = 60;  // Can Edit
+    public int fieldOfView = 45;    // Can Edit 
+    private Vector3 rayDirection;   // Cant edit (Re Visit)
+    public LayerMask AI_Detections; // Can Edit
+    #endregion
+
+    #region Movement
+    // Where the NPC will move
+    private Vector3 moveDirection;  // Cant Edit
+     // How fast the AI Will move
+    public float objectSpeed = 5;   // Can Edit
+    // The Physics we can manipulate
+    private Rigidbody AI_Physics;   // Cant Edit
+    // Collision we want 
+    private CapsuleCollider AI_Collider;    // Cant edit
+    #endregion
+    #endregion
+
+    #region Start
     // Start is called before the first frame update
     void Start()
     {
@@ -70,17 +105,19 @@ public class AI : MonoBehaviour
         // Home position
         startPosition = new Vector3(transform.position.x, transform.position.y, transform.position.z);
         // Value settings
-        objectSpeed = 5f;
+        //objectSpeed = .5f;
         viewDistance = 60;
         fieldOfView = 45;
         #endregion
 
-        #region Finding Objects.Components
+        #region Finding Objects Components
         // Find the component that belongs to player
         playerPosition = GameObject.Find("PC").GetComponent<Transform>();
         #endregion
     }
+    #endregion
 
+    #region Update
     // Update is called once per frame
     void Update()
     {
@@ -96,35 +133,90 @@ public class AI : MonoBehaviour
         #endregion
         // Functions
         ConeView(); // We always want to draw the rays that will detect the player
-        //StartCoroutine(AI_Movement());
+        StartCoroutine(AI_Movement());
 
+        // Rotation debugging logic // Delete after everything works
         #region Remove After the logic works
-        if (!PCSeen)
+        //if (!PCSeen)
+        //{
+        //    rotationRate = 2;
+        //    gameObject.transform.Rotate(Vector3.up * rotationRate);
+        //}
+        //else
+        //{
+        //    rotationRate = 0;   // Set to 0 so we have the affect of vision
+        //    gameObject.transform.Rotate(Vector3.up * rotationRate);
+        //}
+        #endregion
+
+        #region Behaviour Conditions
+        // if the player is within view of the AI
+        if (PCSeen)
         {
-            rotationRate = 2;
-            gameObject.transform.Rotate(Vector3.up * rotationRate);
+            // Alert Logic
+            // We count up the Player In Sight Value
+            playerTimeInSight += Time.deltaTime;
+            // If the detection value is greater than the time it takes to detect
+            if (playerTimeInSight > TimeUntilAlerted)
+            {
+                playerTimeInSight = 0;  // reset the value
+                typeOfState = 2;
+                Randomizer();
+            }
+
+            if (playerTimeInSight > TimeUntilHunting)
+            {
+                typeOfState = 1;
+                Randomizer();
+            }
         }
-        else
+        // However
+        else if (!PCSeen)
         {
-            rotationRate = 0;   // Set to 0 so we have the affect of vision
-            gameObject.transform.Rotate(Vector3.up * rotationRate);
+            playerTimeInSight = 0;
+            PCSeen = false;
+        }
+        // Hunting
+        if (typeOfState == 1)
+        {
+            Debug.Log(NPC_States.Hunting + ":" + "I'm Now Hunting The Player");
+            HuntingTime += Time.deltaTime;
+            if (HuntingTime > random_Hunt_Value)
+            {
+                random_Hunt_Value = 0;
+                HuntingTime = 0;
+                typeOfState = 0;
+            }
+        }
+
+        // Alert
+        if (typeOfState == 2)
+        {
+            Debug.Log(NPC_States.Alert + ":" + "I'm Now Alerted and Will Hurt The Player . . .");
+            AlertedTime += Time.deltaTime;
+            if (AlertedTime > random_Alert_Value)
+            {
+                random_Alert_Value = 0;
+                AlertedTime = 0;
+                typeOfState = 0;
+            }
         }
         #endregion
 
-        if (PCSeen)
-            AlertedTime += Time.deltaTime;
-
-        if (AlertedTime > 5)
+        #region Timer Stoppers
+        if (states == NPC_States.Alert)
         {
-            states = NPC_States.Alert;
-            Debug.Log(NPC_States.Alert + ":" + "I'm Now Alerted and Will Hurt The Player . . .");
+            playerTimeInSight = 0;
         }
+        #endregion
     }
+    #endregion
 
     // The View of the AIs priferal sight
+    #region Cone View Function
     void ConeView()
     {
-       
+        #region Cone View
         // Hit logic for the array itself
         RaycastHit hit;
         // Vector that knows the difference from the players position and the current position of gameObject
@@ -157,116 +249,225 @@ public class AI : MonoBehaviour
         Debug.DrawLine(transform.position, rightRayPoint, Color.green);
         Physics.Raycast(transform.position, transform.TransformDirection(frontRaypoint + rightRayPoint + leftRayPoint), out hit, viewDistance, AI_Detections);
         #endregion
+
+        #endregion
+
         // Value that holds the angle we want to detect
         float angle = Vector3.Angle(rayDirection, transform.forward);
         if (angle < fieldOfView * 0.5f)  // If the angle is less than the field of view 
         {
-            #region Is Player Behind a wall
+            #region Is Player Behind a wall / Detecting the player
             // Condition that checks where the ray is going from point A to point B
             if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, viewDistance))
             {
                 // Do we hit the players layer??
                 if (hit.transform.gameObject.layer == 10)
-                    PCSeen = true;  // Yeah we see the player
-                else
-                    PCSeen = false;     // No so we dont see the player
-
+                    PCSeen = true;
             }
+            else
+                // if we dont hit the player then we cant see them
+                PCSeen = false;
             #endregion
         }
+
+        #region Obsticle Detection
+        Vector3 sensorStartPos = transform.position;
+        sensorStartPos += transform.forward * frontSensorPosition.z;
+        sensorStartPos += transform.up * frontSensorPosition.y;
+        float avoidMultiplier = 0;
+        wallDetected = false;
+        
+        // front right sensor
+        sensorStartPos += transform.right * frontSideSensorPosition;
+        if(Physics.Raycast(sensorStartPos, transform.forward, out hit, viewDistance))
+        {
+            if (hit.collider.CompareTag("Obsticle"))
+            {
+                Debug.DrawLine(sensorStartPos, hit.point);
+                Debug.Log("Front Right Sensor Hit");
+                wallDetected = true;
+                avoidMultiplier -= 1f;
+                Debug.Log("Front Right Sensor Value" + ":" + avoidMultiplier);
+            }
+        }
+        
+        // front right angle sensor
+        else if(Physics.Raycast(sensorStartPos, Quaternion.AngleAxis(frontsensorAngle, transform.up) * transform.forward, out hit, viewDistance))
+        {
+            if (hit.collider.CompareTag("Obsticle"))
+            {
+                Debug.DrawLine(sensorStartPos, hit.point);
+                Debug.Log("Front Right Angle Sensor Hit");
+                wallDetected = true;
+                avoidMultiplier -= 0.5f;
+                Debug.Log("Front Right Angle Sensor Value" + ":" + avoidMultiplier);
+            }
+        }
+
+        // front left sensor 
+        sensorStartPos -= transform.right * frontSideSensorPosition * 2;
+        if (Physics.Raycast(sensorStartPos, transform.forward, out hit, viewDistance))
+        {
+            if (hit.collider.CompareTag("Obsticle"))
+            {
+                Debug.DrawLine(sensorStartPos, hit.point);
+                Debug.Log("Front Left Sensor Hit");
+                wallDetected = true;
+                avoidMultiplier += 1;
+                Debug.Log("Front Left Sensor Value" + ":" + avoidMultiplier);
+            }
+        }
+        
+        // front left angle sensor
+        if (Physics.Raycast(sensorStartPos, Quaternion.AngleAxis(-frontsensorAngle, transform.up) * transform.forward, out hit, viewDistance))
+        {
+            if (hit.collider.CompareTag("Obsticle"))
+            {
+                Debug.DrawLine(sensorStartPos, hit.point);
+                Debug.Log("Front Left Angle Sensor Hit");
+                wallDetected = true;
+                avoidMultiplier += 0.5f;
+                Debug.Log("Front Left Angle Sensor Value" + ":" + avoidMultiplier);
+            }
+        }
+
+        // Front Centre Senser
+        if(avoidMultiplier == 0)
+        {
+            if (Physics.Raycast(sensorStartPos, transform.forward, out hit, viewDistance))
+            {
+                if (hit.collider.CompareTag("Obsticle"))
+                {
+                    Debug.DrawLine(sensorStartPos, hit.point);
+                    Debug.Log("Front Centre Hit");
+                    wallDetected = true;
+                    if (hit.normal.x < 0)
+                    {
+                        avoidMultiplier = -1f;
+                        Debug.Log("Front Centre Senser Value" + ":" + avoidMultiplier);
+                    }
+                    else
+                    {
+                        avoidMultiplier = 1;
+                        Debug.Log("Front Centre Senser Value" + ":" + avoidMultiplier);
+                    }
+                }
+            }
+        }
+
+
+        if (wallDetected)
+        {
+            // Insert Logic
+            gameObject.transform.Rotate(Vector3.up * rotationRate);
+            //
+        }
+
+        #endregion
     }
+    #endregion
 
-    void AI_Behaviour()
-    {
-        if(states == NPC_States.Dormant)
-        {
-            
-
-            // Movement
-
-            // Find a good way to move
-            // Move between values near the AI
-        }
-
-        if (states == NPC_States.Hunting)
-        {
-            // Allow for different movement
-            // Move towards the recorded alerted area
-            // Start to look around 
-            // Wait for a value to reach a randomly generated one
-            // change gamestate again
-        }
-
-        if(states == NPC_States.Alert)
-        {
-            // Follow player
-            // When player is not in sight or hidden again
-            // Hunt the player but always be close to the player (Gives illusion of still alerted)
-            // When a value reaches a point then go back to dormant attitudes
-        }
-    }
-
+    #region Time Behaviour Lasts
     void Randomizer()
     {
-        #region Note
-        // typeOfState = 0 = Dormant
-        // typeOfState = 1 = Hunting
-        // typeOfState = 2 = Alerted
-        #endregion
-        switch (typeOfState)
-        {
+            #region Note
+            // typeOfState = 0 = Dormant
+            // typeOfState = 1 = Hunting
+            // typeOfState = 2 = Alerted
+            #endregion
+            switch (typeOfState)
+            {
+            #region Dormant
             case 0:
-                Debug.Log(gameObject.transform.name + ":" + "Dormant . . .");
+                    // Reset everything when the AI goes from Hunting to Dormant || Alert to Dormant
+                    Debug.Log(gameObject.transform.name + ":" + "Dormant . . .");
+                    random_Hunt_Value = 0;
+                    random_Alert_Value = 0;
+                    HuntingTime = 0;
+                    AlertedTime = 0;
+                    break;
+            #endregion
 
-            break;
-
+            #region Hunting
             case 1:
-                // We are hunting we set random values so the AI can hunt until the value is met. 
-                Debug.Log(gameObject.transform.name + ":" + "Hunting . . .");
-                // We randomise the Hunting to - Dormant so the NPC does whatever until the valid time
-                float minHuntTime = 10;
-                float maxHuntTIme = 20;
-                // Randomise the value
-                float randomHuntValue = Random.Range(minHuntTime, maxHuntTIme);
+                    // We are hunting we set random values so the AI can hunt until the value is met. 
+                    Debug.Log(gameObject.transform.name + ":" + "Hunting . . .");
+                    AlertedTime = 0;
+                    random_Alert_Value = 0;
+                    // We randomise the Hunting to - Dormant so the NPC does whatever until the valid time
+                    float minHuntTime = 10;
+                    float maxHuntTIme = 20;
+                    // Randomise the value
+                    random_Hunt_Value = Random.Range(minHuntTime, maxHuntTIme);
+                    break;
+            #endregion
 
-                /// Insert Logic to change vector destinations to positions near the player but not follow
-                break;
-
+            #region Alerted
             case 2:
-                // Get A Random Value when we pass the value then we allow the AI to go back to its home and becomes dormant
-                Debug.Log(gameObject.transform.name + ":" + "Alerted . . .");
-                float minAlertTime = 20;
-                float maxAlertTime = 40;
-                float RandomAlertValue = Random.Range(minAlertTime, maxAlertTime);
-                break;
-        }
+                    // Get A Random Value when we pass the value then we allow the AI to go back to its home and becomes dormant
+                    Debug.Log(gameObject.transform.name + ":" + "Alerted . . .");
+                    HuntingTime = 0;
+                    random_Hunt_Value = 0;
+                    float minAlertTime = 20;
+                    float maxAlertTime = 40;
+                    // Generate random alert value
+                    random_Alert_Value = Random.Range(minAlertTime, maxAlertTime);
+                    break;
+            #endregion
+            }
     }
+    #endregion
 
-    void AvoidObsticles()
-    {
-
-    }
-
+    #region Movement Logic
     IEnumerator AI_Movement()
     {
-        // This moves the object forward we want to move the object where we tell it to go
-        moveDirection = Vector3.forward;
-        moveDirection = moveDirection.normalized * objectSpeed;
-        AI_Physics.velocity = moveDirection * objectSpeed * Time.deltaTime;
+        moveDirection = (transform.forward * objectSpeed);
+        // Make sure we always set the start position
+        whereTheAiGoes[0] = startPosition;
 
-        if (PCSeen)
+        // Simple dormant movement (Works)
+        #region Dormant Movement
+        if (states == NPC_States.Dormant)
         {
-            yield return new WaitForEndOfFrame();
-            moveDirection = Vector3.zero;
+            moveDirection = whereTheAiGoes[walkArrayScroller];
+            if (Vector3.Distance(moveDirection, transform.position) < 3)
+            {
+                walkArrayScroller++;
+                if (walkArrayScroller >= whereTheAiGoes.Length)
+                {
+                    walkArrayScroller = 0;
+                }
+                else
+                    transform.LookAt(whereTheAiGoes[walkArrayScroller]);
+            }
+            transform.position = Vector3.MoveTowards(transform.position, whereTheAiGoes[walkArrayScroller], Time.deltaTime * objectSpeed);
         }
+        #endregion
 
-        if (states == NPC_States.Alert)
+        #region Hunting Movement
+        if(states == NPC_States.Hunting)
         {
-            yield return new WaitForEndOfFrame();
-            // Replace this with a slow lerp
-
-            moveDirection = Vector3.MoveTowards(transform.position, playerPosition.position, objectSpeed * Time.deltaTime);
+            // Store the default movement directions for dormant behaviour
+            Vector3[] storage = whereTheAiGoes;
+            moveDirection = (transform.forward * objectSpeed);
+            whereTheAiGoes[0] = startPosition;
+            // SET UP NOW POSITIONS TO MOVE TOWARDS
+            moveDirection = whereTheAiGoes[walkArrayScroller];
+            // Set-Up new movement logic
+            moveDirection = (transform.forward + playerPosition.position);
+            yield return new WaitForSeconds(1);
+            Debug.Log("I'm Hunting Now");
         }
+        #endregion
+
+        #region Alert Movement
+        if(states == NPC_States.Alert)
+        {
+         //   transform.LookAt(playerPosition.position);
+            transform.position = Vector3.MoveTowards(transform.position, playerPosition.position, Time.deltaTime * objectSpeed);
+        }
+        #endregion
         yield break;
     }
+    #endregion
 }

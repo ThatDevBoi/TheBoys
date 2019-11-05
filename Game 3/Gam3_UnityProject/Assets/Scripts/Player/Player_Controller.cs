@@ -84,8 +84,8 @@ public class Player_Controller : MonoBehaviour
         // Functions
         FPSMove(speed, dirX, dirZ, movementDirection);
         GunShoot();
-        if (Input.GetButtonDown("Jump"))
-            groundCheck();
+        //if (Input.GetButtonDown("Jump"))
+        //    groundCheck();
 
         if (currentAmmo <= 0 | Input.GetKeyDown(KeyCode.R) | currentAmmo <=0)
             StartCoroutine(Reload());
@@ -132,22 +132,23 @@ public class Player_Controller : MonoBehaviour
         #endregion
     }
 
-    void groundCheck()
-    {
-        // Raycast Logic
-        RaycastHit hit;
-        float range = .5f;
-        if (Physics.Raycast(transform.position / 2, transform.TransformDirection(Vector3.down), out hit, range, groundCheckLayers))
-        {
-            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.down) * hit.distance, Color.green);
-            if (hit.collider != null)
-            {
-                playerPhysics.AddForce(transform.TransformDirection(Vector3.up * 1600));
-            }
-            else
-                return;
-        }
-    }
+    // Jump Logic
+    //void groundCheck()
+    //{
+    //    // Raycast Logic
+    //    RaycastHit hit;
+    //    float range = .5f;
+    //    if (Physics.Raycast(transform.position / 2, transform.TransformDirection(Vector3.down), out hit, range, groundCheckLayers))
+    //    {
+    //        Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.down) * hit.distance, Color.green);
+    //        if (hit.collider != null)
+    //        {
+    //            playerPhysics.AddForce(transform.TransformDirection(Vector3.up * 1600));
+    //        }
+    //        else
+    //            return;
+    //    }
+    //}
 
     void GunShoot()
     {
