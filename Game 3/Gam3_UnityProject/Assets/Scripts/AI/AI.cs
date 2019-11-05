@@ -86,6 +86,10 @@ public class AI : MonoBehaviour
     private CapsuleCollider AI_Collider;    // Cant edit
     #endregion
     #endregion
+    public GameObject bulletObject;
+    public Transform BulletHeard;
+    public bool heardNoise;
+    public float changer = 0f;
 
     #region Start
     // Start is called before the first frame update
@@ -113,6 +117,7 @@ public class AI : MonoBehaviour
         #region Finding Objects Components
         // Find the component that belongs to player
         playerPosition = GameObject.Find("PC").GetComponent<Transform>();
+        BulletHeard = null;
         #endregion
     }
     #endregion
@@ -131,9 +136,37 @@ public class AI : MonoBehaviour
         if (typeOfState == 2)
             states = NPC_States.Alert;
         #endregion
+
         // Functions
         ConeView(); // We always want to draw the rays that will detect the player
-        StartCoroutine(AI_Movement());
+        // !! May need to be changed later !!
+        if (heardNoise == false)
+        {
+            StartCoroutine(AI_Movement());
+        }
+        else if(heardNoise == true)
+            StopCoroutine(AI_Movement());
+
+        if (bulletObject = GameObject.Find("Bullet_Sound_Position"))
+        {
+            BulletHeard = bulletObject.GetComponent<Transform>();
+            heardNoise = true;
+            transform.LookAt(BulletHeard.position);
+            transform.position = Vector3.MoveTowards(transform.position, BulletHeard.transform.position, Time.deltaTime * objectSpeed);
+        }
+        if(heardNoise == true)
+        {
+            changer += Time.deltaTime;
+            if (changer > 5)
+            {
+                Destroy(bulletObject);
+                changer = 0;
+                heardNoise = false;
+                // change this with a slerp rotation 
+                transform.LookAt(whereTheAiGoes[walkArrayScroller]);
+            }
+        }
+
 
         // Rotation debugging logic // Delete after everything works
         #region Remove After the logic works
@@ -421,7 +454,6 @@ public class AI : MonoBehaviour
     #region Movement Logic
     IEnumerator AI_Movement()
     {
-        moveDirection = (transform.forward * objectSpeed);
         // Make sure we always set the start position
         whereTheAiGoes[0] = startPosition;
 
@@ -447,16 +479,13 @@ public class AI : MonoBehaviour
         #region Hunting Movement
         if(states == NPC_States.Hunting)
         {
-            // Store the default movement directions for dormant behaviour
-            Vector3[] storage = whereTheAiGoes;
-            moveDirection = (transform.forward * objectSpeed);
-            whereTheAiGoes[0] = startPosition;
-            // SET UP NOW POSITIONS TO MOVE TOWARDS
-            moveDirection = whereTheAiGoes[walkArrayScroller];
-            // Set-Up new movement logic
-            moveDirection = (transform.forward + playerPosition.position);
-            yield return new WaitForSeconds(1);
             Debug.Log("I'm Hunting Now");
+            Vector3 playerPosCurrently = playerPosition.position;
+            float playerpos = playerPosCurrently.magnitude;
+            // We see the players current Position
+            Debug.Log("Player Position:" + playerPosCurrently);
+            float maxStalk = Random.Range(playerpos, playerpos);
+            transform.position = Vector3.MoveTowards(transform.position, playerPosCurrently * maxStalk, Time.deltaTime * objectSpeed);
         }
         #endregion
 

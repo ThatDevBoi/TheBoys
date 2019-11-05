@@ -38,6 +38,9 @@ public class Player_Controller : MonoBehaviour
     float reloadTime = 1f;
     public LayerMask whatWeCanShoot;
     public Animator gunAnimator;
+    public AudioSource PistolShoot;
+
+    public GameObject BulletPosition;
     // Start is called before the first frame update
     void Start()
     {
@@ -158,9 +161,12 @@ public class Player_Controller : MonoBehaviour
         {
             if(Input.GetButtonDown("Fire1"))
             {
+                PistolShoot.Play();
+                GameObject BulletShot = Instantiate(BulletPosition, gun_firePoint.position, Quaternion.identity) as GameObject;
+                BulletShot.name = "Bullet_Sound_Position";
                 // Decrease Ammo
                 currentAmmo--;
-                Debug.Log("Hit Shit");
+                Debug.Log("Hit" + Hit.transform.name);
                 Debug.DrawRay(gun_firePoint.transform.position, gun_firePoint.TransformDirection(Vector3.forward) * Hit.distance, Color.red);
             }
         }
