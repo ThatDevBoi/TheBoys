@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEditor;
 public class Player_Controller : MonoBehaviour
 {
     // Components
@@ -41,6 +41,7 @@ public class Player_Controller : MonoBehaviour
     public AudioSource PistolShoot;
 
     public GameObject BulletPosition;
+
     // Start is called before the first frame update
     void Start()
     {

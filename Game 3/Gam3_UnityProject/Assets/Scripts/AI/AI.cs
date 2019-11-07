@@ -255,7 +255,7 @@ namespace AI_Logic
             rayDirection = playerPosition.position - transform.position;
 
             // Point a ray at the players position
-            Debug.DrawLine(transform.position, playerPosition.position, Color.red);
+           // Debug.DrawLine(transform.position, playerPosition.position, Color.red);
             // The position of where the front ray will be
             Vector3 frontRaypoint = transform.position + (transform.forward * viewDistance);
 
