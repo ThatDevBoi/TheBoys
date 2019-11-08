@@ -10,13 +10,17 @@ public class Player_Controller : MonoBehaviour
     private Transform playersEyes; // Player Camera
 
     #region Player Move
-    public float speed = 10;
+    [Header("Player Movement")]
+    private float speed;
+    public float runSpeed = 30;
+    public float currentSpeed = 20;
     float dirX;
     float dirZ;
     Vector3 movementDirection;
     #endregion
 
     #region mouse Rotation
+    [Header("Mouse Rotation")]
     public float cameraRotationRate = 45;   // Rate we rotate at
     [HideInInspector]
     float xRotation = 0f;   // Value that monitors X Rotation keep it at 0 for default
@@ -26,6 +30,8 @@ public class Player_Controller : MonoBehaviour
     public LayerMask groundCheckLayers;
 
     // Weapon Shoot Logic
+    // Maybe this should go on the gun so different guns behave differently
+    [Header("Gun Mechanics")]
     public Transform gun_firePoint;
     public int gunRange;
     // Max ammo in 1 magazine
@@ -40,21 +46,20 @@ public class Player_Controller : MonoBehaviour
     public Animator gunAnimator;
     public AudioSource PistolShoot;
 
+    // Object that spawns for AI
     public GameObject BulletPosition;
 
     // Start is called before the first frame update
     void Start()
     {
         #region Values SetUp
-        speed = 20;
+        speed = currentSpeed;
         cameraRotationRate = 45f;
         xRotation = 0f;
         gameObject.layer = 10;
         // Gun
         gunRange = 60;
-
         currentAmmo = maxAmmo;
-
         backUpAmmo = 90;
 
         #endregion
@@ -70,6 +75,7 @@ public class Player_Controller : MonoBehaviour
         playerCollision.radius = 0.5f;
         #endregion
         Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = true;
         #region Find Components
         playersEyes = gameObject.transform.FindChild("Main Camera").GetComponent<Transform>();
         #endregion
@@ -88,8 +94,6 @@ public class Player_Controller : MonoBehaviour
         // Functions
         FPSMove(speed, dirX, dirZ, movementDirection);
         GunShoot();
-        //if (Input.GetButtonDown("Jump"))
-        //    groundCheck();
 
         if (currentAmmo <= 0 | Input.GetKeyDown(KeyCode.R) | currentAmmo <=0)
             StartCoroutine(Reload());
@@ -103,10 +107,20 @@ public class Player_Controller : MonoBehaviour
         // Input
         V = Input.GetAxis("Vertical");
         H = Input.GetAxis("Horizontal");
+        float r = Input.GetAxis("Run");
         // direction we are moving
         direction = (transform.forward * V + (transform.right * H));
         // Make the vector to the equal of 1
         direction = direction.normalized * speed;
+        // Running
+        if (Input.GetAxis("Run") != 0)
+        {
+            
+            speed = runSpeed;
+        }
+        else
+            speed = currentSpeed;
+    
         // move with physics
         playerPhysics.velocity = direction * speed * Time.deltaTime;
 
@@ -152,7 +166,7 @@ public class Player_Controller : MonoBehaviour
     //        else
     //            return;
     //    }
-    //}
+    //} 
 
     void GunShoot()
     {

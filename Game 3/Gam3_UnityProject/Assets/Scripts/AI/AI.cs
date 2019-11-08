@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace AI_Logic
-{
     public class AI : MonoBehaviour
     {
         #region AI Behaviour
@@ -16,7 +14,7 @@ namespace AI_Logic
         [SerializeField]    // Remove after debugging
         private int typeOfState = 0;    // Cant edit
         [SerializeField]    // Remove after debugging
-        private bool PCSeen = false;    // Cant edit 
+        public bool PCSeen = false;    // Cant edit 
         #endregion
 
         #region Values of logic
@@ -100,10 +98,15 @@ namespace AI_Logic
         public float changer = 0f;
         public float wallDetectionRange = 5;
 
+        FieldOfView fov;
+
         #region Start
         // Start is called before the first frame update
         void Start()
         {
+            // Find the script
+            fov = this.gameObject.GetComponent<FieldOfView>();
+
             gameObject.layer = 11;
             #region IDE Component Set-Up
             // Component Set-Up
@@ -147,7 +150,7 @@ namespace AI_Logic
             #endregion
 
             // Functions
-            ConeView(); // We always want to draw the rays that will detect the player
+            //ConeView();  ||No Longer Needed||  // We always want to draw the rays that will detect the player
 
             #region Heard Noise
             // !! May need to be changed later !!
@@ -248,60 +251,64 @@ namespace AI_Logic
 
         // The View of the AIs priferal sight
         #region Cone View Function
-        void ConeView()
-        {
-            #region Cone View
-            // Vector that knows the difference from the players position and the current position of gameObject
-            rayDirection = playerPosition.position - transform.position;
+        //void ConeView()
+        //{
+        //// We dont need the rays as now we have the fov script which will detect if the player is in sight
+        //#region Dont need to use rays
+        //// #region Cone View
+        //// // Vector that knows the difference from the players position and the current position of gameObject
+        //// rayDirection = playerPosition.position - transform.position;
 
-            // Point a ray at the players position
-           // Debug.DrawLine(transform.position, playerPosition.position, Color.red);
-            // The position of where the front ray will be
-            Vector3 frontRaypoint = transform.position + (transform.forward * viewDistance);
+        //// // Point a ray at the players position
+        ////// Debug.DrawLine(transform.position, playerPosition.position, Color.red);
+        //// // The position of where the front ray will be
+        //// Vector3 frontRaypoint = transform.position + (transform.forward * viewDistance);
 
-            // Approximate perspective visualization
-            Vector3 leftRayPoint = frontRaypoint;
-            leftRayPoint.x += fieldOfView * 0.5f;
+        //// // Approximate perspective visualization
+        //// Vector3 leftRayPoint = frontRaypoint;
+        //// leftRayPoint.x += fieldOfView * 0.5f;
 
-            Vector3 rightRayPoint = frontRaypoint;
-            rightRayPoint.x -= fieldOfView * 0.5f;
+        //// Vector3 rightRayPoint = frontRaypoint;
+        //// rightRayPoint.x -= fieldOfView * 0.5f;
 
-            // DrawLines    
-            #region Front Ray Logic
-            Debug.DrawLine(transform.position, frontRaypoint, Color.green);
-            Physics.Raycast(transform.position, transform.TransformDirection(frontRaypoint), out hit, viewDistance, AI_Detections);
-            #endregion
+        //// // DrawLines    
+        //// #region Front Ray Logic
+        //// Debug.DrawLine(transform.position, frontRaypoint, Color.green);
+        //// Physics.Raycast(transform.position, transform.TransformDirection(frontRaypoint), out hit, viewDistance, AI_Detections);
+        //// #endregion
 
-            #region Left Ray Logic
-            Debug.DrawLine(transform.position, leftRayPoint, Color.green);
-            Physics.Raycast(transform.position, transform.TransformDirection(leftRayPoint), out hit, viewDistance, AI_Detections);
-            #endregion
+        //// #region Left Ray Logic
+        //// Debug.DrawLine(transform.position, leftRayPoint, Color.green);
+        //// Physics.Raycast(transform.position, transform.TransformDirection(leftRayPoint), out hit, viewDistance, AI_Detections);
+        //// #endregion
 
-            #region RightRay Logic
-            Debug.DrawLine(transform.position, rightRayPoint, Color.green);
-            Physics.Raycast(transform.position, transform.TransformDirection(frontRaypoint + rightRayPoint + leftRayPoint), out hit, viewDistance, AI_Detections);
-            #endregion
+        //// #region RightRay Logic
+        //// Debug.DrawLine(transform.position, rightRayPoint, Color.green);
+        //// Physics.Raycast(transform.position, transform.TransformDirection(frontRaypoint + rightRayPoint + leftRayPoint), out hit, viewDistance, AI_Detections);
+        //// #endregion
 
-            #endregion
+        //// #endregion
 
-            // Value that holds the angle we want to detect
-            float angle = Vector3.Angle(rayDirection, transform.forward);
-            if (angle < fieldOfView * 0.5f)  // If the angle is less than the field of view 
-            {
-                #region Is Player Behind a wall / Detecting the player
-                // Condition that checks where the ray is going from point A to point B
-                if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, viewDistance))
-                {
-                    // Do we hit the players layer??
-                    if (hit.transform.gameObject.layer == 10)
-                        PCSeen = true;
-                }
-                else
-                    // if we dont hit the player then we cant see them
-                    PCSeen = false;
-                #endregion
-            }
-        }
+        //// // Value that holds the angle we want to detect
+        //// float angle = Vector3.Angle(rayDirection, transform.forward);
+        //// if (angle < fieldOfView * 0.5f)  // If the angle is less than the field of view 
+        //// {
+        ////     #region Is Player Behind a wall / Detecting the player
+        ////     // Condition that checks where the ray is going from point A to point B
+        ////     if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, viewDistance))
+        ////     {
+        ////         // Do we hit the players layer??
+        ////         if (hit.transform.gameObject.layer == 10)
+        ////             PCSeen = true;
+        ////     }
+        ////     else
+        ////         // if we dont hit the player then we cant see them
+        ////         PCSeen = false;
+        ////     #endregion
+        //// }
+        //#endregion
+
+        //}
         #endregion
 
         #region Time Behaviour Lasts
@@ -375,8 +382,11 @@ namespace AI_Logic
                 {
                     transform.position = Vector3.MoveTowards(transform.position, whereTheAiGoes[walkArrayScroller], Time.deltaTime * objectSpeed);
                 }
+            // Vector , forward, left, right, up, down 1 float value == speed * time.
+            // Frames
+            // Seconds
 
-            transform.Translate(whereTheAiGoes[walkArrayScroller] * Time.deltaTime * objectSpeed);
+            transform.Translate(whereTheAiGoes[walkArrayScroller] * Time.deltaTime * objectSpeed / 4);
             Transform leftRay = transform;
             Transform rightRay = transform;
 
@@ -399,33 +409,44 @@ namespace AI_Logic
                     wallDetected = false;
                 }
             }
+            #region Deubbing Wall Detection
             // Use to debug the Physics.RayCast.
             Debug.DrawRay(transform.position + (transform.right), transform.forward * wallDetectionRange, Color.red);
             Debug.DrawRay(transform.position - (transform.right), transform.forward * wallDetectionRange, Color.red);
             Debug.DrawRay(transform.position - (transform.forward), -transform.right * wallDetectionRange, Color.yellow);
             Debug.DrawRay(transform.position - (transform.forward), transform.right * wallDetectionRange, Color.yellow);
+            #endregion
         }
         #endregion
-    //            // Rotation Target Position - my current position
-    //            //moveDirection = (whereTheAiGoes[walkArrayScroller]);
+        #region Old Movement
+        //            // Rotation Target Position - my current position
+        //            //moveDirection = (whereTheAiGoes[walkArrayScroller]);
 
-    //            //if (Vector3.Distance(moveDirection, transform.position) < 3)
-    //            //{
-    //            //    walkArrayScroller++;
-    //            //    if (walkArrayScroller >= whereTheAiGoes.Length)
-    //            //    {
-    //            //        walkArrayScroller = 0;
-    //            //    }
-    //            //    else
-    //            //        transform.LookAt(whereTheAiGoes[walkArrayScroller]);
-    //            //}
-    //            //transform.position = Vector3.MoveTowards(transform.position, whereTheAiGoes[walkArrayScroller], Time.deltaTime * objectSpeed);
-    //        }
-           #endregion
+        //            //if (Vector3.Distance(moveDirection, transform.position) < 3)
+        //            //{
+        //            //    walkArrayScroller++;
+        //            //    if (walkArrayScroller >= whereTheAiGoes.Length)
+        //            //    {
+        //            //        walkArrayScroller = 0;
+        //            //    }
+        //            //    else
+        //            //        transform.LookAt(whereTheAiGoes[walkArrayScroller]);
+        //            //}
+        //            //transform.position = Vector3.MoveTowards(transform.position, whereTheAiGoes[walkArrayScroller], Time.deltaTime * objectSpeed);
+        //        }
+        #endregion
+        #endregion
 
-            #region Hunting Movement
-            if (states == NPC_States.Hunting)
+        #region Hunting Movement
+        if (states == NPC_States.Hunting)
             {
+                // New system
+                // Store the defualt pathfinding Vectors
+                // Find the players position
+                // Find positions around the player where the AI can go
+                // Move towards them
+
+                // Old system
                 Debug.Log("I'm Hunting Now");
                 Vector3 playerPosCurrently = playerPosition.position;
                 float playerpos = playerPosCurrently.magnitude;
@@ -447,4 +468,3 @@ namespace AI_Logic
         }
        #endregion
     }
-}

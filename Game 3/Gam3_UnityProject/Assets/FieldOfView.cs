@@ -20,8 +20,11 @@ public class FieldOfView : MonoBehaviour
     public MeshFilter viewMeshFilter;
     Mesh viewMesh;
 
+    AI script;
+
     private void Start()
     {
+        script = gameObject.GetComponent<AI>();
         viewMesh = new Mesh();
         viewMesh.name = "View Mesh";
         viewMeshFilter.mesh = viewMesh;
@@ -56,15 +59,21 @@ public class FieldOfView : MonoBehaviour
         {
             Transform target = targetsInViewRadius[i].transform;
             Vector3 dirToTarget = (target.position - transform.position).normalized;
-            if(Vector3.Angle(transform.forward, dirToTarget) < viewAngle / 2)
+
+            if (Vector3.Angle(transform.forward, dirToTarget) < viewAngle / 2)
             {
                 float distToTarget = Vector3.Distance(transform.position, target.position);
+                script.PCSeen = true;
 
-                if(!Physics.Raycast(transform.position, dirToTarget, distToTarget, obstacleMask))
+                if (!Physics.Raycast(transform.position, dirToTarget, distToTarget, obstacleMask))
                 {
                     visableTargets.Add(target);
                 }
             }
+            // placeholder for now // This works however, only turns off the bool when moving right from the angle but moving backwards goes undetected boolean dont tick back
+            else
+                script.PCSeen = false;
+            // Insert how the AI stops detecting the player here
         }
     }
 
@@ -81,7 +90,7 @@ public class FieldOfView : MonoBehaviour
         for(int i = 0; i <=stepCount; i++)
         {
             // our current angle subtracts the angle 
-            // plus the stepanglesize and multiply the current amount of stepcounts
+            // plus the step angle size and multiply the current amount of stepcounts
             float angle = transform.eulerAngles.y - viewAngle / 2 + stepAngleSize * i;
             ViewCastInfo newViewCast = ViewCast(angle);
 
