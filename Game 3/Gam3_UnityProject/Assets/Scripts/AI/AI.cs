@@ -108,6 +108,7 @@ using UnityEngine;
             fov = this.gameObject.GetComponent<FieldOfView>();
 
             gameObject.layer = 11;
+            gameObject.name = "Enemy";
             #region IDE Component Set-Up
             // Component Set-Up
             AI_Physics = gameObject.AddComponent<Rigidbody>();

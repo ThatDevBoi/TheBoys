@@ -29,38 +29,19 @@ public class Player_Controller : MonoBehaviour
     // Ground check logic
     public LayerMask groundCheckLayers;
 
-    // Weapon Shoot Logic
-    // Maybe this should go on the gun so different guns behave differently
-    [Header("Gun Mechanics")]
-    public Transform gun_firePoint;
-    public int gunRange;
-    // Max ammo in 1 magazine
-    public int maxAmmo = 12;
-    // current ammo that player has in the magazine
-    public int currentAmmo;
-    // the ammo the player has spare
-    public int backUpAmmo;
-    bool isReloading = false;
-    float reloadTime = 1f;
-    public LayerMask whatWeCanShoot;
-    public Animator gunAnimator;
-    public AudioSource PistolShoot;
 
-    // Object that spawns for AI
-    public GameObject BulletPosition;
+
+
 
     // Start is called before the first frame update
     void Start()
     {
+        gameObject.name = "PC";
         #region Values SetUp
         speed = currentSpeed;
         cameraRotationRate = 45f;
         xRotation = 0f;
         gameObject.layer = 10;
-        // Gun
-        gunRange = 60;
-        currentAmmo = maxAmmo;
-        backUpAmmo = 90;
 
         #endregion
         #region IDE Set-Up
@@ -77,7 +58,7 @@ public class Player_Controller : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = true;
         #region Find Components
-        playersEyes = gameObject.transform.FindChild("Main Camera").GetComponent<Transform>();
+        playersEyes = gameObject.transform.FindChild("Eyes Main Camera").GetComponent<Transform>();
         #endregion
         #region Debug Components
         if (playerPhysics == null)
@@ -93,13 +74,6 @@ public class Player_Controller : MonoBehaviour
     {
         // Functions
         FPSMove(speed, dirX, dirZ, movementDirection);
-        GunShoot();
-
-        if (currentAmmo <= 0 | Input.GetKeyDown(KeyCode.R) | currentAmmo <=0)
-            StartCoroutine(Reload());
-
-        if (isReloading)
-            return;
     }
 
     void FPSMove(float speed, float V, float H, Vector3 direction)
@@ -168,46 +142,103 @@ public class Player_Controller : MonoBehaviour
     //    }
     //} 
 
-    void GunShoot()
-    {
-        // Physics Driven
-        RaycastHit Hit;
-        if(Physics.Raycast(gun_firePoint.transform.position, gun_firePoint.transform.TransformDirection(Vector3.forward), out Hit, gunRange, whatWeCanShoot))
+
+        public class GunMechanic : MonoBehaviour
         {
-            if(Input.GetButtonDown("Fire1"))
+        // Weapon Shoot Logic
+        // Maybe this should go on the gun so different guns behave differently
+        [Header("Gun Mechanics")]
+        public Transform gun_firePoint;
+        public int gunRange;
+        // Max ammo in 1 magazine
+        public int maxAmmo = 12;
+        // current ammo that player has in the magazine
+        public int currentAmmo;
+        // the ammo the player has spare
+        public int backUpAmmo;
+        bool isReloading = false;
+        float reloadTime = 1f;
+        public LayerMask whatWeCanShoot;
+        public Animator gunAnimator;
+        public AudioSource gunShootSound;
+        // Object that spawns for AI
+        public GameObject BulletPosition;
+        bool isShooting = true;
+
+        public virtual void Awake()
+        {
+            #region Value Set-Up
+            gunRange = 60;
+            currentAmmo = maxAmmo;
+            backUpAmmo = 90;
+            #endregion
+        }
+
+        public virtual void FixedUpdate()
+        {
+            // Functions
+            GunShoot();
+
+            if (currentAmmo <= 0 && backUpAmmo > 0 && !isReloading)
+                StartCoroutine(Reload());
+            if (isReloading)
+                return;
+
+            if (currentAmmo <= 0)
+                isShooting = false;
+            else
+                isShooting = true;
+        }
+
+        // Casual Shooting
+        void GunShoot()
+        {
+            if(isShooting)
             {
-                PistolShoot.Play();
-                GameObject BulletShot = Instantiate(BulletPosition, gun_firePoint.position, Quaternion.identity) as GameObject;
-                BulletShot.name = "Bullet_Sound_Position";
-                // Decrease Ammo
-                currentAmmo--;
-                Debug.Log("Hit" + Hit.transform.name);
-                Debug.DrawRay(gun_firePoint.transform.position, gun_firePoint.TransformDirection(Vector3.forward) * Hit.distance, Color.red);
+                // Physics Driven
+                RaycastHit Hit;
+                if (Physics.Raycast(gun_firePoint.transform.position, gun_firePoint.transform.TransformDirection(Vector3.forward), out Hit, gunRange, whatWeCanShoot))
+                {
+                    if (Input.GetButtonDown("Fire1"))
+                    {
+                        gunShootSound.Play();
+                        GameObject BulletShot = Instantiate(BulletPosition, gun_firePoint.position, Quaternion.identity) as GameObject;
+                        BulletShot.name = "Bullet_Sound_Position";
+                        // Decrease Ammo
+                        currentAmmo--;
+                        Debug.Log("Hit" + Hit.transform.name);
+                        Debug.DrawRay(gun_firePoint.transform.position, gun_firePoint.TransformDirection(Vector3.forward) * Hit.distance, Color.red);
+                    }
+                }
+            }
+        }
+
+        // Normal Reloading
+        IEnumerator Reload()
+        {
+            isShooting = false;
+            isReloading = true;
+            Debug.Log("Reloading. . . .");
+            gunAnimator.SetBool("isReloading", true);
+
+            yield return new WaitForSeconds(reloadTime - .25f);
+            gunAnimator.SetBool("isReloading", false);
+            yield return new WaitForSeconds(.25f);
+            isReloading = false;
+
+            var shot = maxAmmo - currentAmmo;
+            if (backUpAmmo < shot)
+            {
+                currentAmmo = backUpAmmo;
+                backUpAmmo = 0;
+            }
+            else
+            {
+                currentAmmo += shot;
+                backUpAmmo -= shot;
             }
         }
     }
 
-    IEnumerator Reload()
-    {
-        isReloading = true;
-        Debug.Log("Reloading. . . .");
-        gunAnimator.SetBool("isReloading", true);
 
-        yield return new WaitForSeconds(reloadTime - .25f);
-        gunAnimator.SetBool("isReloading", false);
-        yield return new WaitForSeconds(.25f);
-        isReloading = false;
- 
-        var shot = maxAmmo - currentAmmo;
-        if(backUpAmmo < shot)
-        {
-            currentAmmo = backUpAmmo;
-            backUpAmmo = 0;
-        }
-        else
-        {
-            currentAmmo += shot;
-            backUpAmmo -= shot;
-        }
-    }
 }

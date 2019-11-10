@@ -63,15 +63,18 @@ public class FieldOfView : MonoBehaviour
             if (Vector3.Angle(transform.forward, dirToTarget) < viewAngle / 2)
             {
                 float distToTarget = Vector3.Distance(transform.position, target.position);
-                script.PCSeen = true;
-
+                if(gameObject.name == "Enemy")
+                {
+                    script.PCSeen = true;
+                }
+               
                 if (!Physics.Raycast(transform.position, dirToTarget, distToTarget, obstacleMask))
                 {
                     visableTargets.Add(target);
                 }
             }
             // placeholder for now // This works however, only turns off the bool when moving right from the angle but moving backwards goes undetected boolean dont tick back
-            else
+            else if(gameObject.name == "Enemy")
                 script.PCSeen = false;
             // Insert how the AI stops detecting the player here
         }
