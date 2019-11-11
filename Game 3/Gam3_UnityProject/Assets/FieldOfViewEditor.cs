@@ -25,6 +25,7 @@ public class FieldOfViewEditor : Editor
         Handles.DrawLine(fow.transform.position, fow.transform.position + viewAngleB * fow.viewRadius);
 
         // Visable Targets
+        // SHOOTS LINE AT PLAYER
         Handles.color = Color.red;
         foreach(Transform visableTarget in fow.visableTargets)
         {

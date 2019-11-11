@@ -21,10 +21,12 @@ public class FieldOfView : MonoBehaviour
     Mesh viewMesh;
 
     AI script;
+    GameObject player;
 
     private void Start()
     {
         script = gameObject.GetComponent<AI>();
+        player = GameObject.Find("PC");
         viewMesh = new Mesh();
         viewMesh.name = "View Mesh";
         viewMeshFilter.mesh = viewMesh;
@@ -53,6 +55,7 @@ public class FieldOfView : MonoBehaviour
     void FindVisibleTargets()
     {
         visableTargets.Clear();
+        script.PCSeen = false;
         Collider[] targetsInViewRadius = Physics.OverlapSphere(transform.position, viewRadius, targetMask);
 
         for(int i =0; i < targetsInViewRadius.Length; i++)
@@ -63,20 +66,17 @@ public class FieldOfView : MonoBehaviour
             if (Vector3.Angle(transform.forward, dirToTarget) < viewAngle / 2)
             {
                 float distToTarget = Vector3.Distance(transform.position, target.position);
-                if(gameObject.name == "Enemy")
-                {
-                    script.PCSeen = true;
-                }
                
                 if (!Physics.Raycast(transform.position, dirToTarget, distToTarget, obstacleMask))
                 {
                     visableTargets.Add(target);
+
+                    if (visableTargets.Contains(player.transform))
+                    {
+                        script.PCSeen = true;
+                    }
                 }
             }
-            // placeholder for now // This works however, only turns off the bool when moving right from the angle but moving backwards goes undetected boolean dont tick back
-            else if(gameObject.name == "Enemy")
-                script.PCSeen = false;
-            // Insert how the AI stops detecting the player here
         }
     }
 

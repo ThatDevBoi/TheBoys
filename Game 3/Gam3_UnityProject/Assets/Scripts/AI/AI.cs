@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
     public class AI : MonoBehaviour
     {
@@ -20,27 +21,21 @@ using UnityEngine;
         #region Values of logic
         // Timers which balance the states of play for NPCs
         // This value meets a random generated value which allows for the NPC to look for the player
-        [Header("AI_Timers")]
-        [SerializeField]
         private float HuntingTime = 0;  // Cant edit
         // Value that agrees or disagrees if the ai is hunting
         private float TimeUntilHunting = 2;
         private float TimeUntilAlerted = 3;
         // The time that meets the random alert time
         // Its so the NPC can Behave alerted until the player is gone and hidden
-        [SerializeField]
         private float AlertedTime = 0;  // Cant Edit
         // How long the player can be within vision until the AI is alert
-        [SerializeField]
         private float playerTimeInSight = 0;  // Cannot Edit
         #endregion
 
         #region Random Behaviour Time Values
         [Header("AI_Behaviour_Resetters")]
         // Random values to meet
-        [SerializeField]
         public float random_Alert_Value;    // Cant Edit
-        [SerializeField]
         public float random_Hunt_Value;     // Cant Edit
         #endregion
 
@@ -48,12 +43,6 @@ using UnityEngine;
         [Header("Avoiding_Walls")]
         // If the rays return something then we have to avoid the wall
         public bool wallDetected = false; // Can Edit
-        public Vector3 frontSensorPosition = new Vector3(0f, 0.2f, 0.5f);   // Can Edit
-        // Left and right sensors at the front Edit to change positions of the rays
-        public float frontSideSensorPosition = 0.2f;    // Can Edit
-        // Angle Position 
-        public float frontsensorAngle = 30f;    // Can Edit
-
         #endregion
 
         #region Cone Of Sight Variables 
@@ -65,7 +54,6 @@ using UnityEngine;
         private Transform playerPosition;   // Cant Edit
                                             // Hit logic for the array itself
         private RaycastHit hit;
-        private Vector3 rayDirection;   // Cant edit (Re Visit)
         #endregion
 
         #region Movement Variables
@@ -81,7 +69,7 @@ using UnityEngine;
         int walkArrayScroller = 0;  // Cant Edit
 
         // The Physics we can manipulate
-        private Rigidbody AI_Physics;   // Cant Edit
+        private NavMeshAgent AI_Physics;   // Cant Edit
         // Collision we want 
         private CapsuleCollider AI_Collider;    // Cant edit
         // Rotation
@@ -97,7 +85,7 @@ using UnityEngine;
         public bool heardNoise;
         public float changer = 0f;
         public float wallDetectionRange = 5;
-
+        
         FieldOfView fov;
 
         #region Start
@@ -111,8 +99,9 @@ using UnityEngine;
             gameObject.name = "Enemy";
             #region IDE Component Set-Up
             // Component Set-Up
-            AI_Physics = gameObject.AddComponent<Rigidbody>();
-            AI_Physics.constraints = RigidbodyConstraints.FreezeRotation;
+            AI_Physics = gameObject.AddComponent<NavMeshAgent>();
+        //    AI_Physics.speed = 1;
+        
             AI_Collider = gameObject.AddComponent<CapsuleCollider>();
 
             #endregion
@@ -149,9 +138,6 @@ using UnityEngine;
             if (typeOfState == 2)
                 states = NPC_States.Alert;
             #endregion
-
-            // Functions
-            //ConeView();  ||No Longer Needed||  // We always want to draw the rays that will detect the player
 
             #region Heard Noise
             // !! May need to be changed later !!
@@ -249,69 +235,6 @@ using UnityEngine;
         }
         #endregion
 
-
-        // The View of the AIs priferal sight
-        #region Cone View Function
-        //void ConeView()
-        //{
-        //// We dont need the rays as now we have the fov script which will detect if the player is in sight
-        //#region Dont need to use rays
-        //// #region Cone View
-        //// // Vector that knows the difference from the players position and the current position of gameObject
-        //// rayDirection = playerPosition.position - transform.position;
-
-        //// // Point a ray at the players position
-        ////// Debug.DrawLine(transform.position, playerPosition.position, Color.red);
-        //// // The position of where the front ray will be
-        //// Vector3 frontRaypoint = transform.position + (transform.forward * viewDistance);
-
-        //// // Approximate perspective visualization
-        //// Vector3 leftRayPoint = frontRaypoint;
-        //// leftRayPoint.x += fieldOfView * 0.5f;
-
-        //// Vector3 rightRayPoint = frontRaypoint;
-        //// rightRayPoint.x -= fieldOfView * 0.5f;
-
-        //// // DrawLines    
-        //// #region Front Ray Logic
-        //// Debug.DrawLine(transform.position, frontRaypoint, Color.green);
-        //// Physics.Raycast(transform.position, transform.TransformDirection(frontRaypoint), out hit, viewDistance, AI_Detections);
-        //// #endregion
-
-        //// #region Left Ray Logic
-        //// Debug.DrawLine(transform.position, leftRayPoint, Color.green);
-        //// Physics.Raycast(transform.position, transform.TransformDirection(leftRayPoint), out hit, viewDistance, AI_Detections);
-        //// #endregion
-
-        //// #region RightRay Logic
-        //// Debug.DrawLine(transform.position, rightRayPoint, Color.green);
-        //// Physics.Raycast(transform.position, transform.TransformDirection(frontRaypoint + rightRayPoint + leftRayPoint), out hit, viewDistance, AI_Detections);
-        //// #endregion
-
-        //// #endregion
-
-        //// // Value that holds the angle we want to detect
-        //// float angle = Vector3.Angle(rayDirection, transform.forward);
-        //// if (angle < fieldOfView * 0.5f)  // If the angle is less than the field of view 
-        //// {
-        ////     #region Is Player Behind a wall / Detecting the player
-        ////     // Condition that checks where the ray is going from point A to point B
-        ////     if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, viewDistance))
-        ////     {
-        ////         // Do we hit the players layer??
-        ////         if (hit.transform.gameObject.layer == 10)
-        ////             PCSeen = true;
-        ////     }
-        ////     else
-        ////         // if we dont hit the player then we cant see them
-        ////         PCSeen = false;
-        ////     #endregion
-        //// }
-        //#endregion
-
-        //}
-        #endregion
-
         #region Time Behaviour Lasts
         void Randomizer()
         {
@@ -372,53 +295,74 @@ using UnityEngine;
             #region Dormant Movement
             if (states == NPC_States.Dormant)
             {
-                #region Wall detection
-                if (wallDetected)
+            //    #region Wall detection
+            //    if (wallDetected)
+            //    {
+            //        Vector3 relativePos = whereTheAiGoes[walkArrayScroller] - transform.position;
+            //        Quaternion rotation = Quaternion.LookRotation(relativePos);
+            //        transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime);
+            //    }
+            //    else
+            //    {
+            //        transform.position = Vector3.MoveTowards(transform.position, whereTheAiGoes[walkArrayScroller], Time.deltaTime * objectSpeed);
+            //    }
+            //// Vector , forward, left, right, up, down 1 float value == speed * time.
+            //// Frames
+            //// Seconds
+
+            //transform.Translate(whereTheAiGoes[walkArrayScroller] * Time.deltaTime * objectSpeed / 4);
+            //Transform leftRay = transform;
+            //Transform rightRay = transform;
+
+            ////Use Phyics.RayCast to detect the obstacle
+            //if (Physics.Raycast(leftRay.position + (transform.right), transform.forward, out hit, wallDetectionRange) || Physics.Raycast(rightRay.position - (transform.right), transform.forward, out hit, wallDetectionRange))
+            //{
+            //    if (hit.collider.gameObject.CompareTag("Obstacles"))
+            //    {
+            //        wallDetected = true;
+            //        transform.Rotate(Vector3.up * Time.deltaTime * rotationRate);
+            //    }
+            //}
+            //// Now Two More RayCast At The End of Object to detect that object has already pass the obsatacle.
+            //// Just making this boolean variable false it means there is nothing in front of object.
+            //if (Physics.Raycast(transform.position - (transform.forward), transform.right, out hit, wallDetectionRange) ||
+            // Physics.Raycast(transform.position - (transform.forward), -transform.right, out hit, wallDetectionRange))
+            //{
+            //    if (hit.collider.gameObject.CompareTag("Obstacles"))
+            //    {
+            //        wallDetected = false;
+            //    }
+            //}
+            //#region Deubbing Wall Detection
+            //// Use to debug the Physics.RayCast.
+            //Debug.DrawRay(transform.position + (transform.right), transform.forward * wallDetectionRange, Color.red);
+            //Debug.DrawRay(transform.position - (transform.right), transform.forward * wallDetectionRange, Color.red);
+            //Debug.DrawRay(transform.position - (transform.forward), -transform.right * wallDetectionRange, Color.yellow);
+            //Debug.DrawRay(transform.position - (transform.forward), transform.right * wallDetectionRange, Color.yellow);
+
+            // Move the player
+            // Vector3 Storage of direction
+            moveDirection = (whereTheAiGoes[walkArrayScroller]);
+
+            if(Vector3.Distance(moveDirection, transform.position) < 3)
+            {
+                walkArrayScroller++;
+                if (walkArrayScroller >= whereTheAiGoes.Length)
                 {
-                    Vector3 relativePos = whereTheAiGoes[walkArrayScroller] - transform.position;
-                    Quaternion rotation = Quaternion.LookRotation(relativePos);
-                    transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime);
+                    walkArrayScroller = 0;
                 }
                 else
-                {
-                    transform.position = Vector3.MoveTowards(transform.position, whereTheAiGoes[walkArrayScroller], Time.deltaTime * objectSpeed);
-                }
-            // Vector , forward, left, right, up, down 1 float value == speed * time.
-            // Frames
-            // Seconds
-
-            transform.Translate(whereTheAiGoes[walkArrayScroller] * Time.deltaTime * objectSpeed / 4);
-            Transform leftRay = transform;
-            Transform rightRay = transform;
-
-            //Use Phyics.RayCast to detect the obstacle
-            if (Physics.Raycast(leftRay.position + (transform.right), transform.forward, out hit, wallDetectionRange) || Physics.Raycast(rightRay.position - (transform.right), transform.forward, out hit, wallDetectionRange))
-            {
-                if (hit.collider.gameObject.CompareTag("Obstacles"))
-                {
-                    wallDetected = true;
-                    transform.Rotate(Vector3.up * Time.deltaTime * rotationRate);
-                }
+                    transform.LookAt(whereTheAiGoes[walkArrayScroller]);
             }
-            // Now Two More RayCast At The End of Object to detect that object has already pass the obsatacle.
-            // Just making this boolean variable false it means there is nothing in front of object.
-            if (Physics.Raycast(transform.position - (transform.forward), transform.right, out hit, wallDetectionRange) ||
-             Physics.Raycast(transform.position - (transform.forward), -transform.right, out hit, wallDetectionRange))
-            {
-                if (hit.collider.gameObject.CompareTag("Obstacles"))
-                {
-                    wallDetected = false;
-                }
-            }
-            #region Deubbing Wall Detection
-            // Use to debug the Physics.RayCast.
-            Debug.DrawRay(transform.position + (transform.right), transform.forward * wallDetectionRange, Color.red);
-            Debug.DrawRay(transform.position - (transform.right), transform.forward * wallDetectionRange, Color.red);
-            Debug.DrawRay(transform.position - (transform.forward), -transform.right * wallDetectionRange, Color.yellow);
-            Debug.DrawRay(transform.position - (transform.forward), transform.right * wallDetectionRange, Color.yellow);
+
+            AI_Physics.SetDestination(moveDirection);
+
+            //NavMeshPath path = new NavMeshPath();
+            //// NavMesh Movement
+            //if (AI_Physics.enabled)
+            //    AI_Physics.CalculatePath(moveDirection, path);
             #endregion
         }
-        #endregion
         #region Old Movement
         //            // Rotation Target Position - my current position
         //            //moveDirection = (whereTheAiGoes[walkArrayScroller]);
@@ -435,7 +379,6 @@ using UnityEngine;
         //            //}
         //            //transform.position = Vector3.MoveTowards(transform.position, whereTheAiGoes[walkArrayScroller], Time.deltaTime * objectSpeed);
         //        }
-        #endregion
         #endregion
 
         #region Hunting Movement

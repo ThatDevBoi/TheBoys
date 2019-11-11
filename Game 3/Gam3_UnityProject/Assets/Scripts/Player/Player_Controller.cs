@@ -145,22 +145,25 @@ public class Player_Controller : MonoBehaviour
 
         public class GunMechanic : MonoBehaviour
         {
-        // Weapon Shoot Logic
-        // Maybe this should go on the gun so different guns behave differently
-        [Header("Gun Mechanics")]
+        [Header("Shooting")]
+        public LayerMask whatWeCanShoot;
+        public AudioSource gunShootSound;
         public Transform gun_firePoint;
         public int gunRange;
+        public float fireRte = 3f;
+        float nextTimeToFire;
+
+        [Header("Reloadiing")]
+        public bool isReloading = false;
+        float reloadTime = 1f;
+        public Animator gunAnimator;
+        [Header("Ammo")]  
         // Max ammo in 1 magazine
         public int maxAmmo = 12;
         // current ammo that player has in the magazine
         public int currentAmmo;
         // the ammo the player has spare
         public int backUpAmmo;
-        bool isReloading = false;
-        float reloadTime = 1f;
-        public LayerMask whatWeCanShoot;
-        public Animator gunAnimator;
-        public AudioSource gunShootSound;
         // Object that spawns for AI
         public GameObject BulletPosition;
         bool isShooting = true;
@@ -178,12 +181,12 @@ public class Player_Controller : MonoBehaviour
         {
             // Functions
             GunShoot();
-
+            #region Reloading
             if (currentAmmo <= 0 && backUpAmmo > 0 && !isReloading)
                 StartCoroutine(Reload());
             if (isReloading)
                 return;
-
+            #endregion
             if (currentAmmo <= 0)
                 isShooting = false;
             else
@@ -193,15 +196,17 @@ public class Player_Controller : MonoBehaviour
         // Casual Shooting
         void GunShoot()
         {
+            // Simple Shoot
             if(isShooting)
             {
                 // Physics Driven
                 RaycastHit Hit;
                 if (Physics.Raycast(gun_firePoint.transform.position, gun_firePoint.transform.TransformDirection(Vector3.forward), out Hit, gunRange, whatWeCanShoot))
                 {
-                    if (Input.GetButtonDown("Fire1"))
+                    if (Input.GetButtonDown("Fire1") && Time.time >= nextTimeToFire && currentAmmo > 0)
                     {
                         gunShootSound.Play();
+                        nextTimeToFire = Time.time + 1f / fireRte;
                         GameObject BulletShot = Instantiate(BulletPosition, gun_firePoint.position, Quaternion.identity) as GameObject;
                         BulletShot.name = "Bullet_Sound_Position";
                         // Decrease Ammo
