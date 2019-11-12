@@ -9,12 +9,15 @@ public class Shooting_Mechanic : Player_Controller.GunMechanic
     {
         base.Awake();
         gunShootSound = this.gameObject.GetComponent<AudioSource>();
-        gunShootSound.volume = 0.5f;
+        gunShootSound.volume = 0.2f;
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
         base.FixedUpdate();
+
+        if (Input.GetButtonDown("Fire2"))
+            AimDownSights();
     }
 }

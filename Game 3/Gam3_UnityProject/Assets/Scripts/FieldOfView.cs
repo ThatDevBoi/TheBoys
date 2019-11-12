@@ -75,6 +75,7 @@ public class FieldOfView : MonoBehaviour
                     {
                         script.PCSeen = true;
                     }
+                    else return;
                 }
             }
         }

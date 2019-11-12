@@ -4,10 +4,11 @@ using UnityEngine;
 using UnityEditor;
 public class Player_Controller : MonoBehaviour
 {
-    // Components
+    #region Components
     private Rigidbody playerPhysics;
     private CapsuleCollider playerCollision;
     private Transform playersEyes; // Player Camera
+    #endregion
 
     #region Player Move
     [Header("Player Movement")]
@@ -26,17 +27,11 @@ public class Player_Controller : MonoBehaviour
     float xRotation = 0f;   // Value that monitors X Rotation keep it at 0 for default
     #endregion
 
-    // Ground check logic
-    public LayerMask groundCheckLayers;
-
-
-
 
 
     // Start is called before the first frame update
     void Start()
     {
-        gameObject.name = "PC";
         #region Values SetUp
         speed = currentSpeed;
         cameraRotationRate = 45f;
@@ -58,7 +53,7 @@ public class Player_Controller : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = true;
         #region Find Components
-        playersEyes = gameObject.transform.FindChild("Eyes Main Camera").GetComponent<Transform>();
+        playersEyes = gameObject.transform.FindChild("FPS_Cam").GetComponent<Transform>();
         #endregion
         #region Debug Components
         if (playerPhysics == null)
@@ -124,39 +119,21 @@ public class Player_Controller : MonoBehaviour
         #endregion
     }
 
-    // Jump Logic
-    //void groundCheck()
-    //{
-    //    // Raycast Logic
-    //    RaycastHit hit;
-    //    float range = .5f;
-    //    if (Physics.Raycast(transform.position / 2, transform.TransformDirection(Vector3.down), out hit, range, groundCheckLayers))
-    //    {
-    //        Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.down) * hit.distance, Color.green);
-    //        if (hit.collider != null)
-    //        {
-    //            playerPhysics.AddForce(transform.TransformDirection(Vector3.up * 1600));
-    //        }
-    //        else
-    //            return;
-    //    }
-    //} 
-
-
         public class GunMechanic : MonoBehaviour
         {
         [Header("Shooting")]
         public LayerMask whatWeCanShoot;
         public AudioSource gunShootSound;
         public Transform gun_firePoint;
-        public int gunRange;
-        public float fireRte = 3f;
-        float nextTimeToFire;
+        public int gunRange = 30;
+        public float fireRate = 0.25f;
+        float fireTimer;
 
         [Header("Reloadiing")]
         public bool isReloading = false;
         float reloadTime = 1f;
         public Animator gunAnimator;
+
         [Header("Ammo")]  
         // Max ammo in 1 magazine
         public int maxAmmo = 12;
@@ -168,6 +145,30 @@ public class Player_Controller : MonoBehaviour
         public GameObject BulletPosition;
         bool isShooting = true;
 
+        [Header("Aim Down Sites")]
+        // The orginal position of the gun at the hip
+        private Vector3 originalPosition;
+        // Where the object will be when aiming
+        public Vector3 aimPosition;
+        public Transform weaponHolder;
+        // "Aim Down Sight" Speed
+        public float adsSpeed = 8f;
+
+        [Header("Firing Type")]
+        public ShootMode shootingMode;
+        public bool shootInput;
+        public enum ShootMode {Auto, Semi, Burst}
+        // Controls the different shooting states 
+        int shootModeController = 0;
+        public int numOfBullets = 3;
+
+
+        Camera playerEyes;  // The players eyes 
+        float cameraFieldOfView;
+
+
+
+
         public virtual void Awake()
         {
             #region Value Set-Up
@@ -175,38 +176,117 @@ public class Player_Controller : MonoBehaviour
             currentAmmo = maxAmmo;
             backUpAmmo = 90;
             #endregion
+
+            playerEyes = Camera.main;
+            cameraFieldOfView = Camera.main.fieldOfView;
+
+            // The hip location of the gun
+            originalPosition = weaponHolder.localPosition;
         }
 
         public virtual void FixedUpdate()
         {
             // Functions
-            GunShoot();
+            AimDownSights();
+
+            #region Fire Modes
+
+            #region Shoot Mode Controller Checks
+            if (shootModeController == 0)
+                shootingMode = ShootMode.Auto;
+            else if (shootModeController == 1)
+                shootingMode = ShootMode.Semi;
+            else if (shootModeController == 2)
+                shootingMode = ShootMode.Burst;
+
+            if(Input.GetKeyDown(KeyCode.Q))
+            {
+                shootModeController++;
+                if (shootModeController > 2)
+                    shootModeController = 0;
+            }
+            #endregion
+
+
+            switch (shootingMode)
+            {
+                case ShootMode.Auto:
+                    shootInput = Input.GetButton("Fire1");
+                    fireRate = 0.25f;
+                break;
+
+                case ShootMode.Semi:
+                    shootInput = Input.GetButtonDown("Fire1");
+                    fireRate = 0.8f;
+                break;
+
+                case ShootMode.Burst:
+                    shootInput = Input.GetButtonDown("Fire1");
+                break;
+            }
+            #endregion
+
+            // Depending on the inptut and fire mode we can shoot
+            if (shootInput)
+            {
+                if(currentAmmo > 0)
+                {
+                    Fire();
+                }
+            }
+
+            // Fire Rate
+            if (fireTimer < fireRate)
+                fireTimer += Time.deltaTime;
+
+
             #region Reloading
             if (currentAmmo <= 0 && backUpAmmo > 0 && !isReloading)
                 StartCoroutine(Reload());
             if (isReloading)
                 return;
+
+            if(Input.GetKeyDown(KeyCode.R) && !isReloading && backUpAmmo > 0)
+            {
+                StartCoroutine(Reload());
+            }
             #endregion
-            if (currentAmmo <= 0)
+            // Are We Allowed to shoot?
+            if (currentAmmo <= 0)   // No we have no ammo
                 isShooting = false;
             else
-                isShooting = true;
+                isShooting = true;  // Yes we still have bullets 
+        }
+
+        public void AimDownSights()
+        {
+            if (Input.GetButton("Fire2") && !isReloading)
+            {
+                weaponHolder.localPosition = Vector3.Lerp(weaponHolder.localPosition, aimPosition, Time.deltaTime * adsSpeed);
+            }
+            else
+            {
+                weaponHolder.localPosition = Vector3.Lerp(weaponHolder.localPosition, originalPosition, Time.deltaTime * adsSpeed);
+            }
+            
         }
 
         // Casual Shooting
-        void GunShoot()
+        public void  Fire()
         {
             // Simple Shoot
             if(isShooting)
             {
+                // If the timer isnt less than the rate of fire then we dont run the code below
+                if (fireTimer < fireRate) return;
+                fireTimer = 0.0f;   // Reset the timer
                 // Physics Driven
                 RaycastHit Hit;
                 if (Physics.Raycast(gun_firePoint.transform.position, gun_firePoint.transform.TransformDirection(Vector3.forward), out Hit, gunRange, whatWeCanShoot))
                 {
-                    if (Input.GetButtonDown("Fire1") && Time.time >= nextTimeToFire && currentAmmo > 0)
+                    if (currentAmmo > 0)
                     {
                         gunShootSound.Play();
-                        nextTimeToFire = Time.time + 1f / fireRte;
                         GameObject BulletShot = Instantiate(BulletPosition, gun_firePoint.position, Quaternion.identity) as GameObject;
                         BulletShot.name = "Bullet_Sound_Position";
                         // Decrease Ammo
@@ -244,6 +324,4 @@ public class Player_Controller : MonoBehaviour
             }
         }
     }
-
-
 }
