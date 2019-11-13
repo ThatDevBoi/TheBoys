@@ -53,7 +53,7 @@ public class Player_Controller : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = true;
         #region Find Components
-        playersEyes = gameObject.transform.FindChild("FPS_Cam").GetComponent<Transform>();
+        playersEyes = gameObject.transform.Find("FPS_Cam").GetComponent<Transform>();
         #endregion
         #region Debug Components
         if (playerPhysics == null)
