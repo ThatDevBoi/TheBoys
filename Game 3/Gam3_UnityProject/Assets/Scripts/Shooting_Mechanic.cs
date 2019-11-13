@@ -16,8 +16,5 @@ public class Shooting_Mechanic : Player_Controller.GunMechanic
     void FixedUpdate()
     {
         base.FixedUpdate();
-
-        if (Input.GetButtonDown("Fire2"))
-            AimDownSights();
     }
 }

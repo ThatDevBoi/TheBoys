@@ -81,6 +81,8 @@ public class Player_Controller : MonoBehaviour
         direction = (transform.forward * V + (transform.right * H));
         // Make the vector to the equal of 1
         direction = direction.normalized * speed;
+        // Player gravity
+        direction.y = direction.y + Physics.gravity.y;
         // Running
         if (Input.GetAxis("Run") != 0)
         {
@@ -153,6 +155,8 @@ public class Player_Controller : MonoBehaviour
         public Transform weaponHolder;
         // "Aim Down Sight" Speed
         public float adsSpeed = 8f;
+        Camera playerEyes;  // The players eyes 
+        float cameraFieldOfView;
 
         [Header("Firing Type")]
         public ShootMode shootingMode;
@@ -160,12 +164,24 @@ public class Player_Controller : MonoBehaviour
         public enum ShootMode {Auto, Semi, Burst}
         // Controls the different shooting states 
         int shootModeController = 0;
-        public int numOfBullets = 3;
+        // Fly Shot
+        public int numShots = 3;
+        public float timeBetweenShots = 0.5f;
+        private float nextShot = 0.0f;
 
+        [Header("Bullet Type")]
+        public BulletType CurrentBulletType = BulletType.Default;
+        public enum BulletType { Default, Explosive}
+        int bulletChange;
+        // Explosive Bullets
+        public float explosionRadius = 5.0f;
+        public float explosiveForce = 20.0f;
 
-        Camera playerEyes;  // The players eyes 
-        float cameraFieldOfView;
+        [Header("Health")]
+        private int damage;  // This is set in the switch statement 
 
+        [Header("Script Ref")]
+        public AI enemyHit;
 
 
 
@@ -175,13 +191,18 @@ public class Player_Controller : MonoBehaviour
             gunRange = 60;
             currentAmmo = maxAmmo;
             backUpAmmo = 90;
-            #endregion
 
             playerEyes = Camera.main;
             cameraFieldOfView = Camera.main.fieldOfView;
 
             // The hip location of the gun
             originalPosition = weaponHolder.localPosition;
+            numShots = 3;   // Burst Fire change this for more bullets to spawn
+
+            // Fly Shooting
+            if (numShots / 2 * 2 == numShots) numShots++;   // Need an odd number of shots
+            if (numShots < 3) numShots = 3; // At least 3 shots are needed
+            #endregion
         }
 
         public virtual void FixedUpdate()
@@ -189,7 +210,7 @@ public class Player_Controller : MonoBehaviour
             // Functions
             AimDownSights();
 
-            #region Fire Modes
+            #region Fire Modes n Bullet Types
 
             #region Shoot Mode Controller Checks
             if (shootModeController == 0)
@@ -199,11 +220,23 @@ public class Player_Controller : MonoBehaviour
             else if (shootModeController == 2)
                 shootingMode = ShootMode.Burst;
 
+            if (bulletChange == 0)
+                CurrentBulletType = BulletType.Default;
+            else if (bulletChange == 1)
+                CurrentBulletType = BulletType.Explosive;
+
             if(Input.GetKeyDown(KeyCode.Q))
             {
                 shootModeController++;
                 if (shootModeController > 2)
                     shootModeController = 0;
+            }
+
+            if(Input.GetKeyDown(KeyCode.B))
+            {
+                bulletChange++;
+                if (bulletChange > 1)
+                    bulletChange = 0;
             }
             #endregion
 
@@ -213,25 +246,29 @@ public class Player_Controller : MonoBehaviour
                 case ShootMode.Auto:
                     shootInput = Input.GetButton("Fire1");
                     fireRate = 0.25f;
+                    damage = 5;
                 break;
 
                 case ShootMode.Semi:
                     shootInput = Input.GetButtonDown("Fire1");
                     fireRate = 0.8f;
+                    damage = 10;
                 break;
 
                 case ShootMode.Burst:
                     shootInput = Input.GetButtonDown("Fire1");
+                    damage = 1;
                 break;
             }
             #endregion
-
             // Depending on the inptut and fire mode we can shoot
             if (shootInput)
             {
-                if(currentAmmo > 0)
+                if (currentAmmo > 0)
                 {
+                    // Fire Functions
                     Fire();
+                    BurstShot();
                 }
             }
 
@@ -274,25 +311,96 @@ public class Player_Controller : MonoBehaviour
         // Casual Shooting
         public void  Fire()
         {
-            // Simple Shoot
-            if(isShooting)
+            // if we are not burst firing
+            if(shootModeController != 2)
             {
-                // If the timer isnt less than the rate of fire then we dont run the code below
-                if (fireTimer < fireRate) return;
-                fireTimer = 0.0f;   // Reset the timer
-                // Physics Driven
-                RaycastHit Hit;
-                if (Physics.Raycast(gun_firePoint.transform.position, gun_firePoint.transform.TransformDirection(Vector3.forward), out Hit, gunRange, whatWeCanShoot))
+                // Simple Shoot
+                if (isShooting)
                 {
-                    if (currentAmmo > 0)
+                    // If the timer isnt less than the rate of fire then we dont run the code below
+                    if (fireTimer < fireRate) return;
+                    fireTimer = 0.0f;   // Reset the timer
+                    // Physics Driven
+                    RaycastHit Hit;
+                    if (Physics.Raycast(gun_firePoint.transform.position, gun_firePoint.transform.TransformDirection(Vector3.forward), out Hit, gunRange, whatWeCanShoot))
                     {
-                        gunShootSound.Play();
-                        GameObject BulletShot = Instantiate(BulletPosition, gun_firePoint.position, Quaternion.identity) as GameObject;
-                        BulletShot.name = "Bullet_Sound_Position";
-                        // Decrease Ammo
-                        currentAmmo--;
-                        Debug.Log("Hit" + Hit.transform.name);
-                        Debug.DrawRay(gun_firePoint.transform.position, gun_firePoint.TransformDirection(Vector3.forward) * Hit.distance, Color.red);
+                        if (currentAmmo > 0)
+                        {
+                            gunShootSound.Play();
+                            // Placeholder for hearing noise (For the AI)
+                            GameObject BulletShot = Instantiate(BulletPosition, gun_firePoint.position, Quaternion.identity) as GameObject;
+                            BulletShot.name = "Bullet_Sound_Position";  // Name the new object we spawn
+                            // We want to hit the AI Body and Head to take damage (Could be changed later for more damage when hitting head enemyHit.ApplyDamage(damage * 2);)
+                            if (Hit.collider.gameObject.layer == 11 | Hit.collider.gameObject.layer == 14)
+                            {
+                                // Hurt the AI we hit
+                                if (enemyHit != null)
+                                {
+                                    enemyHit.ApplyDamage(damage);
+                                }
+                            }
+
+
+                            if (Hit.transform.gameObject.layer == 14)
+                            {
+                                enemyHit.headShot = true;
+                            }
+                            else
+                                enemyHit.headShot = false;
+
+                            if(CurrentBulletType == BulletType.Explosive)
+                            {
+                                Vector3 explosionPosition = Hit.transform.position;
+                                Collider[] objectsHit = Physics.OverlapSphere(explosionPosition, explosionRadius);
+                                foreach(Collider objectsInRange in objectsHit)
+                                {
+                                    Rigidbody otherObjectPhysics = objectsInRange.GetComponent<Rigidbody>();
+                                    if (otherObjectPhysics != null)
+                                        otherObjectPhysics.AddExplosionForce(explosiveForce, explosionPosition, explosionRadius);
+                                }
+                            }
+
+                            // Decrease Ammo
+                            currentAmmo--;
+                            #region Debugging Shooting
+                            Debug.Log("Hit" + Hit.transform.name);  // Show on console what we hit
+                            Debug.DrawRay(gun_firePoint.transform.position, gun_firePoint.TransformDirection(Vector3.forward) * Hit.distance, Color.red);
+                            #endregion
+                        }
+                    }
+                }
+            }
+        }
+
+        public void BurstShot()
+        {
+            if(shootModeController == 2)
+            {
+                nextShot = Time.time + timeBetweenShots;
+                for (int i = 0; i < numShots; i++)
+                {
+                    if (isShooting)
+                    {
+                        // Physics Driven
+                        RaycastHit Hit;
+                        if (Physics.Raycast(gun_firePoint.transform.position, gun_firePoint.transform.TransformDirection(Vector3.forward), out Hit, gunRange, whatWeCanShoot))
+                        {
+                            if (currentAmmo > 0)
+                            {
+                                gunShootSound.Play();
+                                GameObject BulletShot = Instantiate(BulletPosition, gun_firePoint.position, Quaternion.identity) as GameObject;
+                                AI enemyHit = Hit.transform.GetComponent<AI>();
+                                if (enemyHit != null)
+                                {
+                                    enemyHit.ApplyDamage(damage);
+                                }
+                                BulletShot.name = "Bullet_Sound_Position";
+                                // Decrease Ammo
+                                currentAmmo--;
+                                Debug.Log("Hit" + Hit.transform.name);
+                                Debug.DrawRay(gun_firePoint.transform.position, gun_firePoint.TransformDirection(Vector3.forward) * Hit.distance, Color.red);
+                            }
+                        }
                     }
                 }
             }

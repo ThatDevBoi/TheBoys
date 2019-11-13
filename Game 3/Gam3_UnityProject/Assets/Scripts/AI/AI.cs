@@ -77,8 +77,11 @@ using UnityEngine.AI;
         [SerializeField]
         // Rate we rotate at
         private float rotationRate = 45;
-        #endregion
+    #endregion
 
+    [Header("Health n Damage")]
+    public int MaxHealth;
+    public int currentHealth;
         // Slap this in AI Behaviour
         public GameObject bulletObject;
         public Transform BulletHeard;
@@ -87,6 +90,9 @@ using UnityEngine.AI;
         public float wallDetectionRange = 5;
         
         FieldOfView fov;
+
+    public bool headShot = false;
+    public GameObject head;
 
         #region Start
         // Start is called before the first frame update
@@ -99,7 +105,7 @@ using UnityEngine.AI;
             gameObject.name = "Enemy";
             #region IDE Component Set-Up
             // Component Set-Up
-            AI_Physics = gameObject.AddComponent<NavMeshAgent>();
+            AI_Physics = gameObject.GetComponent<NavMeshAgent>();
         //    AI_Physics.speed = 1;
         
             AI_Collider = gameObject.AddComponent<CapsuleCollider>();
@@ -114,6 +120,8 @@ using UnityEngine.AI;
             //objectSpeed = .5f;
             viewDistance = 60;
             fieldOfView = 45;
+            // Health Set-up
+            currentHealth = MaxHealth;
             #endregion
 
             #region Finding Objects Components
@@ -231,12 +239,42 @@ using UnityEngine.AI;
             {
                 playerTimeInSight = 0;
             }
-            #endregion
+        #endregion
+
+        if (currentHealth <= 0 && !headShot)
+            Destroy(gameObject);
+        else if (headShot && currentHealth <= 0)
+        {
+            // Make sure we make a seperate GameObject so we dont delete a reference Variable
+            GameObject aiHead = head;
+            // Detech The Head
+            aiHead.transform.parent = null;
+            // Destroy the parent
+            Destroy(gameObject);
+            // Add Rigidbody for Physics
+            Rigidbody headRB = head.gameObject.AddComponent<Rigidbody>();
+            // We want the head to fall to the ground
+            headRB.useGravity = true;
+            // Knock the head object back
+            headRB.AddForce(-transform.forward * 500);
+            // Destroy the head after 10 seconds 
+            Destroy(aiHead, 10f);
+
+        }
+
+
+    }
+    #endregion
+
+        #region Damage Function
+        public void ApplyDamage(int damage)
+        {
+            currentHealth -= damage;
         }
         #endregion
 
-        #region Time Behaviour Lasts
-        void Randomizer()
+    #region Time Behaviour Lasts
+    void Randomizer()
         {
             #region Note
             // typeOfState = 0 = Dormant
