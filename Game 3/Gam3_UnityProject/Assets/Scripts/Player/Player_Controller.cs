@@ -27,6 +27,8 @@ public class Player_Controller : MonoBehaviour
     float xRotation = 0f;   // Value that monitors X Rotation keep it at 0 for default
     #endregion
 
+    public AudioSource walkingSound;
+
 
 
     // Start is called before the first frame update
@@ -52,6 +54,7 @@ public class Player_Controller : MonoBehaviour
         #endregion
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = true;
+        walkingSound.volume = 0.3f;
         #region Find Components
         playersEyes = gameObject.transform.Find("FPS_Cam").GetComponent<Transform>();
         #endregion
@@ -86,11 +89,15 @@ public class Player_Controller : MonoBehaviour
         // Running
         if (Input.GetAxis("Run") != 0)
         {
-            
+            walkingSound.volume = 0.6f;
             speed = runSpeed;
         }
         else
+        {
+            walkingSound.volume = 0.3f;
             speed = currentSpeed;
+        }
+           
     
         // move with physics
         playerPhysics.velocity = direction * speed * Time.deltaTime;
@@ -163,7 +170,7 @@ public class Player_Controller : MonoBehaviour
         public bool shootInput;
         public enum ShootMode {Auto, Semi, Burst}
         // Controls the different shooting states 
-        int shootModeController = 0;
+        public int shootModeController = 0;
         // Fly Shot
         public int numShots = 3;
         public float timeBetweenShots = 0.5f;
@@ -225,21 +232,23 @@ public class Player_Controller : MonoBehaviour
             else if (bulletChange == 1)
                 CurrentBulletType = BulletType.Explosive;
 
-            if(Input.GetKeyDown(KeyCode.Q))
+            if (Input.GetKeyUp(KeyCode.Q))
             {
                 shootModeController++;
-                if (shootModeController > 2)
+                if (shootModeController >= 3)
                     shootModeController = 0;
             }
 
-            if(Input.GetKeyDown(KeyCode.B))
+
+            // Key press increases controller value
+            if (Input.GetKeyUp(KeyCode.B))
             {
                 bulletChange++;
-                if (bulletChange > 1)
+                // value met resets the value
+                if (bulletChange >= 2)
                     bulletChange = 0;
             }
             #endregion
-
 
             switch (shootingMode)
             {
@@ -270,6 +279,10 @@ public class Player_Controller : MonoBehaviour
                     Fire();
                     BurstShot();
                 }
+            }
+            else
+            {
+                gunShootSound.volume = 0.2f;
             }
 
             // Fire Rate
@@ -326,10 +339,11 @@ public class Player_Controller : MonoBehaviour
                     {
                         if (currentAmmo > 0)
                         {
+                            gunShootSound.volume = 0.5f;
                             gunShootSound.Play();
                             // Placeholder for hearing noise (For the AI)
-                            GameObject BulletShot = Instantiate(BulletPosition, gun_firePoint.position, Quaternion.identity) as GameObject;
-                            BulletShot.name = "Bullet_Sound_Position";  // Name the new object we spawn
+                            //GameObject BulletShot = Instantiate(BulletPosition, gun_firePoint.position, Quaternion.identity) as GameObject;
+                            //BulletShot.name = "Bullet_Sound_Position";  // Name the new object we spawn
                             // We want to hit the AI Body and Head to take damage (Could be changed later for more damage when hitting head enemyHit.ApplyDamage(damage * 2);)
                             if (Hit.collider.gameObject.layer == 11 | Hit.collider.gameObject.layer == 14)
                             {
@@ -339,7 +353,6 @@ public class Player_Controller : MonoBehaviour
                                     enemyHit.ApplyDamage(damage);
                                 }
                             }
-
 
                             if (Hit.transform.gameObject.layer == 14)
                             {
@@ -388,13 +401,13 @@ public class Player_Controller : MonoBehaviour
                             if (currentAmmo > 0)
                             {
                                 gunShootSound.Play();
-                                GameObject BulletShot = Instantiate(BulletPosition, gun_firePoint.position, Quaternion.identity) as GameObject;
+                                //GameObject BulletShot = Instantiate(BulletPosition, gun_firePoint.position, Quaternion.identity) as GameObject;
                                 AI enemyHit = Hit.transform.GetComponent<AI>();
                                 if (enemyHit != null)
                                 {
                                     enemyHit.ApplyDamage(damage);
                                 }
-                                BulletShot.name = "Bullet_Sound_Position";
+                                //BulletShot.name = "Bullet_Sound_Position";
                                 // Decrease Ammo
                                 currentAmmo--;
                                 Debug.Log("Hit" + Hit.transform.name);

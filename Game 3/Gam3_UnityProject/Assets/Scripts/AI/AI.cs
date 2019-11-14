@@ -5,190 +5,199 @@ using UnityEngine.AI;
 
 public class AI : MonoBehaviour
 {
-    #region AI Behaviour
-    // AI States
-    public enum NPC_States { Dormant, Searching, Alert };
-    // Start state is dormant
-    [Header("AI_Behaviour")]
-    public NPC_States states = NPC_States.Dormant;
-    // Switch values of logic when this value increases or decreases
-    [SerializeField]    // Remove after debugging
-    private int typeOfState = 0;    // Cant edit
-    [SerializeField]    // Remove after debugging
-    public bool PCSeen = false;    // Cant edit 
-    #endregion
+    #region Variables
 
-    #region Values of logic
+    #endregion
+    // Variables that jave or will have more than 1 use. 
+    // What i mean by this is we can use the playerPosition for movement and behaviour change 
+    // But we also need it for shooting 
+    [Header("Multi Use Variables")]
+    // PUBLIC
+
+    // The game states of the object
+    public AI_States states = AI_States.Dormant;
+    // Different game states the object can be influenced by
+    public enum AI_States { Dormant, Searching, Alert };
+    // Is the player is the FOV sight? 
+    public bool PC_in_FOV = false;
+    public bool i_Heard_Something;
+    // PRIVATE
+
+    // Transform Component of the player character in the game world
+    private Transform playerPosition;
+
+    [Header("Overall Movement Variables")]
+    // PUBLIC
+
+    // How fast will the Object Move
+    public float AI_movement_Speed;
+    // Where the NPC starts in the world
+    Vector3 startPosition;
+
+    // PRIVATE
+
+    // The Physics we can manipulate
+    private NavMeshAgent AI_Physics;
+    private CapsuleCollider AI_Collider;
+
+    [Header("Searching Behaviour Variables")]
+    // PUBLIC
+    public float searchRadius = 10;
+    // The new path the AI will follow
+    Vector3 new_AI_Path;
+    // PRIVATE
+
+    // A way to get the maunal set up patrol variable
+    private Vector3[] pathFindingStorage;
+
+    #region Behaviour Timers
     // Timers which balance the states of play for NPCs
     // This value meets a random generated value which allows for the NPC to look for the player
-    public float HuntingTime = 0;  // Cant edit
-                                    // Value that agrees or disagrees if the ai is hunting
+    private float HuntingTime = 0;  
+    // Value that agrees or disagrees if the ai is hunting
     private float TimeUntilSearching = 2;
     private float TimeUntilAlerted = 3;
     // The time that meets the random alert time
     // Its so the NPC can Behave alerted until the player is gone and hidden
-    private float AlertedTime = 0;  // Cant Edit
-                                    // How long the player can be within vision until the AI is alert
-    private float playerTimeInSight = 0;  // Cannot Edit
+    private float AlertedTime = 0; 
+    // How long the player can be within vision until the AI is alert
+    private float playerTimeInSight = 0;
     #endregion
 
-    #region Random Behaviour Time Values
-    [Header("AI_Behaviour_Resetters")]
+    [Header("Time Until Reset Behaviour")]
+    // PUBLIC
     // Random values to meet
     public float random_Alert_Value;    // Cant Edit
     public float random_Hunt_Value;     // Cant Edit
-    #endregion
+    // PRIVATE
 
-    #region Detecting walls
-    [Header("Avoiding_Walls")]
-    // If the rays return something then we have to avoid the wall
-    public bool wallDetected = false; // Can Edit
-    #endregion
 
-    #region Cone Of Sight Variables 
-    [Header("Cone_Of_Sight")]
+    [Header("Dormant Behaviour Variables")]
+    // PUBLIC
+    public Vector3[] Patrol;    // Can Edit
+    public Vector3 moveDirection;
+    // PRIVATE
+
+    // Int scrolls through an array of Vector3
+    int patrolArrayScroller = 0;
+
+
+    [Header("Health n Damage")]
+    // PUBLIC
+    public int MaxHealth;
+    public int currentHealth;
+
+    // PRIVATE
+
+    // Hearing Player Noise
+    [Header("Sound Detection")]
+    // PUBLIC
+
+    // Audio Source Running - Attached To Player Gun
+    public AudioSource playerRunning;
+    // Audio Source shooting - Attached To Player
+    public AudioSource playerShooting;
+    // The Sound was detected within this vector
+    Vector3 playersLastPosition;
+    // How far can the enemy hear
+    public float detectionSoundRaduis = 6;
+    // PRIVATE
+
+    [Header("Shooting Variables")]
+    // PUBLIC
+    public bool headShot = false;
+    public GameObject head;
 
     public int viewDistance = 60;  // Can Edit
     public int fieldOfView = 45;    // Can Edit 
     public LayerMask AI_Detections; // Can Edit
-    private Transform playerPosition;   // Cant Edit
-                                        // Hit logic for the array itself
+    // PRIVATE
+
+    // Hit logic for the array itself
     private RaycastHit hit;
-    #endregion
 
-    #region Movement Variables
-    [Header("Movement_Attributes")]
-    public Vector3[] whereTheAiGoes;    // Can Edit
-                                        // How fast the AI Will move
-    public float objectSpeed = 5;   // Can Edit
-                                    // Where the NPC will move
-    Vector3 startPosition;  // Cannot edit
-    private Vector3 moveDirection;  // Cant Edit
-                                    // Main array that we are going to change overtime
-                                    // Scroll through the main array for different movement positions
-    int walkArrayScroller = 0;  // Cant Edit
-
-    // The Physics we can manipulate
-    private NavMeshAgent AI_Physics;   // Cant Edit
-                                       // Collision we want 
-    private CapsuleCollider AI_Collider;    // Cant edit
-                                            // Rotation
-    private Quaternion AI_rotation;
-    [SerializeField]
-    // Rate we rotate at
-    private float rotationRate = 45;
-    #endregion
-
-    [Header("Health n Damage")]
-    public int MaxHealth;
-    public int currentHealth;
-    // Slap this in AI Behaviour
-    public GameObject bulletObject;
-    public Transform BulletHeard;
-    public bool heardNoise;
-    public float changer = 0f;
-    public float wallDetectionRange = 5;
-
-    FieldOfView fov;
-
-    public bool headShot = false;
-    public GameObject head;
-
-    // Dormant Variables
-
-    // Searching Variables
-
-    // How do we search?
-    // We need to know the Players last known position & Current Position
-    // We need to decide where the NPC will go to search for the player. 
-    // We need a limit of how far the enemy can search
-    // We need a new path the AI can follow
-
-    public float searchRadius = 10;
-    // We have the players Transform
-    // The new path the AI will follow
-    public Vector3 newPath;
-    // A way to get the maunal set up patrol variable
-    private Vector3[] pathFindingStorage;
-
-
-    // Alerted Variables
-
-    #region Start
     // Start is called before the first frame update
     void Start()
     {
-        // Find the script
-        fov = this.gameObject.GetComponent<FieldOfView>();
-
-        gameObject.layer = 11;
-        gameObject.name = "Enemy";
-        #region IDE Component Set-Up
+        #region Find / Make Components
         // Component Set-Up
-        AI_Physics = gameObject.GetComponent<NavMeshAgent>();
-        //    AI_Physics.speed = 1;
-
+        // Find the navmeshagent
+        AI_Physics = gameObject.AddComponent<NavMeshAgent>();
+        // Make a collider
         AI_Collider = gameObject.AddComponent<CapsuleCollider>();
-
         #endregion
 
-        #region Value Set-Up
+        #region Set up Components and variables || Object Setup
+
+        // object layer is always 11 Dont change unless needed
+        gameObject.layer = 11;
+        // object name will be enemy
+        gameObject.name = "Enemy";
+
+        // Find the component that belongs to player
+        playerPosition = GameObject.Find("PC").GetComponent<Transform>();
+
+        // NavMeshAgent will adopt the spped variable
+        AI_Physics.speed = AI_movement_Speed;
+
         // Vector or Position set-up
         // Home position
         startPosition = new Vector3(transform.position.x, transform.position.y, transform.position.z);
-        // Value settings
-        //objectSpeed = .5f;
+        // First position in the array needs to be the startPosition
+        Patrol[0] = startPosition;
+
         viewDistance = 60;
         fieldOfView = 45;
         // Health Set-up
         currentHealth = MaxHealth;
         #endregion
-
-        #region Finding Objects Components
-        // Find the component that belongs to player
-        playerPosition = GameObject.Find("PC").GetComponent<Transform>();
-        BulletHeard = null;
-        #endregion
     }
-    #endregion
 
-    #region Update
     // Update is called once per frame
     void Update()
     {
         #region Heard Noise
-        // !! May need to be changed later !!
-        if (heardNoise == false)
+        // If we have not heard a noise
+        if (i_Heard_Something == false)
         {
+            // Run The relevent code now
             StartCoroutine(AI_Movement());
         }
-        else if (heardNoise == true)
-            StopCoroutine(AI_Movement());
-
-        if (bulletObject = GameObject.Find("Bullet_Sound_Position"))
+        // if we have in fact heard a noise
+        else if (i_Heard_Something == true)
+            StopCoroutine(AI_Movement());   // Stop moving we need to move somewhere else now
+        // We need to check if the player is in a good distance
+        // Without the distance whenever the player fires their gun or runs ALL AI WILL KNOW
+        if (Vector3.Distance(transform.position, playerPosition.position) < detectionSoundRaduis)
         {
-            BulletHeard = bulletObject.GetComponent<Transform>();
-            heardNoise = true;
-            transform.LookAt(BulletHeard.position);
-            AI_Physics.SetDestination(BulletHeard.transform.position);
-        }
-        if (heardNoise == true)
-        {
-            changer += Time.deltaTime;
-            if (changer > 5)
+            // If the volume from the audioSources are increased 
+            if (playerRunning.volume > 0.3f || playerShooting.volume > 0.2f)
             {
-                Destroy(bulletObject);
-                changer = 0;
-                heardNoise = false;
-                // change this with a slerp rotation 
-                transform.LookAt(whereTheAiGoes[walkArrayScroller]);
+                // Find where the player was
+                playersLastPosition = new Vector3(playerPosition.position.x, transform.position.y, playerPosition.position.z);
+                // tick the boolean
+                i_Heard_Something = true;
+            }
+        }
+        // when the boolean is true
+        if (i_Heard_Something)
+        {
+            // Look at the Vector
+            transform.LookAt(playersLastPosition);
+            // Move with the navmesh
+            AI_Physics.SetDestination(playersLastPosition);
+            // when the current position of this gameObject is at the noise position
+            if(transform.position.x == playersLastPosition.x)
+            {
+                // cant hear any more noise
+                i_Heard_Something = false;
             }
         }
         #endregion
 
         #region Behaviour Conditions
         // if the player is within view of the AI
-        if (PCSeen)
+        if (PC_in_FOV)
         {
             // Alert Logic
             // We count up the Player In Sight Value
@@ -197,59 +206,62 @@ public class AI : MonoBehaviour
             if (playerTimeInSight > TimeUntilAlerted)
             {
                 playerTimeInSight = 0;  // reset the value
-                states = NPC_States.Alert;
+                states = AI_States.Alert;
                 Randomizer();
             }
 
             if (playerTimeInSight > TimeUntilSearching)
             {
-                states = NPC_States.Searching;
+                states = AI_States.Searching;
                 Randomizer();
             }
         }
         // However
-        else if (!PCSeen)
+        else if (!PC_in_FOV)
         {
             playerTimeInSight = 0;
-            PCSeen = false;
+            PC_in_FOV = false;
         }
         #endregion
 
+        #region Behaviour Change
         #region Searching
-        if (states == NPC_States.Searching)
+        if (states == AI_States.Searching)
         {
-            Debug.Log(NPC_States.Searching + ":" + "I'm Now Searching for The Player");
+            Debug.Log(AI_States.Searching + ":" + "I'm Now Searching for The Player");
             HuntingTime += Time.deltaTime;
             if (HuntingTime > random_Hunt_Value)
             {
                 random_Hunt_Value = 0;
                 HuntingTime = 0;
-                states = NPC_States.Dormant;
+                states = AI_States.Dormant;
             }
         }
         #endregion
 
         #region Alert
-        if (states == NPC_States.Alert)
+        if (states == AI_States.Alert)
         {
-            Debug.Log(NPC_States.Alert + ":" + "I'm Now Alerted and Will Hurt The Player . . .");
+            Debug.Log(AI_States.Alert + ":" + "I'm Now Alerted and Will Hurt The Player . . .");
             AlertedTime += Time.deltaTime;
             if (AlertedTime > random_Alert_Value)
             {
                 random_Alert_Value = 0;
                 AlertedTime = 0;
-                states = NPC_States.Dormant;
+                states = AI_States.Dormant;
             }
         }
         #endregion
+        #endregion
 
-        #region Timer Stoppers
-        if (states == NPC_States.Alert)
+        #region Timer Stop On Alert
+        if (states == AI_States.Alert)
         {
             playerTimeInSight = 0;
         }
         #endregion
 
+        #region Death Monitor
         if (currentHealth <= 0 && !headShot)
             Destroy(gameObject);
         else if (headShot && currentHealth <= 0)
@@ -270,30 +282,24 @@ public class AI : MonoBehaviour
             Destroy(aiHead, 10f);
 
         }
-
-
+        #endregion
     }
-    #endregion
 
     #region Damage Function
     public void ApplyDamage(int damage)
     {
+        // reduce health with the damage value that gets passed through by the player (Its in the shooting mechanic)
         currentHealth -= damage;
     }
     #endregion
 
-    #region Time Behaviour Lasts
+    #region Behaviour Length Calculator
     void Randomizer()
     {
-        #region Note
-        // typeOfState = 0 = Dormant
-        // typeOfState = 1 = Hunting
-        // typeOfState = 2 = Alerted
-        #endregion
         switch (states)
         {
             #region Dormant
-            case NPC_States.Dormant:
+            case AI_States.Dormant:
                 // Reset everything when the AI goes from Hunting to Dormant || Alert to Dormant
                 Debug.Log(gameObject.transform.name + ":" + "Dormant . . .");
                 random_Hunt_Value = 0;
@@ -301,19 +307,19 @@ public class AI : MonoBehaviour
                 HuntingTime = 0;
                 AlertedTime = 0;
                 // Reset Searching Path
-                newPath = new Vector3(0, 0, 0);
+                new_AI_Path = new Vector3(0, 0, 0);
                 break;
             #endregion
 
             #region Searching
-            case NPC_States.Searching:
+            case AI_States.Searching:
                 // We are hunting we set random values so the AI can hunt until the value is met. 
                 Debug.Log(gameObject.transform.name + ":" + "Searching . . .");
                 AlertedTime = 0;
                 random_Alert_Value = 0;
                 // We randomise the Hunting to - Dormant so the NPC does whatever until the valid time
-                float minHuntTime = 10;
-                float maxHuntTIme = 20;
+                float minHuntTime = 20;
+                float maxHuntTIme = 30;
                 // Randomise the value
                 random_Hunt_Value = Random.Range(minHuntTime, maxHuntTIme);
                 GenerateNewPath();
@@ -321,12 +327,12 @@ public class AI : MonoBehaviour
             #endregion
 
             #region Alerted
-            case NPC_States.Alert:
+            case AI_States.Alert:
                 // Get A Random Value when we pass the value then we allow the AI to go back to its home and becomes dormant
                 Debug.Log(gameObject.transform.name + ":" + "Alerted . . .");
                 HuntingTime = 0;
                 random_Hunt_Value = 0;
-                float minAlertTime = 20;
+                float minAlertTime = 30;
                 float maxAlertTime = 40;
                 // Generate random alert value
                 random_Alert_Value = Random.Range(minAlertTime, maxAlertTime);
@@ -336,6 +342,7 @@ public class AI : MonoBehaviour
     }
     #endregion
 
+    #region Search Path Generation
     void GenerateNewPath()
     {
         // The Path will be 
@@ -344,12 +351,11 @@ public class AI : MonoBehaviour
         // Generate Random Search Position
         Vector3 newGeneratedPath = new Vector3(Random.value, gameObject.transform.position.y, Random.value) - distanceBetweenObjects;
         // This is our new path
-        newPath = newGeneratedPath;
+        new_AI_Path = newGeneratedPath;
 
         Debug.Log(newGeneratedPath + "New Path");
-        // If the current object is at that position then make another position generate
-
     }
+    #endregion
 
     #region Movement Logic
     // Movement logic needs a revisit now we have a very basic wall detection system working
@@ -361,19 +367,19 @@ public class AI : MonoBehaviour
         #region Dormant Movement
         // Move the player
         // Vector3 Storage of direction
-        if (states == NPC_States.Dormant)
+        if (states == AI_States.Dormant)
         {
-            moveDirection = (whereTheAiGoes[walkArrayScroller]);
+            moveDirection = (Patrol[patrolArrayScroller]);
 
             if (Vector3.Distance(moveDirection, transform.position) < 3)
             {
-                walkArrayScroller++;
-                if (walkArrayScroller >= whereTheAiGoes.Length)
+                patrolArrayScroller++;
+                if (patrolArrayScroller >= Patrol.Length)
                 {
-                    walkArrayScroller = 0;
+                    patrolArrayScroller = 0;
                 }
                 else
-                    transform.LookAt(whereTheAiGoes[walkArrayScroller]);
+                    transform.LookAt(Patrol[patrolArrayScroller]);
             }
 
             AI_Physics.SetDestination(moveDirection);
@@ -381,35 +387,59 @@ public class AI : MonoBehaviour
         #endregion
         // Searching for the player
         #region Hunting Movement
-        if (states == NPC_States.Searching)
+        if (states == AI_States.Searching)
         {
-            AI_Physics.SetDestination(newPath);
+            AI_Physics.SetDestination(new_AI_Path);
             // if the value between both objects is greater than our search radius we cant go any further
             if(Vector3.Distance(transform.position, playerPosition.position) > searchRadius)    // if the player is outside the search radius turn back
             {
-                Debug.Log("Player Out Of Range" + ":" + NPC_States.Dormant);
+                Debug.Log("Player Out Of Range" + ":" + AI_States.Dormant);
             }
             // When the current Position is equal to the new path
-            if(transform.position.x == newPath.x)
+            if(transform.position.x == new_AI_Path.x)
             {
                 // Make a new path
                 GenerateNewPath();
+
+                StartCoroutine("FireWeapon");
             }
         }
         #endregion
 
         // Found and alerted of the player
         #region Alert Movement
-        if (states == NPC_States.Alert)
+        if (states == AI_States.Alert)
         {
             AI_Physics.SetDestination(playerPosition.position);
             yield return new WaitForSeconds(5);
             transform.LookAt(playerPosition.position);
-
-            // Shoot PLayer Function
+            StartCoroutine("FireWeapon");
+            
         }
         #endregion
         yield break;
-    #endregion
     }
+    #endregion
+
+    #region AI Fire Weapon
+    IEnumerator FireWeapon()
+    {
+        switch(states)
+        {
+            case AI_States.Dormant:
+                yield break;
+
+            case AI_States.Searching:
+                // Fire weapon with bad aim or at random stuff
+                break;
+
+            case AI_States.Alert:
+                // Shoot PC with more accuracy
+
+                Debug.Log("Make NPC go to Cover: Yes you still need to do that");
+                break;
+        }
+        yield break;
+    }
+    #endregion
 }

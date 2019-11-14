@@ -8,7 +8,6 @@ public class FieldOfView : MonoBehaviour
     public float viewRadius;
     [Range (0, 360)]   // 0 to 360 rotation
     public float viewAngle;
-
     public LayerMask targetMask;
     public LayerMask obstacleMask;
     public List<Transform> visableTargets = new List<Transform>();
@@ -20,7 +19,12 @@ public class FieldOfView : MonoBehaviour
     public MeshFilter viewMeshFilter;
     Mesh viewMesh;
 
-    AI script;
+    [Header("Script Reference")]
+    public AI script;
+
+
+
+
     GameObject player;
 
     private void Start()
@@ -55,7 +59,7 @@ public class FieldOfView : MonoBehaviour
     void FindVisibleTargets()
     {
         visableTargets.Clear();
-        script.PCSeen = false;
+        script.PC_in_FOV = false;
         Collider[] targetsInViewRadius = Physics.OverlapSphere(transform.position, viewRadius, targetMask);
 
         for(int i =0; i < targetsInViewRadius.Length; i++)
@@ -73,7 +77,7 @@ public class FieldOfView : MonoBehaviour
 
                     if (visableTargets.Contains(player.transform))
                     {
-                        script.PCSeen = true;
+                        script.PC_in_FOV = true;
                     }
                     else return;
                 }
