@@ -1,39 +1,39 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 public class Player_Controller : MonoBehaviour
 {
-    #region Components
+
+    #region Variablles
+    [Header("Movement")]
+    // PUBLIC
+    public float runSpeed = 30;
+    public float currentSpeed = 20;
+    public float cameraRotationRate = 45;   // Rate we rotate at
+    // PRIVATE
+    private float speed;
+    [HideInInspector]
+    float xRotation = 0f;   // Value that monitors X Rotation keep it at 0 for default
+    float dirX;
+    float dirZ;
+    private Vector3 movementDirection;
+    // COMPONENTS
     private Rigidbody playerPhysics;
     private CapsuleCollider playerCollision;
     private Transform playersEyes; // Player Camera
-    #endregion
-
-    #region Player Move
-    [Header("Player Movement")]
-    private float speed;
-    public float runSpeed = 30;
-    public float currentSpeed = 20;
-    float dirX;
-    float dirZ;
-    Vector3 movementDirection;
-    #endregion
-
-    #region mouse Rotation
-    [Header("Mouse Rotation")]
-    public float cameraRotationRate = 45;   // Rate we rotate at
-    [HideInInspector]
-    float xRotation = 0f;   // Value that monitors X Rotation keep it at 0 for default
-    #endregion
 
     public AudioSource walkingSound;
 
-
+    [Header("Health n Damage")]
+    public int maxHealth = 100;
+    public int currentHealth;
+    int damage;
+    #endregion
 
     // Start is called before the first frame update
     void Start()
     {
+        currentHealth = maxHealth;
         #region Values SetUp
         speed = currentSpeed;
         cameraRotationRate = 45f;
@@ -127,9 +127,15 @@ public class Player_Controller : MonoBehaviour
         transform.Rotate(0, cameraRotationRate * Time.deltaTime * mouseRotX, 0);
         #endregion
     }
+    public void ApplyDamage(int damage)
+    {
+        currentHealth -= damage;
+    }
 
-        public class GunMechanic : MonoBehaviour
-        {
+    #region Gun Functionality
+    public class GunMechanic : MonoBehaviour
+    {
+        #region Variables
         [Header("Shooting")]
         public LayerMask whatWeCanShoot;
         public AudioSource gunShootSound;
@@ -137,6 +143,7 @@ public class Player_Controller : MonoBehaviour
         public int gunRange = 30;
         public float fireRate = 0.25f;
         float fireTimer;
+        public GameObject bulletHole;
 
         [Header("Reloadiing")]
         public bool isReloading = false;
@@ -189,8 +196,7 @@ public class Player_Controller : MonoBehaviour
 
         [Header("Script Ref")]
         public AI enemyHit;
-
-
+        #endregion
 
         public virtual void Awake()
         {
@@ -210,6 +216,7 @@ public class Player_Controller : MonoBehaviour
             if (numShots / 2 * 2 == numShots) numShots++;   // Need an odd number of shots
             if (numShots < 3) numShots = 3; // At least 3 shots are needed
             #endregion
+
         }
 
         public virtual void FixedUpdate()
@@ -341,9 +348,9 @@ public class Player_Controller : MonoBehaviour
                         {
                             gunShootSound.volume = 0.5f;
                             gunShootSound.Play();
-                            // Placeholder for hearing noise (For the AI)
-                            //GameObject BulletShot = Instantiate(BulletPosition, gun_firePoint.position, Quaternion.identity) as GameObject;
-                            //BulletShot.name = "Bullet_Sound_Position";  // Name the new object we spawn
+
+                            GameObject impactHole = Instantiate(bulletHole, Hit.point, Quaternion.FromToRotation(Vector3.forward, Hit.normal)) as GameObject;
+                            Destroy(impactHole, 5f);
                             // We want to hit the AI Body and Head to take damage (Could be changed later for more damage when hitting head enemyHit.ApplyDamage(damage * 2);)
                             if (Hit.collider.gameObject.layer == 11 | Hit.collider.gameObject.layer == 14)
                             {
@@ -445,4 +452,5 @@ public class Player_Controller : MonoBehaviour
             }
         }
     }
+    #endregion
 }

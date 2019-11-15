@@ -6,8 +6,6 @@ using UnityEngine.AI;
 public class AI : MonoBehaviour
 {
     #region Variables
-
-    #endregion
     // Variables that jave or will have more than 1 use. 
     // What i mean by this is we can use the playerPosition for movement and behaviour change 
     // But we also need it for shooting 
@@ -53,13 +51,13 @@ public class AI : MonoBehaviour
     #region Behaviour Timers
     // Timers which balance the states of play for NPCs
     // This value meets a random generated value which allows for the NPC to look for the player
-    private float HuntingTime = 0;  
+    private float HuntingTime = 0;
     // Value that agrees or disagrees if the ai is hunting
     private float TimeUntilSearching = 2;
     private float TimeUntilAlerted = 3;
     // The time that meets the random alert time
     // Its so the NPC can Behave alerted until the player is gone and hidden
-    private float AlertedTime = 0; 
+    private float AlertedTime = 0;
     // How long the player can be within vision until the AI is alert
     private float playerTimeInSight = 0;
     #endregion
@@ -75,7 +73,7 @@ public class AI : MonoBehaviour
     [Header("Dormant Behaviour Variables")]
     // PUBLIC
     public Vector3[] Patrol;    // Can Edit
-    public Vector3 moveDirection;
+    Vector3 moveDirection;
     // PRIVATE
 
     // Int scrolls through an array of Vector3
@@ -86,6 +84,7 @@ public class AI : MonoBehaviour
     // PUBLIC
     public int MaxHealth;
     public int currentHealth;
+    int damage = 5;
 
     // PRIVATE
 
@@ -107,14 +106,21 @@ public class AI : MonoBehaviour
     // PUBLIC
     public bool headShot = false;
     public GameObject head;
-
-    public int viewDistance = 60;  // Can Edit
-    public int fieldOfView = 45;    // Can Edit 
-    public LayerMask AI_Detections; // Can Edit
+    // Rate of fire
+    public float fireRate = 0.25f;
+    // How accuracte is each shot
+    public int firingAccuracy = 1000;
+    // The Range of shooting
+    public int shootingRange = 60;
+    // What the AI can shoot
+    public LayerMask AI_Detections;
+    public Transform firePoint;
     // PRIVATE
 
     // Hit logic for the array itself
     private RaycastHit hit;
+    private float FireRateTimer;
+    #endregion
 
     // Start is called before the first frame update
     void Start()
@@ -128,7 +134,6 @@ public class AI : MonoBehaviour
         #endregion
 
         #region Set up Components and variables || Object Setup
-
         // object layer is always 11 Dont change unless needed
         gameObject.layer = 11;
         // object name will be enemy
@@ -145,11 +150,18 @@ public class AI : MonoBehaviour
         startPosition = new Vector3(transform.position.x, transform.position.y, transform.position.z);
         // First position in the array needs to be the startPosition
         Patrol[0] = startPosition;
-
-        viewDistance = 60;
-        fieldOfView = 45;
+        // Firing Range
+        //shootingRange = 60;
         // Health Set-up
         currentHealth = MaxHealth;
+        #endregion
+        // The Zone that makes sure the object is set up correctly
+        #region Debugging Zone
+        if (states != AI_States.Dormant)
+            Debug.LogError(gameObject.name + ":" + "The Starting enum Behaviour is wrong");
+
+        if (Patrol.Length < 0)
+            Debug.LogWarning(gameObject.name + ":" + "Patrol Array is not been set up");
         #endregion
     }
 
@@ -283,6 +295,18 @@ public class AI : MonoBehaviour
 
         }
         #endregion
+
+        // Fire Rate
+        if (FireRateTimer < fireRate)
+            FireRateTimer += Time.deltaTime;
+
+        // We dont want to run the i heard something logic when the AI already knows where the player is 
+        if (states == AI_States.Alert && i_Heard_Something)
+            i_Heard_Something = false;
+        else if (states == AI_States.Searching && i_Heard_Something)
+            i_Heard_Something = false;
+
+        StartCoroutine("FireWeapon");
     }
 
     #region Damage Function
@@ -290,6 +314,45 @@ public class AI : MonoBehaviour
     {
         // reduce health with the damage value that gets passed through by the player (Its in the shooting mechanic)
         currentHealth -= damage;
+    }
+    #endregion
+
+
+    #region Shoot Weapon
+    public void Shoot()
+    {
+        #region Accuracys
+        Vector3 BulletSpread(Vector3 originVector, int accuracy, bool showDebug = false, Vector3 debugPosition = default(Vector3))
+        {
+            // Set random values for the accuracy
+            float myIntx = (float)Random.Range(-accuracy, accuracy) / 1000;
+            float myInty = (float)Random.Range(-accuracy, accuracy) / 1000;
+            float myIntz = (float)Random.Range(-accuracy, accuracy) / 1000;
+            // New firing vector
+            Vector3 newVector = new Vector3(originVector.x + myIntx, originVector.y + myInty, originVector.z + myIntz);
+
+            if (showDebug)
+            {
+                Debug.DrawRay(debugPosition, originVector * 100f, Color.cyan);
+                Debug.DrawRay(debugPosition, newVector * 100f, Color.red);
+            }
+            return newVector;
+        }
+        #endregion
+        if (FireRateTimer < fireRate) return;
+        FireRateTimer = 0.0f;
+
+        if(Physics.Raycast(firePoint.position, BulletSpread(firePoint.forward, firingAccuracy, true, firePoint.position), out hit, shootingRange, AI_Detections))
+        {
+            if (hit.transform.gameObject.layer == 10)
+            {
+                Debug.Log("I Hit The Player");
+                Player_Controller applyDamage = GameObject.Find("PC").GetComponent<Player_Controller>();
+                applyDamage.ApplyDamage(damage);
+            }
+            
+        }
+
     }
     #endregion
 
@@ -430,10 +493,13 @@ public class AI : MonoBehaviour
                 yield break;
 
             case AI_States.Searching:
-                // Fire weapon with bad aim or at random stuff
+                firingAccuracy = 100;
+                Shoot();
                 break;
 
             case AI_States.Alert:
+                firingAccuracy = 50;
+                Shoot();
                 // Shoot PC with more accuracy
 
                 Debug.Log("Make NPC go to Cover: Yes you still need to do that");
