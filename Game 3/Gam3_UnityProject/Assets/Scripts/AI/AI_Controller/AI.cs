@@ -122,6 +122,7 @@ public class AI : MonoBehaviour
     private float FireRateTimer;
     #endregion
 
+
     // Start is called before the first frame update
     void Start()
     {
