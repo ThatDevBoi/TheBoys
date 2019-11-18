@@ -17,7 +17,7 @@ public class Simple_Light_Pulse : MonoBehaviour
 
     [Header("Spot Light Variables")]
     [HideAttributes("spotLight", false)]
-    public float spotLightAngle = 30f;
+    public float spotLightAngle = 60f;
 
     [Header("Directional Light Variables")]
     [HideAttributes("directionLight", false)]
@@ -33,7 +33,7 @@ public class Simple_Light_Pulse : MonoBehaviour
     [HideAttributes("areaLight", false)]
     public float Height = 1;
     [HideAttributes("areaLight", false)]
-    public float radius = 0.5f;
+    public float radius = 6;
 
 
     /// <summary>
@@ -152,9 +152,9 @@ public class Simple_Light_Pulse : MonoBehaviour
 
 
             #endregion
-            // What mode are we rendering
-            #region Mode Lighting
-            if (LightMode == LightingMode.REALTIME)
+        // What mode are we rendering
+        #region Mode Lighting
+        if (LightMode == LightingMode.REALTIME)
             objectLight.lightmapBakeType = LightmapBakeType.Realtime;
         if (LightMode == LightingMode.MIXED)
             objectLight.lightmapBakeType = LightmapBakeType.Mixed;

@@ -5,7 +5,7 @@ using UnityEngine.AI;
 
 public class AI : MonoBehaviour
 {
-    #region Variables
+    #region Default AI Variables
     // Variables that jave or will have more than 1 use. 
     // What i mean by this is we can use the playerPosition for movement and behaviour change 
     // But we also need it for shooting 
@@ -53,8 +53,8 @@ public class AI : MonoBehaviour
     // This value meets a random generated value which allows for the NPC to look for the player
     private float HuntingTime = 0;
     // Value that agrees or disagrees if the ai is hunting
-    private float TimeUntilSearching = 2;
-    private float TimeUntilAlerted = 3;
+    public float TimeUntilSearching = 1;
+    public float TimeUntilAlerted = 2;
     // The time that meets the random alert time
     // Its so the NPC can Behave alerted until the player is gone and hidden
     private float AlertedTime = 0;
@@ -120,6 +120,10 @@ public class AI : MonoBehaviour
     // Hit logic for the array itself
     private RaycastHit hit;
     private float FireRateTimer;
+    #endregion
+
+    #region Melee Combat Variables
+
     #endregion
 
 
@@ -499,7 +503,7 @@ public class AI : MonoBehaviour
                 break;
 
             case AI_States.Alert:
-                firingAccuracy = 50;
+                firingAccuracy = 30;
                 Shoot();
                 // Shoot PC with more accuracy
 

@@ -157,8 +157,6 @@ public class Player_Controller : MonoBehaviour
         public int currentAmmo;
         // the ammo the player has spare
         public int backUpAmmo;
-        // Object that spawns for AI
-        public GameObject BulletPosition;
         bool isShooting = true;
 
         [Header("Aim Down Sites")]
@@ -181,7 +179,7 @@ public class Player_Controller : MonoBehaviour
         // Fly Shot
         public int numShots = 3;
         public float timeBetweenShots = 0.5f;
-        private float nextShot = 0.0f;
+        float nextShot = 0.0f;
 
         [Header("Bullet Type")]
         public BulletType CurrentBulletType = BulletType.Default;
@@ -261,19 +259,20 @@ public class Player_Controller : MonoBehaviour
             {
                 case ShootMode.Auto:
                     shootInput = Input.GetButton("Fire1");
-                    fireRate = 0.25f;
-                    damage = 5;
+                    fireRate = 0.125f;
+                    damage = 9;
                 break;
 
                 case ShootMode.Semi:
                     shootInput = Input.GetButtonDown("Fire1");
-                    fireRate = 0.8f;
+                    fireRate = 0.2f;
                     damage = 10;
                 break;
 
                 case ShootMode.Burst:
                     shootInput = Input.GetButtonDown("Fire1");
-                    damage = 1;
+                    fireRate = 0.6f;
+                    damage = 20;
                 break;
             }
             #endregion
@@ -396,7 +395,9 @@ public class Player_Controller : MonoBehaviour
         {
             if(shootModeController == 2)
             {
-                nextShot = Time.time + timeBetweenShots;
+                if (fireTimer < fireRate) return;
+                fireTimer = 0.0f;
+                //nextShot = Time.time + timeBetweenShots;
                 for (int i = 0; i < numShots; i++)
                 {
                     if (isShooting)
