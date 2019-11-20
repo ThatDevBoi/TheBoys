@@ -241,10 +241,22 @@ public class AI : MonoBehaviour
         }
         #endregion
 
+
+
         #region Behaviour Change
+        #region Dormant
+        if (states == AI_States.Dormant)
+        {
+            FieldOfView FOVscript = gameObject.GetComponent<FieldOfView>();
+            FOVscript.viewRadius = 6;
+        }
+        #endregion
+
         #region Searching
         if (states == AI_States.Searching)
         {
+            FieldOfView FOVscript = gameObject.GetComponent<FieldOfView>();
+            FOVscript.viewRadius = 8;
             Debug.Log(AI_States.Searching + ":" + "I'm Now Searching for The Player");
             HuntingTime += Time.deltaTime;
             if (HuntingTime > random_Hunt_Value)
@@ -259,6 +271,8 @@ public class AI : MonoBehaviour
         #region Alert
         if (states == AI_States.Alert)
         {
+            FieldOfView FOVscript = gameObject.GetComponent<FieldOfView>();
+            FOVscript.viewRadius = 10;
             Debug.Log(AI_States.Alert + ":" + "I'm Now Alerted and Will Hurt The Player . . .");
             AlertedTime += Time.deltaTime;
             if (AlertedTime > random_Alert_Value)

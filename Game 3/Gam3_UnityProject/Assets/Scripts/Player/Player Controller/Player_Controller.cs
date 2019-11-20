@@ -1,6 +1,6 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 public class Player_Controller : MonoBehaviour
 {
 
@@ -28,6 +28,8 @@ public class Player_Controller : MonoBehaviour
     public int maxHealth = 100;
     public int currentHealth;
     int damage;
+
+    public Slider healthBar;
     #endregion
 
     // Start is called before the first frame update
@@ -35,7 +37,7 @@ public class Player_Controller : MonoBehaviour
     {
         currentHealth = maxHealth;
         #region Values SetUp
-        speed = currentSpeed;
+            speed = currentSpeed;
         cameraRotationRate = 45f;
         xRotation = 0f;
         gameObject.layer = 10;
@@ -65,6 +67,7 @@ public class Player_Controller : MonoBehaviour
         if(playerCollision == null)
             Debug.LogError("Object Name" + ":" + gameObject.transform.name + ":" + "No Capsule Collider is applied to the player character!! Check the script when it adds the components");
         #endregion
+
     }
 
     // Update is called once per frame
@@ -72,6 +75,12 @@ public class Player_Controller : MonoBehaviour
     {
         // Functions
         FPSMove(speed, dirX, dirZ, movementDirection);
+        HealthBar();
+        // Never go over max health
+        if(currentHealth > maxHealth)
+        {
+            currentHealth = maxHealth;
+        }
     }
 
     void FPSMove(float speed, float V, float H, Vector3 direction)
@@ -132,6 +141,58 @@ public class Player_Controller : MonoBehaviour
         currentHealth -= damage;
     }
 
+    public void HealthBar()
+    {
+        healthBar.value = currentHealth;
+        #region Change Bar Color
+        if (currentHealth > maxHealth | currentHealth > 60)
+        {
+            Image healthImage = GameObject.Find("PlayerHP_Fill").GetComponent<Image>();
+            healthImage.color = Color.green;
+        }
+        // Make fill bar Yellow
+        if(currentHealth  <= 60)
+        {
+            Image healthImage = GameObject.Find("PlayerHP_Fill").GetComponent<Image>();
+            healthImage.color = Color.yellow;
+        }
+
+        // make fill bar Red
+        if (currentHealth <= 30)
+        {
+            Image healthImage = GameObject.Find("PlayerHP_Fill").GetComponent<Image>();
+            healthImage.color = Color.red;
+        }
+        #endregion
+
+    }
+    // Base for charging port (For ammo and health)
+    private void OnTriggerStay(Collider other)
+    {
+        // Find the derived class
+        Shooting_Mechanic gunScript = transform.FindChild("FPS_Cam/Weapon_Holder/Pistol").GetComponent<Shooting_Mechanic>();
+        // Increase Health
+        if (currentHealth < maxHealth)  // check if the current health is less than the max 
+        {
+            if (other.gameObject.name == "Charging Port")   // is this a charging port?
+            {
+                // Do a thing
+                currentHealth += 10;
+
+            }
+        }
+        // Increase ammo
+        if(gunScript.currentAmmo < gunScript.maxAmmo)
+        {
+            if(other.gameObject.name == "Charging Port")    // is this the port?
+            {
+                // do a thing
+                gunScript.currentAmmo += 3;
+            }
+        }
+
+    }
+
     #region Gun Functionality
     public class GunMechanic : MonoBehaviour
     {
@@ -157,7 +218,7 @@ public class Player_Controller : MonoBehaviour
         public int currentAmmo;
         // the ammo the player has spare
         public int backUpAmmo;
-        bool isShooting = true;
+        public bool isShooting = true;
 
         [Header("Aim Down Sites")]
         // The orginal position of the gun at the hip
@@ -192,6 +253,11 @@ public class Player_Controller : MonoBehaviour
         [Header("Health")]
         private int damage;  // This is set in the switch statement 
 
+        [Header("UI")]
+        public Text currentAmmoText;
+        public Text backUpAmmoText;
+
+
         [Header("Script Ref")]
         public AI enemyHit;
         #endregion
@@ -221,6 +287,9 @@ public class Player_Controller : MonoBehaviour
         {
             // Functions
             AimDownSights();
+
+            if (currentAmmo > maxAmmo)
+                currentAmmo = maxAmmo;
 
             #region Fire Modes n Bullet Types
 
@@ -312,6 +381,10 @@ public class Player_Controller : MonoBehaviour
                 isShooting = false;
             else
                 isShooting = true;  // Yes we still have bullets 
+
+            // Updating UI For Ammo
+            currentAmmoText.text = currentAmmo.ToString();
+            backUpAmmoText.text = backUpAmmo.ToString();
         }
 
         public void AimDownSights()
@@ -454,4 +527,5 @@ public class Player_Controller : MonoBehaviour
         }
     }
     #endregion
+
 }
