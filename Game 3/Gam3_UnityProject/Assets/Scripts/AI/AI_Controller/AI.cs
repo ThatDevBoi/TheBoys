@@ -1,8 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 using UnityEngine.AI;
 
+[CustomPropertyDrawer(typeof(HideAttributes))]
 public class AI : MonoBehaviour
 {
     #region Default AI Variables
@@ -11,7 +13,6 @@ public class AI : MonoBehaviour
     // But we also need it for shooting 
     [Header("Multi Use Variables")]
     // PUBLIC
-
     // The game states of the object
     public AI_States states = AI_States.Dormant;
     // Different game states the object can be influenced by
@@ -21,83 +22,43 @@ public class AI : MonoBehaviour
     public bool i_Heard_Something;
     // PRIVATE
 
-    // Transform Component of the player character in the game world
-    private Transform playerPosition;
-
     [Header("Overall Movement Variables")]
     // PUBLIC
-
     // How fast will the Object Move
     public float AI_movement_Speed;
-    // Where the NPC starts in the world
-    Vector3 startPosition;
-
     // PRIVATE
-
-    // The Physics we can manipulate
-    private NavMeshAgent AI_Physics;
-    private CapsuleCollider AI_Collider;
 
     [Header("Searching Behaviour Variables")]
     // PUBLIC
     public float searchRadius = 10;
-    // The new path the AI will follow
-    Vector3 new_AI_Path;
     // PRIVATE
-
-    // A way to get the maunal set up patrol variable
-    private Vector3[] pathFindingStorage;
-
-    #region Behaviour Timers
-    // Timers which balance the states of play for NPCs
-    // This value meets a random generated value which allows for the NPC to look for the player
-    private float HuntingTime = 0;
-    // Value that agrees or disagrees if the ai is hunting
-    public float TimeUntilSearching = 1;
-    public float TimeUntilAlerted = 2;
-    // The time that meets the random alert time
-    // Its so the NPC can Behave alerted until the player is gone and hidden
-    private float AlertedTime = 0;
-    // How long the player can be within vision until the AI is alert
-    private float playerTimeInSight = 0;
-    #endregion
 
     [Header("Time Until Reset Behaviour")]
     // PUBLIC
     // Random values to meet
-    public float random_Alert_Value;    // Cant Edit
-    public float random_Hunt_Value;     // Cant Edit
+    public float random_Alert_Value;   
+    public float random_Hunt_Value;    
     // PRIVATE
-
 
     [Header("Dormant Behaviour Variables")]
     // PUBLIC
-    public Vector3[] Patrol;    // Can Edit
-    Vector3 moveDirection;
+    public Vector3[] Patrol;    
     // PRIVATE
-
-    // Int scrolls through an array of Vector3
-    int patrolArrayScroller = 0;
 
 
     [Header("Health n Damage")]
     // PUBLIC
     public int MaxHealth;
     public int currentHealth;
-    int damage = 5;
-
     // PRIVATE
 
     // Hearing Player Noise
     [Header("Sound Detection")]
     // PUBLIC
-
     // Audio Source Running - Attached To Player Gun
     public AudioSource playerRunning;
     // Audio Source shooting - Attached To Player
     public AudioSource playerShooting;
-    // The Sound was detected within this vector
-    Vector3 playersLastPosition;
     // How far can the enemy hear
     public float detectionSoundRaduis = 6;
     // PRIVATE
@@ -119,7 +80,73 @@ public class AI : MonoBehaviour
 
     // Hit logic for the array itself
     private RaycastHit hit;
-    private float FireRateTimer;
+
+
+    #region Debugging
+    [HideInInspector]
+    public bool Debugging;
+    // Transform Component of the player character in the game world
+    [Header("$Debugging$ Where the players position Component is")]
+    [Header("For QA Tester")]
+    [HideAttributes("Debugging", true)]
+    public Transform playerPosition;
+    // Where the NPC starts in the world
+    [Header("$Debugging$ Where the AI Starts in the world (The patrol array 0 element always = this position)")]
+    [HideAttributes("Debugging", true)]
+    public Vector3 startPosition;
+    // Int scrolls through an array of Vector3
+    [Header("$Debugging$ The Value that scrolls through the Patrol Array")]
+    [HideAttributes("Debugging", true)]
+    public int patrolArrayScroller = 0;
+    // The Physics we can manipulate
+    [Header("$Debugging$ The NavMeshAgent Component")]
+    [HideAttributes("Debugging", true)]
+    public NavMeshAgent AI_Physics;
+    [Header("$Debugging$ The NPC Collision")]
+    [HideAttributes("Debugging", true)]
+    public CapsuleCollider AI_Collider;
+    // The new path the AI will follow
+    [Header("$Debugging$ The Hunting behaviour new movement")]
+    [HideAttributes("Debugging", true)]
+    public Vector3 new_AI_Path;
+    [Header("$Debugging$ Vector3 that tells the AI where to move")]
+    [HideAttributes("Debugging", true)]
+    public Vector3 moveDirection;
+    // The Sound was detected within this vector
+    [Header("$Debugging$ Noise Detection where the player was when they made a sound")]
+    [HideAttributes("Debugging", true)]
+    public Vector3 playersLastPosition;
+    [Header("$Debugging$ How much the AI gets damaged per bullet")]
+    [HideAttributes("Debugging", true)]
+    public int damage = 5;
+    [Header("$Debugging$ How Fast The AI Fires There gun ")]
+    [HideAttributes("Debugging", true)]
+    public float FireRateTimer;
+
+    #region Behaviour Timers
+    // Timers which balance the states of play for NPCs
+    // This value meets a random generated value which allows for the NPC to look for the player
+    [Header("$Debugging$ How long the AI Searches for the player")]
+    [HideAttributes("Debugging", true)]
+    public float SearchingTime = 0;
+    // Value that agrees or disagrees if the ai is hunting
+    [Header("$Debugging$ The Time it takes for the AI to detect the player for searching (Detects when in FOV)")]
+    [HideAttributes("Debugging", true)]
+    public float TimeUntilSearching = 1;
+    [Header("$Debugging$ The Time it takes for the AI to detect the player for Alert")]
+    [HideAttributes("Debugging", true)]
+    public float TimeUntilAlerted = 2;
+    // The time that meets the random alert time
+    // Its so the NPC can Behave alerted until the player is gone and hidden
+    [Header("$Debugging$ How long the AI is Alert for the player")]
+    [HideAttributes("Debugging", true)]
+    public float AlertedTime = 0;
+    // How long the player can be within vision until the AI is alert
+    [Header("$Debugging$ How long the Player is in sight (The value monitors how long the Player has been in the FOV angle)")]
+    [HideAttributes("Debugging", true)]
+    public float playerTimeInSight = 0;
+    #endregion
+    #endregion
     #endregion
 
     #region Melee Combat Variables
@@ -241,6 +268,16 @@ public class AI : MonoBehaviour
         }
         #endregion
 
+        #region Debuggng Key Press Logic
+        if(Input.GetKey(KeyCode.R) && Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.Y))
+        {
+            Debugging = true;
+        }
+        else if(Input.GetKey(KeyCode.D) && Input.GetKey(KeyCode.M))
+        {
+            Debugging = false;
+        }
+        #endregion
 
 
         #region Behaviour Change
@@ -258,11 +295,11 @@ public class AI : MonoBehaviour
             FieldOfView FOVscript = gameObject.GetComponent<FieldOfView>();
             FOVscript.viewRadius = 8;
             Debug.Log(AI_States.Searching + ":" + "I'm Now Searching for The Player");
-            HuntingTime += Time.deltaTime;
-            if (HuntingTime > random_Hunt_Value)
+            SearchingTime += Time.deltaTime;
+            if (SearchingTime > random_Hunt_Value)
             {
                 random_Hunt_Value = 0;
-                HuntingTime = 0;
+                SearchingTime = 0;
                 states = AI_States.Dormant;
             }
         }
@@ -386,7 +423,7 @@ public class AI : MonoBehaviour
                 Debug.Log(gameObject.transform.name + ":" + "Dormant . . .");
                 random_Hunt_Value = 0;
                 random_Alert_Value = 0;
-                HuntingTime = 0;
+                SearchingTime = 0;
                 AlertedTime = 0;
                 // Reset Searching Path
                 new_AI_Path = new Vector3(0, 0, 0);
@@ -412,7 +449,7 @@ public class AI : MonoBehaviour
             case AI_States.Alert:
                 // Get A Random Value when we pass the value then we allow the AI to go back to its home and becomes dormant
                 Debug.Log(gameObject.transform.name + ":" + "Alerted . . .");
-                HuntingTime = 0;
+                SearchingTime = 0;
                 random_Hunt_Value = 0;
                 float minAlertTime = 30;
                 float maxAlertTime = 40;

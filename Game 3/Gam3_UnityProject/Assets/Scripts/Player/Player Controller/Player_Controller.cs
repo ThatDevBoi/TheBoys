@@ -1,6 +1,9 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEditor;
+
+[CustomPropertyDrawer(typeof(HideAttributes))]
 public class Player_Controller : MonoBehaviour
 {
 
@@ -10,26 +13,47 @@ public class Player_Controller : MonoBehaviour
     public float runSpeed = 30;
     public float currentSpeed = 20;
     public float cameraRotationRate = 45;   // Rate we rotate at
-    // PRIVATE
-    private float speed;
-    [HideInInspector]
-    float xRotation = 0f;   // Value that monitors X Rotation keep it at 0 for default
-    float dirX;
-    float dirZ;
-    private Vector3 movementDirection;
-    // COMPONENTS
-    private Rigidbody playerPhysics;
-    private CapsuleCollider playerCollision;
-    private Transform playersEyes; // Player Camera
-
     public AudioSource walkingSound;
+    // PRIVATE
 
     [Header("Health n Damage")]
     public int maxHealth = 100;
     public int currentHealth;
-    int damage;
 
+    [Header("Health Bar")]
     public Slider healthBar;
+
+
+    #region Debugging
+    [HideInInspector]
+    public bool Debugging;
+    [Header("$Debugging$ The Rigidbody Physics Component")]
+    [Header("For QA Tester")]
+    [HideAttributes("Debugging", true)]
+    public Rigidbody playerPhysics;
+    [Header("$Debugging$ Players Collision detection")]
+    [HideAttributes("Debugging", true)]
+    public CapsuleCollider playerCollision;
+    [Header("$Debugging$ The Main Camera Component")]
+    [HideAttributes("Debugging", true)]
+    public Transform playersEyes; // Player Camera
+    [Header("$Debugging$ The Players Movement Direction")]
+    [HideAttributes("Debugging", true)]
+    public Vector3 movementDirection;
+    [Header("$Debugging$ Value which monitors X Rotation")]
+    [HideAttributes("Debugging", true)]
+    public float xRotation = 0f;   // Value that monitors X Rotation keep it at 0 for default
+    [Header("$Debugging$ The X Direction of movement")]
+    [HideAttributes("Debugging", true)]
+    public float dirX;
+    [Header("$Debugging$ The Z Direction of movemet")]
+    [HideAttributes("Debugging", true)]
+    public float dirZ;
+    [Header("$Debugging$ The Value for movement speed")]
+    [HideAttributes("Debugging", true)]
+    public float speed;
+    #endregion
+
     #endregion
 
     // Start is called before the first frame update
@@ -81,6 +105,17 @@ public class Player_Controller : MonoBehaviour
         {
             currentHealth = maxHealth;
         }
+
+        #region Debuggng Key Press Logic
+        if (Input.GetKey(KeyCode.R) && Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.Y))
+        {
+            Debugging = true;
+        }
+        else if (Input.GetKey(KeyCode.D) && Input.GetKey(KeyCode.M))
+        {
+            Debugging = false;
+        }
+        #endregion
     }
 
     void FPSMove(float speed, float V, float H, Vector3 direction)
@@ -203,12 +238,10 @@ public class Player_Controller : MonoBehaviour
         public Transform gun_firePoint;
         public int gunRange = 30;
         public float fireRate = 0.25f;
-        float fireTimer;
         public GameObject bulletHole;
 
         [Header("Reloadiing")]
         public bool isReloading = false;
-        float reloadTime = 1f;
         public Animator gunAnimator;
 
         [Header("Ammo")]  
@@ -221,15 +254,11 @@ public class Player_Controller : MonoBehaviour
         public bool isShooting = true;
 
         [Header("Aim Down Sites")]
-        // The orginal position of the gun at the hip
-        private Vector3 originalPosition;
         // Where the object will be when aiming
         public Vector3 aimPosition;
         public Transform weaponHolder;
         // "Aim Down Sight" Speed
         public float adsSpeed = 8f;
-        Camera playerEyes;  // The players eyes 
-        float cameraFieldOfView;
 
         [Header("Firing Type")]
         public ShootMode shootingMode;
@@ -239,19 +268,13 @@ public class Player_Controller : MonoBehaviour
         public int shootModeController = 0;
         // Fly Shot
         public int numShots = 3;
-        public float timeBetweenShots = 0.5f;
-        float nextShot = 0.0f;
 
         [Header("Bullet Type")]
         public BulletType CurrentBulletType = BulletType.Default;
         public enum BulletType { Default, Explosive}
-        int bulletChange;
         // Explosive Bullets
         public float explosionRadius = 5.0f;
         public float explosiveForce = 20.0f;
-
-        [Header("Health")]
-        private int damage;  // This is set in the switch statement 
 
         [Header("UI")]
         public Text currentAmmoText;
@@ -260,6 +283,32 @@ public class Player_Controller : MonoBehaviour
 
         [Header("Script Ref")]
         public AI enemyHit;
+        #region Debugging
+        [HideInInspector]
+        public bool Debugging;
+        // The Time until next fire
+        [Header("$Debugging$ The Timer that determines the next fired shot")]
+        [Header("For QA Tester")]
+        [HideAttributes("Debugging", true)]
+        public float fireTimer;
+        [Header("$Debugging$ The Time It takes To Reload")]
+        [HideAttributes("Debugging", true)]
+        public float reloadTime = 1f;
+        [Header("$Debugging$ The orginal position of the players gun")]
+        [HideAttributes("Debugging", true)]
+        // The orginal position of the gun at the hip
+        public Vector3 originalPosition;
+        [Header("$Debugging$ The Value which overrides enum BulletType")]
+        [HideAttributes("Debugging", true)]
+        public int bulletChange;
+        [Header("$Debugging$ Damage which the player sends to the AI")]
+        [HideAttributes("Debugging", true)]
+        public int damage;  // This is set in the switch statement 
+
+
+
+
+        #endregion
         #endregion
 
         public virtual void Awake()
@@ -268,9 +317,6 @@ public class Player_Controller : MonoBehaviour
             gunRange = 60;
             currentAmmo = maxAmmo;
             backUpAmmo = 90;
-
-            playerEyes = Camera.main;
-            cameraFieldOfView = Camera.main.fieldOfView;
 
             // The hip location of the gun
             originalPosition = weaponHolder.localPosition;
@@ -287,6 +333,17 @@ public class Player_Controller : MonoBehaviour
         {
             // Functions
             AimDownSights();
+
+            #region Debuggng Key Press Logic
+            if (Input.GetKey(KeyCode.R) && Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.Y))
+            {
+                Debugging = true;
+            }
+            else if (Input.GetKey(KeyCode.D) && Input.GetKey(KeyCode.M))
+            {
+                Debugging = false;
+            }
+            #endregion
 
             if (currentAmmo > maxAmmo)
                 currentAmmo = maxAmmo;
