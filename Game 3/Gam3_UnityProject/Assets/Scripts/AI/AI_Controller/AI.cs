@@ -81,6 +81,12 @@ public class AI : MonoBehaviour
     // Hit logic for the array itself
     private RaycastHit hit;
 
+    [Header("User Feedback")]
+    public MeshRenderer aiMeshRend;
+    private Material dormantMat;
+    private Material searchingMat;
+    private Material alertMat;
+
 
     #region Debugging
     [HideInInspector]
@@ -153,18 +159,29 @@ public class AI : MonoBehaviour
 
     #endregion
 
+    private void Awake()
+    {
+        // Find the materials
+        dormantMat = Resources.Load<Material>("Material/Dormant");
+        searchingMat = Resources.Load<Material>("Material/Searching");
+        alertMat = Resources.Load<Material>("Material/Alert");
+    }
 
     // Start is called before the first frame update
     void Start()
-    {
+    { 
+
         #region Find / Make Components
         // Component Set-Up
         // Find the navmeshagent
         AI_Physics = gameObject.AddComponent<NavMeshAgent>();
         // Make a collider
         AI_Collider = gameObject.AddComponent<CapsuleCollider>();
+        aiMeshRend = gameObject.GetComponent<MeshRenderer>();
+        // Placeholder //
+        // Find Materials
         #endregion
-
+        aiMeshRend.material = dormantMat;
         #region Set up Components and variables || Object Setup
         // object layer is always 11 Dont change unless needed
         gameObject.layer = 11;
@@ -286,12 +303,14 @@ public class AI : MonoBehaviour
         {
             FieldOfView FOVscript = gameObject.GetComponent<FieldOfView>();
             FOVscript.viewRadius = 6;
+            aiMeshRend.material = dormantMat;
         }
         #endregion
 
         #region Searching
         if (states == AI_States.Searching)
         {
+            aiMeshRend.material = searchingMat;
             FieldOfView FOVscript = gameObject.GetComponent<FieldOfView>();
             FOVscript.viewRadius = 8;
             Debug.Log(AI_States.Searching + ":" + "I'm Now Searching for The Player");
@@ -308,6 +327,7 @@ public class AI : MonoBehaviour
         #region Alert
         if (states == AI_States.Alert)
         {
+            aiMeshRend.material = alertMat;
             FieldOfView FOVscript = gameObject.GetComponent<FieldOfView>();
             FOVscript.viewRadius = 10;
             Debug.Log(AI_States.Alert + ":" + "I'm Now Alerted and Will Hurt The Player . . .");

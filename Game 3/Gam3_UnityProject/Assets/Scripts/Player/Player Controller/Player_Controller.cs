@@ -57,6 +57,7 @@ public class Player_Controller : MonoBehaviour
 
     #endregion
 
+    Shooting_Mechanic gunScript;
     // Start is called before the first frame update
     void Start()
     {
@@ -92,7 +93,8 @@ public class Player_Controller : MonoBehaviour
         if(playerCollision == null)
             Debug.LogError("Object Name" + ":" + gameObject.transform.name + ":" + "No Capsule Collider is applied to the player character!! Check the script when it adds the components");
         #endregion
-
+        // Find the derived class
+        gunScript = transform.Find("FPS_Cam/Weapon_Holder/Pistol").GetComponent<Shooting_Mechanic>();
     }
 
     // Update is called once per frame
@@ -219,39 +221,30 @@ public class Player_Controller : MonoBehaviour
 
     #region Charging Port (OnTriggerStay)
     // Base for charging port (For ammo and health)
-    private void OnTriggerStay(Collider other)
+    public void OnTriggerStay(Collider other)
     {
-        // Find the derived class
-        Shooting_Mechanic gunScript = transform.Find("FPS_Cam/Weapon_Holder/Pistol").GetComponent<Shooting_Mechanic>();
-        // Increase Health
-        if (currentHealth < maxHealth)  // check if the current health is less than the max 
+        // if we are overlapping a trigger with the name Charging port
+        if (other.gameObject.name == "Charging Port")   // is this a charging port?
         {
-            if (other.gameObject.name == "Charging Port")   // is this a charging port?
+            //increase health
+            currentHealth += 2;
+            // if the current Ammo is greater than the max amount
+            if (gunScript.currentAmmo > gunScript.maxAmmo)
+                gunScript.currentAmmo = gunScript.maxAmmo;  // make sure the current ammo cant overtake the max value
+            else    // if not and the current ammo is less than the max
             {
-                // Do a thing
-                currentHealth += 10;
-
-            }
-        }
-        // Increase ammo
-        if(gunScript.currentAmmo < gunScript.maxAmmo)
-        {
-            if(other.gameObject.name == "Charging Port")    // is this the port?
-            {
-                // do a thing
+                // increase the ammo
                 gunScript.currentAmmo += 3;
             }
-        }
-
-        if(gunScript.backUpAmmo < gunScript.maxBackupAmmo)
-        {
-            if (other.gameObject.name == "Charging Port")    // is this the port?
+            // if the backup ammo we have is more then the max amount we are allowed
+            if (gunScript.backUpAmmo > gunScript.maxBackupAmmo)
+                gunScript.backUpAmmo = gunScript.maxBackupAmmo;    // the backup ammo we have equals to the max
+            else    // However if we dont have more but instead have less
             {
-                // do a thing
+                // we increase the backup ammo
                 gunScript.backUpAmmo += 3;
             }
         }
-
     }
     #endregion
 
@@ -354,7 +347,9 @@ public class Player_Controller : MonoBehaviour
             if (numShots / 2 * 2 == numShots) numShots++;   // Need an odd number of shots
             if (numShots < 3) numShots = 3; // At least 3 shots are needed
             #endregion
-
+            // Set UI For Ammo
+            currentAmmoText.text = currentAmmo.ToString();
+            backUpAmmoText.text = backUpAmmo.ToString();
         }
 
         public virtual void FixedUpdate()
@@ -372,9 +367,12 @@ public class Player_Controller : MonoBehaviour
                 Debugging = false;
             }
             #endregion
-
+            // Max current Ammo
             if (currentAmmo > maxAmmo)
                 currentAmmo = maxAmmo;
+
+            if (backUpAmmo > maxBackupAmmo)
+                backUpAmmo = maxBackupAmmo;
 
             #region Fire Modes n Bullet Types
 
@@ -445,6 +443,10 @@ public class Player_Controller : MonoBehaviour
                 gunShootSound.volume = 0.2f;
             }
 
+            // Update the UI for current ammo and backup ammo per frame
+            currentAmmoText.text = currentAmmo.ToString();
+            backUpAmmoText.text = backUpAmmo.ToString();
+
             // Fire Rate
             if (fireTimer < fireRate)
                 fireTimer += Time.deltaTime;
@@ -466,10 +468,6 @@ public class Player_Controller : MonoBehaviour
                 isShooting = false;
             else
                 isShooting = true;  // Yes we still have bullets 
-
-            // Updating UI For Ammo
-            currentAmmoText.text = currentAmmo.ToString();
-            backUpAmmoText.text = backUpAmmo.ToString();
         }
 
         public void AimDownSights()
@@ -610,6 +608,9 @@ public class Player_Controller : MonoBehaviour
                 currentAmmo += shot;
                 backUpAmmo -= shot;
             }
+            // Updating UI For Ammo
+            currentAmmoText.text = currentAmmo.ToString();
+            backUpAmmoText.text = backUpAmmo.ToString();
         }
     }
     #endregion

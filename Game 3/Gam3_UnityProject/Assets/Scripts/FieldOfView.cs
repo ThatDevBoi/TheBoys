@@ -22,9 +22,6 @@ public class FieldOfView : MonoBehaviour
     [Header("Script Reference")]
     public AI script;
 
-
-
-
     GameObject player;
 
     private void Start()
