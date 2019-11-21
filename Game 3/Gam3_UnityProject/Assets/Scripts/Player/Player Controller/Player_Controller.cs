@@ -14,6 +14,7 @@ public class Player_Controller : MonoBehaviour
     public float currentSpeed = 20;
     public float cameraRotationRate = 45;   // Rate we rotate at
     public AudioSource walkingSound;
+    public LayerMask slopCheck;
     // PRIVATE
 
     [Header("Health n Damage")]
@@ -123,13 +124,28 @@ public class Player_Controller : MonoBehaviour
         // Input
         V = Input.GetAxis("Vertical");
         H = Input.GetAxis("Horizontal");
+        // Run Input
         float r = Input.GetAxis("Run");
         // direction we are moving
         direction = (transform.forward * V + (transform.right * H));
         // Make the vector to the equal of 1
         direction = direction.normalized * speed;
-        // Player gravity
-        direction.y = direction.y + Physics.gravity.y;
+
+        #region Slop Check
+        // Slop Check
+        RaycastHit hit;
+        if(Physics.Raycast(transform.position, transform.TransformDirection(Vector3.down), out hit, .6f, slopCheck))
+        {
+            direction.y = playerPhysics.velocity.y; // Cancel Gravity
+            Debug.DrawRay(transform.position, Vector3.down * 50, Color.green);
+        }
+        else
+        {
+            // Player gravity
+            direction.y = direction.y + Physics.gravity.y;  // Turn gravity back on
+        }
+        #endregion
+
         // Running
         if (Input.GetAxis("Run") != 0)
         {
@@ -142,7 +158,6 @@ public class Player_Controller : MonoBehaviour
             speed = currentSpeed;
         }
            
-    
         // move with physics
         playerPhysics.velocity = direction * speed * Time.deltaTime;
 
@@ -201,6 +216,8 @@ public class Player_Controller : MonoBehaviour
         #endregion
 
     }
+
+    #region Charging Port (OnTriggerStay)
     // Base for charging port (For ammo and health)
     private void OnTriggerStay(Collider other)
     {
@@ -226,7 +243,17 @@ public class Player_Controller : MonoBehaviour
             }
         }
 
+        if(gunScript.backUpAmmo < gunScript.maxBackupAmmo)
+        {
+            if (other.gameObject.name == "Charging Port")    // is this the port?
+            {
+                // do a thing
+                gunScript.backUpAmmo += 3;
+            }
+        }
+
     }
+    #endregion
 
     #region Gun Functionality
     public class GunMechanic : MonoBehaviour
@@ -251,6 +278,7 @@ public class Player_Controller : MonoBehaviour
         public int currentAmmo;
         // the ammo the player has spare
         public int backUpAmmo;
+        public int maxBackupAmmo = 90;
         public bool isShooting = true;
 
         [Header("Aim Down Sites")]
@@ -316,7 +344,7 @@ public class Player_Controller : MonoBehaviour
             #region Value Set-Up
             gunRange = 60;
             currentAmmo = maxAmmo;
-            backUpAmmo = 90;
+            backUpAmmo = maxBackupAmmo;
 
             // The hip location of the gun
             originalPosition = weaponHolder.localPosition;
