@@ -222,7 +222,7 @@ public class Player_Controller : MonoBehaviour
     private void OnTriggerStay(Collider other)
     {
         // Find the derived class
-        Shooting_Mechanic gunScript = transform.FindChild("FPS_Cam/Weapon_Holder/Pistol").GetComponent<Shooting_Mechanic>();
+        Shooting_Mechanic gunScript = transform.Find("FPS_Cam/Weapon_Holder/Pistol").GetComponent<Shooting_Mechanic>();
         // Increase Health
         if (currentHealth < maxHealth)  // check if the current health is less than the max 
         {
