@@ -514,6 +514,7 @@ public class Player_Controller : MonoBehaviour
                                 // Hurt the AI we hit
                                 if (enemyHit != null)
                                 {
+                                    impactHole.transform.parent = Hit.transform;
                                     enemyHit.ApplyDamage(damage);
                                 }
                             }
