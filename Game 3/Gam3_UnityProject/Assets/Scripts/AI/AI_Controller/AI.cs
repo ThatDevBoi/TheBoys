@@ -37,14 +37,17 @@ public class AI : MonoBehaviour
     // PUBLIC
     // Random values to meet
     public float random_Alert_Value;   
-    public float random_Hunt_Value;    
+    public float random_Search_Value;    
     // PRIVATE
 
     [Header("Dormant Behaviour Variables")]
     // PUBLIC
-    public Vector3[] Patrol;    
+    public Vector3[] Patrol;
+    public int stopDuringPatrol;
+    public float stoppingTimeLength = 1;
     // PRIVATE
-
+    // Value that stores orginal value for editing
+    private float stoptime;
 
     [Header("Health n Damage")]
     // PUBLIC
@@ -170,7 +173,6 @@ public class AI : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     { 
-
         #region Find / Make Components
         // Component Set-Up
         // Find the navmeshagent
@@ -181,7 +183,7 @@ public class AI : MonoBehaviour
         // Placeholder //
         // Find Materials
         #endregion
-        aiMeshRend.material = dormantMat;
+
         #region Set up Components and variables || Object Setup
         // object layer is always 11 Dont change unless needed
         gameObject.layer = 11;
@@ -203,6 +205,10 @@ public class AI : MonoBehaviour
         //shootingRange = 60;
         // Health Set-up
         currentHealth = MaxHealth;
+        // change start matieral to the dormant material
+        aiMeshRend.material = dormantMat;
+        // Stop value so console never forgets it / looses it
+        stoptime = stoppingTimeLength;
         #endregion
         // The Zone that makes sure the object is set up correctly
         #region Debugging Zone
@@ -286,10 +292,12 @@ public class AI : MonoBehaviour
         #endregion
 
         #region Debuggng Key Press Logic
+        // Pressing R Space Bar And Y all at once shows hidden properties (For QA or testing)
         if(Input.GetKey(KeyCode.R) && Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.Y))
         {
             Debugging = true;
         }
+        // Pressing D and M at the same time reverts and hides the properites.
         else if(Input.GetKey(KeyCode.D) && Input.GetKey(KeyCode.M))
         {
             Debugging = false;
@@ -301,41 +309,83 @@ public class AI : MonoBehaviour
         #region Dormant
         if (states == AI_States.Dormant)
         {
+            // Find FOV script
             FieldOfView FOVscript = gameObject.GetComponent<FieldOfView>();
+            // Change raduis back to normal
             FOVscript.viewRadius = 6;
+            // Change material
             aiMeshRend.material = dormantMat;
+
+            // Stop patrolling until StoppingTimeLength reaches 0
+            // This logic could allow AI patrols to have lerp rotation etc
+            if (stopDuringPatrol == patrolArrayScroller)
+            {
+                AI_Physics.speed = 0;
+                stoppingTimeLength -= Time.deltaTime;
+                Debug.Log(stoppingTimeLength);
+                if(stoppingTimeLength <= 0)
+                {
+                    AI_Physics.speed = 1;
+                }
+            }
+            else
+            {
+                // Timer equals what the edit manual settings is 
+                stoppingTimeLength = stoptime;
+            }
+                
         }
         #endregion
 
         #region Searching
+        // if the gameObject is Searching for the player
         if (states == AI_States.Searching)
         {
+            // Change material for visual feedback
             aiMeshRend.material = searchingMat;
+            // find the fov script attached to the gameObject
             FieldOfView FOVscript = gameObject.GetComponent<FieldOfView>();
+            // change the radius 
             FOVscript.viewRadius = 8;
-            Debug.Log(AI_States.Searching + ":" + "I'm Now Searching for The Player");
+            // Debug Message so we can see the state changing
+            Debug.Log(AI_States.Searching + ":" + "I'm Now Searching for The Player");      // REMOVE LATER
+            // Increase the time we search for 
             SearchingTime += Time.deltaTime;
-            if (SearchingTime > random_Hunt_Value)
+            // if the current search time is greater than the one we generate in Randomizer()
+            if (SearchingTime > random_Search_Value)
             {
-                random_Hunt_Value = 0;
+                // Reset the random generated value
+                random_Search_Value = 0;
+                // reset current time
                 SearchingTime = 0;
+                // We are now dormant back to patrolling
                 states = AI_States.Dormant;
             }
         }
         #endregion
 
         #region Alert
+        // if we are alert
         if (states == AI_States.Alert)
         {
+            // Change material for visual feedback
             aiMeshRend.material = alertMat;
+            // find the script
             FieldOfView FOVscript = gameObject.GetComponent<FieldOfView>();
+            // change the radius 
             FOVscript.viewRadius = 10;
-            Debug.Log(AI_States.Alert + ":" + "I'm Now Alerted and Will Hurt The Player . . .");
+            // Show we are alert in the console
+            Debug.Log(AI_States.Alert + ":" + "I'm Now Alerted and Will Hurt The Player . . .");        // REMOVE LATER
+            // increase the current alert time value
             AlertedTime += Time.deltaTime;
+            // if the current alert time value is greater than the random generated one in Randomizer()
             if (AlertedTime > random_Alert_Value)
             {
+                // reset the generated value
                 random_Alert_Value = 0;
+                // reset current time for alert
                 AlertedTime = 0;
+                // Reset and back to dormant patrol state 
                 states = AI_States.Dormant;
             }
         }
@@ -343,6 +393,7 @@ public class AI : MonoBehaviour
         #endregion
 
         #region Timer Stop On Alert
+        // if we are alert then we never allow the value to increase 
         if (states == AI_States.Alert)
         {
             playerTimeInSight = 0;
@@ -350,9 +401,10 @@ public class AI : MonoBehaviour
         #endregion
 
         #region Death Monitor
+        // if the current health is 0 and the headshot bool is false
         if (currentHealth <= 0 && !headShot)
-            Destroy(gameObject);
-        else if (headShot && currentHealth <= 0)
+            Destroy(gameObject);    // we just remove the object
+        else if (headShot && currentHealth <= 0)    // however if we have no health but the bool is true
         {
             // Make sure we make a seperate GameObject so we dont delete a reference Variable
             GameObject aiHead = head;
@@ -372,7 +424,7 @@ public class AI : MonoBehaviour
         }
         #endregion
 
-        // Fire Rate
+        // Fire Rate for gun
         if (FireRateTimer < fireRate)
             FireRateTimer += Time.deltaTime;
 
@@ -381,7 +433,7 @@ public class AI : MonoBehaviour
             i_Heard_Something = false;
         else if (states == AI_States.Searching && i_Heard_Something)
             i_Heard_Something = false;
-
+        // Fire weapon (We can call this wheenever. We use a Switch stateent in the function)
         StartCoroutine("FireWeapon");
     }
 
@@ -415,16 +467,19 @@ public class AI : MonoBehaviour
             return newVector;
         }
         #endregion
-        if (FireRateTimer < fireRate) return;
-        FireRateTimer = 0.0f;
+        // if the firerate timer is less than the acutal fire rate 
+        if (FireRateTimer < fireRate) return;   // return
+        FireRateTimer = 0.0f;   // if not reset the timer
 
         if(Physics.Raycast(firePoint.position, BulletSpread(firePoint.forward, firingAccuracy, true, firePoint.position), out hit, shootingRange, AI_Detections))
         {
+            // if we hit the player
             if (hit.transform.gameObject.layer == 10)
             {
                 Debug.Log("I Hit The Player");
-                Player_Controller applyDamage = GameObject.Find("PC").GetComponent<Player_Controller>();
-                applyDamage.ApplyDamage(damage);
+                Player_Controller applyDamage = GameObject.Find("PC").GetComponent<Player_Controller>();// get PC script
+                applyDamage.ApplyDamage(damage);    // apply damage to the player
+                applyDamage.PositionOfDamage(gameObject.GetComponent<Transform>());
             }
             
         }
@@ -441,7 +496,7 @@ public class AI : MonoBehaviour
             case AI_States.Dormant:
                 // Reset everything when the AI goes from Hunting to Dormant || Alert to Dormant
                 Debug.Log(gameObject.transform.name + ":" + "Dormant . . .");
-                random_Hunt_Value = 0;
+                random_Search_Value = 0;
                 random_Alert_Value = 0;
                 SearchingTime = 0;
                 AlertedTime = 0;
@@ -460,7 +515,7 @@ public class AI : MonoBehaviour
                 float minHuntTime = 20;
                 float maxHuntTIme = 30;
                 // Randomise the value
-                random_Hunt_Value = Random.Range(minHuntTime, maxHuntTIme);
+                random_Search_Value = Random.Range(minHuntTime, maxHuntTIme);
                 GenerateNewPath();
                 break;
             #endregion
@@ -470,7 +525,7 @@ public class AI : MonoBehaviour
                 // Get A Random Value when we pass the value then we allow the AI to go back to its home and becomes dormant
                 Debug.Log(gameObject.transform.name + ":" + "Alerted . . .");
                 SearchingTime = 0;
-                random_Hunt_Value = 0;
+                random_Search_Value = 0;
                 float minAlertTime = 30;
                 float maxAlertTime = 40;
                 // Generate random alert value
@@ -508,24 +563,26 @@ public class AI : MonoBehaviour
         // Vector3 Storage of direction
         if (states == AI_States.Dormant)
         {
+             // takes into account the Vector3 Array
             moveDirection = (Patrol[patrolArrayScroller]);
-
+            // if the distance between the AI and movedirection is less than 3
             if (Vector3.Distance(moveDirection, transform.position) < 3)
             {
+                // go to next position in the array
                 patrolArrayScroller++;
-                if (patrolArrayScroller >= Patrol.Length)
+                if (patrolArrayScroller >= Patrol.Length)   // if the int that scrolls through the array is greater than the length of the array
                 {
-                    patrolArrayScroller = 0;
+                    patrolArrayScroller = 0;    // reset the scroller int so we can patrol the same manual patrol
                 }
-                else
-                    transform.LookAt(Patrol[patrolArrayScroller]);
+                else   // however if we still have positions to go to
+                    transform.LookAt(Patrol[patrolArrayScroller]);  // Lookat the next position
             }
-
+            // Move to the Vector3 with The NavMeshAgent
             AI_Physics.SetDestination(moveDirection);
         }
         #endregion
         // Searching for the player
-        #region Hunting Movement
+        #region Searching Movement
         if (states == AI_States.Searching)
         {
             AI_Physics.SetDestination(new_AI_Path);
@@ -549,9 +606,13 @@ public class AI : MonoBehaviour
         #region Alert Movement
         if (states == AI_States.Alert)
         {
+            // We only move towards the players position 
             AI_Physics.SetDestination(playerPosition.position);
+            // Every 5 Seconds
             yield return new WaitForSeconds(5);
+            // We look straight at the player
             transform.LookAt(playerPosition.position);
+            // We also fire the AI weapon 
             StartCoroutine("FireWeapon");
             
         }

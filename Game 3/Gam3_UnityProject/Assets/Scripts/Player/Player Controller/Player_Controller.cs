@@ -24,6 +24,17 @@ public class Player_Controller : MonoBehaviour
     [Header("Health Bar")]
     public Slider healthBar;
 
+    // Replace Later
+    private Texture text1; // current health < 75
+    private Texture text2; // current health < 50
+    private Texture text3; // current health < 30
+    private Texture text4; // current health < 20 
+
+    public GameObject frontDet;
+    public GameObject leftDet;
+    public GameObject rightDet;
+    public GameObject backDet;
+
 
     #region Debugging
     [HideInInspector]
@@ -95,6 +106,13 @@ public class Player_Controller : MonoBehaviour
         #endregion
         // Find the derived class
         gunScript = transform.Find("FPS_Cam/Weapon_Holder/Pistol").GetComponent<Shooting_Mechanic>();
+
+        // Find Textures
+
+        text1 = Resources.Load<Texture>("HurtTexture/UI Screen Hurt");
+        text2 = Resources.Load<Texture>("HurtTexture/UI Screen Hurt Alot");
+        text3 = Resources.Load<Texture>("HurtTexture/UI Screen Hurt");
+        text4 = Resources.Load<Texture>("HurtTexture/UI Almost Dead");
     }
 
     // Update is called once per frame
@@ -120,6 +138,107 @@ public class Player_Controller : MonoBehaviour
         }
         #endregion
     }
+
+    #region Where are we being shot from?
+    public Vector3 PositionOfDamage(Transform objectThatShotUs)
+    {
+        // calculate forward direction
+        Vector3 shootDirection = objectThatShotUs.position - gameObject.transform.position;
+        shootDirection.y = 0;
+        shootDirection.Normalize();
+
+        Vector3 fwd = gameObject.transform.forward;
+
+        float a = Vector3.Dot(fwd, shootDirection);
+        float angle = (a + 1f) * 90;
+
+        // Calculate left n right
+        Vector3 rhs = transform.right;
+
+        if (Vector3.Dot(rhs, shootDirection) < 0)
+        {
+            angle *= -1f;
+        }
+
+        //if (Mathf.Abs(angle) > 170)
+        //    frontDet.SetActive(true);
+        //else
+        //    backDet.SetActive(true);
+
+        //if (Mathf.Abs(angle) > 90)
+        //    rightDet.SetActive(true);
+        //else
+        //    leftDet.SetActive(true);
+
+        // Back Detection
+        if (-shootDirection.z >= fwd.z)
+        {
+            frontDet.SetActive(false);
+            backDet.SetActive(true);
+        }
+        // Front detection 
+        else if (shootDirection.z >= fwd.z )     
+        {
+            frontDet.SetActive(true);
+            backDet.SetActive(false);
+        }
+
+
+
+
+        //// WORKS
+        //if (angle >= shootDirection.z)
+        //    frontDet.SetActive(true);
+        //else
+        //    frontDet.SetActive(false);
+
+        //if (angle <= -shootDirection.z)
+        //    backDet.SetActive(true);
+        //else
+        //    backDet.SetActive(false);
+
+            
+
+
+
+
+        // Placeholder
+        // REPLACE THIS WITH UI OR CAMERA Movement
+        Quaternion indicatorRot = Quaternion.Euler(0, 180, angle);
+        Debug.Log("We Found The Shooter");
+        Debug.Log(angle);
+
+        //if (shootDirection.z > 0.01)
+        //{
+        //    rightDet.SetActive(true);
+        //}
+        //else
+        //    rightDet.SetActive(false);
+
+        //if (shootDirection.z < -0.01)
+        //{
+        //    leftDet.SetActive(true);
+        //}
+        //else
+        //    leftDet.SetActive(false);
+
+        //if (shootDirection.x > 0.01)
+        //{
+        //    frontDet.SetActive(true);
+        //}
+        //else
+        //    frontDet.SetActive(false);
+
+        //if (shootDirection.x < -0.01)
+        //{
+        //    frontDet.SetActive(true);
+        //}
+        //else
+        //    frontDet.SetActive(false);
+
+        return shootDirection;
+    }
+    #endregion
 
     void FPSMove(float speed, float V, float H, Vector3 direction)
     {
@@ -218,6 +337,31 @@ public class Player_Controller : MonoBehaviour
         #endregion
 
     }
+
+    #region On Screen States
+    void OnGUI()
+    {
+        if(currentHealth <= 100)
+        {
+            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), text1);
+        }
+
+        if(currentHealth < 80)
+        {
+            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), text1);
+        }
+
+        if (currentHealth < 60)
+        {
+            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), text2);
+        }
+
+        if (currentHealth < 30)
+        {
+            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), text4);
+        }
+    }
+    #endregion
 
     #region Charging Port (OnTriggerStay)
     // Base for charging port (For ammo and health)
