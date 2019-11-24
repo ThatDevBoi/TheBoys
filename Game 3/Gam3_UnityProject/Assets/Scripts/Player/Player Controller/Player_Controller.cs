@@ -160,81 +160,26 @@ public class Player_Controller : MonoBehaviour
             angle *= -1f;
         }
 
-        //if (Mathf.Abs(angle) > 170)
-        //    frontDet.SetActive(true);
-        //else
-        //    backDet.SetActive(true);
-
-        //if (Mathf.Abs(angle) > 90)
-        //    rightDet.SetActive(true);
-        //else
-        //    leftDet.SetActive(true);
-
         // Back Detection
         if (-shootDirection.z >= fwd.z)
         {
-            frontDet.SetActive(false);
             backDet.SetActive(true);
+            frontDet.SetActive(false);
+
         }
         // Front detection 
-        else if (shootDirection.z >= fwd.z )     
+        else if (shootDirection.z >= fwd.z)
         {
             frontDet.SetActive(true);
             backDet.SetActive(false);
+
         }
-
-
-
-
-        //// WORKS
-        //if (angle >= shootDirection.z)
-        //    frontDet.SetActive(true);
-        //else
-        //    frontDet.SetActive(false);
-
-        //if (angle <= -shootDirection.z)
-        //    backDet.SetActive(true);
-        //else
-        //    backDet.SetActive(false);
-
-            
-
-
-
 
         // Placeholder
         // REPLACE THIS WITH UI OR CAMERA Movement
         Quaternion indicatorRot = Quaternion.Euler(0, 180, angle);
         Debug.Log("We Found The Shooter");
         Debug.Log(angle);
-
-        //if (shootDirection.z > 0.01)
-        //{
-        //    rightDet.SetActive(true);
-        //}
-        //else
-        //    rightDet.SetActive(false);
-
-        //if (shootDirection.z < -0.01)
-        //{
-        //    leftDet.SetActive(true);
-        //}
-        //else
-        //    leftDet.SetActive(false);
-
-        //if (shootDirection.x > 0.01)
-        //{
-        //    frontDet.SetActive(true);
-        //}
-        //else
-        //    frontDet.SetActive(false);
-
-        //if (shootDirection.x < -0.01)
-        //{
-        //    frontDet.SetActive(true);
-        //}
-        //else
-        //    frontDet.SetActive(false);
 
         return shootDirection;
     }
