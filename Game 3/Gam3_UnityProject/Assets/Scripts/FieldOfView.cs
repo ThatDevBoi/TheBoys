@@ -56,6 +56,7 @@ public class FieldOfView : MonoBehaviour
     void FindVisibleTargets()
     {
         visableTargets.Clear();
+
         script.PC_in_FOV = false;
         Collider[] targetsInViewRadius = Physics.OverlapSphere(transform.position, viewRadius, targetMask);
 

@@ -43,6 +43,8 @@ public class AI : MonoBehaviour
     [Header("Dormant Behaviour Variables")]
     // PUBLIC
     public Vector3[] Patrol;
+    private bool agentStopStore = false;
+    public bool doesAgentStop = false;
     public int stopDuringPatrol;
     public float stoppingTimeLength = 1;
     // PRIVATE
@@ -158,18 +160,6 @@ public class AI : MonoBehaviour
     #endregion
     #endregion
 
-    #region Melee Combat Variables
-
-    #endregion
-
-    private void Awake()
-    {
-        // Find the materials
-        dormantMat = Resources.Load<Material>("Material/Dormant");
-        searchingMat = Resources.Load<Material>("Material/Searching");
-        alertMat = Resources.Load<Material>("Material/Alert");
-    }
-
     // Start is called before the first frame update
     void Start()
     { 
@@ -180,6 +170,23 @@ public class AI : MonoBehaviour
         // Make a collider
         AI_Collider = gameObject.AddComponent<CapsuleCollider>();
         aiMeshRend = gameObject.GetComponent<MeshRenderer>();
+
+        // Find the component that belongs to player
+        playerPosition = GameObject.Find("PC").GetComponent<Transform>();
+        // Find the players walking and running Audio Source
+        playerRunning = GameObject.Find("PC").GetComponent<AudioSource>();
+        // Finding the Audio Source Attached to the players Gun
+        /// This will change later where 1 audio source will be on the Weapon_Holder and will change audio source when player changes weapon (We can find the audio clip via Assets)
+        playerShooting = GameObject.Find("PC/FPS_Cam/Weapon_Holder/Pistol Holder/Pistol").GetComponent<AudioSource>();
+
+        // Find My Head
+        head = GameObject.Find("Head");
+        firePoint = gameObject.transform.FindChild("Gun/Shooting_Point").GetComponent<Transform>();
+
+        // Find the materials from the assets folder
+        dormantMat = Resources.Load<Material>("Material/Dormant");
+        searchingMat = Resources.Load<Material>("Material/Searching");
+        alertMat = Resources.Load<Material>("Material/Alert");
         // Placeholder //
         // Find Materials
         #endregion
@@ -189,10 +196,6 @@ public class AI : MonoBehaviour
         gameObject.layer = 11;
         // object name will be enemy
         gameObject.name = "Enemy";
-
-        // Find the component that belongs to player
-        playerPosition = GameObject.Find("PC").GetComponent<Transform>();
-
         // NavMeshAgent will adopt the spped variable
         AI_Physics.speed = AI_movement_Speed;
 
@@ -201,14 +204,15 @@ public class AI : MonoBehaviour
         startPosition = new Vector3(transform.position.x, transform.position.y, transform.position.z);
         // First position in the array needs to be the startPosition
         Patrol[0] = startPosition;
-        // Firing Range
-        //shootingRange = 60;
+
         // Health Set-up
         currentHealth = MaxHealth;
         // change start matieral to the dormant material
         aiMeshRend.material = dormantMat;
         // Stop value so console never forgets it / looses it
         stoptime = stoppingTimeLength;
+
+        agentStopStore = doesAgentStop;
         #endregion
         // The Zone that makes sure the object is set up correctly
         #region Debugging Zone
@@ -244,6 +248,9 @@ public class AI : MonoBehaviour
                 playersLastPosition = new Vector3(playerPosition.position.x, transform.position.y, playerPosition.position.z);
                 // tick the boolean
                 i_Heard_Something = true;
+                doesAgentStop = false;
+                AI_Physics.speed = 1;
+                stoppingTimeLength = 0.1f;
             }
         }
         // when the boolean is true
@@ -258,6 +265,7 @@ public class AI : MonoBehaviour
             {
                 // cant hear any more noise
                 i_Heard_Something = false;
+                doesAgentStop = agentStopStore;
             }
         }
         #endregion
@@ -304,7 +312,6 @@ public class AI : MonoBehaviour
         }
         #endregion
 
-
         #region Behaviour Change
         #region Dormant
         if (states == AI_States.Dormant)
@@ -315,25 +322,28 @@ public class AI : MonoBehaviour
             FOVscript.viewRadius = 6;
             // Change material
             aiMeshRend.material = dormantMat;
-
-            // Stop patrolling until StoppingTimeLength reaches 0
-            // This logic could allow AI patrols to have lerp rotation etc
-            if (stopDuringPatrol == patrolArrayScroller)
+            #region StopDuring Patrol
+            if (doesAgentStop)
             {
-                AI_Physics.speed = 0;
-                stoppingTimeLength -= Time.deltaTime;
-                Debug.Log(stoppingTimeLength);
-                if(stoppingTimeLength <= 0)
+                // Stop patrolling until StoppingTimeLength reaches 0
+                // This logic could allow AI patrols to have lerp rotation etc
+                if (stopDuringPatrol == patrolArrayScroller)
                 {
-                    AI_Physics.speed = 1;
+                    AI_Physics.speed = 0;
+                    stoppingTimeLength -= Time.deltaTime;
+                    Debug.Log(stoppingTimeLength);
+                    if (stoppingTimeLength <= 0)
+                    {
+                        AI_Physics.speed = 1;
+                    }
+                }
+                else
+                {
+                    // Timer equals what the edit manual settings is 
+                    stoppingTimeLength = stoptime;
                 }
             }
-            else
-            {
-                // Timer equals what the edit manual settings is 
-                stoppingTimeLength = stoptime;
-            }
-                
+            #endregion
         }
         #endregion
 
@@ -479,7 +489,6 @@ public class AI : MonoBehaviour
                 Debug.Log("I Hit The Player");
                 Player_Controller applyDamage = GameObject.Find("PC").GetComponent<Player_Controller>();// get PC script
                 applyDamage.ApplyDamage(damage);    // apply damage to the player
-                applyDamage.PositionOfDamage(gameObject.GetComponent<Transform>());
             }
             
         }

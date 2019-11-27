@@ -30,11 +30,6 @@ public class Player_Controller : MonoBehaviour
     private Texture text3; // current health < 30
     private Texture text4; // current health < 20 
 
-    public GameObject frontDet;
-    public GameObject leftDet;
-    public GameObject rightDet;
-    public GameObject backDet;
-
 
     #region Debugging
     [HideInInspector]
@@ -72,47 +67,63 @@ public class Player_Controller : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        currentHealth = maxHealth;
-        #region Values SetUp
-            speed = currentSpeed;
-        cameraRotationRate = 45f;
-        xRotation = 0f;
-        gameObject.layer = 10;
+        // States on start that need changing
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = true;
 
-        #endregion
-        #region IDE Set-Up
+        // Find Components / Set them up
+        #region Find Compoents / Assets
         // Add Rigidbody to this gameObject
         playerPhysics = gameObject.AddComponent<Rigidbody>();
+
         // Add Collision to this gameObject
         playerCollision = gameObject.AddComponent<CapsuleCollider>();
+        // Find the derived class
+        gunScript = transform.Find("FPS_Cam/Weapon_Holder/Pistol Holder/Pistol").GetComponent<Shooting_Mechanic>();
+        // Find the Main Camera
+        playersEyes = Camera.main.GetComponent<Transform>();
+        walkingSound = GetComponent<AudioSource>();
+
+        healthBar = GameObject.Find("PlayerUIController/PC_HealthBar").GetComponent<Slider>();
+
+        // Find Textures in assets folder
+        text1 = Resources.Load<Texture>("HurtTexture/UI Screen Hurt");
+        text2 = Resources.Load<Texture>("HurtTexture/UI Screen Hurt Alot");
+        text3 = Resources.Load<Texture>("HurtTexture/UI Screen Hurt");
+        text4 = Resources.Load<Texture>("HurtTexture/UI Almost Dead");
+        #endregion
+
+        #region Edit Values / Variables and Properties
         // Set up components
         // Freeze rotation for now so no falling down
         playerPhysics.constraints = RigidbodyConstraints.FreezeRotation;
+        // Change capsule collider height to fit mesh
         playerCollision.height = 2;
+        // change capsule collider Radius to fit mesh
         playerCollision.radius = 0.5f;
-        #endregion
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = true;
+        // Change object layer to the player layer
+        gameObject.layer = 10;
+        // Current health will need to start at the max amount
+        currentHealth = maxHealth;
+        // the speed we walk at needs to be the current speed we are allowed to walk at
+        speed = currentSpeed;
+        // the sensitivy of the mouse rotation 
+        cameraRotationRate = 45f;
+        xRotation = 0f;
+        // set up audio volume
         walkingSound.volume = 0.3f;
-        #region Find Components
-        playersEyes = gameObject.transform.Find("FPS_Cam").GetComponent<Transform>();
         #endregion
+
         #region Debug Components
         if (playerPhysics == null)
             Debug.LogError("Object Name" + ":" + gameObject.transform.name + ":" + "No Rigidbody is applied to the Player Character!! Check the script when it adds the components");
 
         if(playerCollision == null)
             Debug.LogError("Object Name" + ":" + gameObject.transform.name + ":" + "No Capsule Collider is applied to the player character!! Check the script when it adds the components");
+
+        if (gameObject.layer != 10)
+            Debug.LogError("Object Name" + ":" + gameObject.transform.name + ":" + "The Player Controller GameObject Is Not Set To Its Correct Layer!! The Layer For The PC Is 10");
         #endregion
-        // Find the derived class
-        gunScript = transform.Find("FPS_Cam/Weapon_Holder/Pistol").GetComponent<Shooting_Mechanic>();
-
-        // Find Textures
-
-        text1 = Resources.Load<Texture>("HurtTexture/UI Screen Hurt");
-        text2 = Resources.Load<Texture>("HurtTexture/UI Screen Hurt Alot");
-        text3 = Resources.Load<Texture>("HurtTexture/UI Screen Hurt");
-        text4 = Resources.Load<Texture>("HurtTexture/UI Almost Dead");
     }
 
     // Update is called once per frame
@@ -139,51 +150,51 @@ public class Player_Controller : MonoBehaviour
         #endregion
     }
 
-    #region Where are we being shot from?
-    public Vector3 PositionOfDamage(Transform objectThatShotUs)
-    {
-        // calculate forward direction
-        Vector3 shootDirection = objectThatShotUs.position - gameObject.transform.position;
-        shootDirection.y = 0;
-        shootDirection.Normalize();
+    //#region Where are we being shot from?
+    //public Vector3 PositionOfDamage(Transform objectThatShotUs)
+    //{
+    //    // calculate forward direction
+    //    Vector3 shootDirection = objectThatShotUs.position - gameObject.transform.position;
+    //    shootDirection.y = 0;
+    //    shootDirection.Normalize();
 
-        Vector3 fwd = gameObject.transform.forward;
+    //    Vector3 fwd = gameObject.transform.forward;
 
-        float a = Vector3.Dot(fwd, shootDirection);
-        float angle = (a + 1f) * 90;
+    //    float a = Vector3.Dot(fwd, shootDirection);
+    //    float angle = (a + 1f) * 90;
 
-        // Calculate left n right
-        Vector3 rhs = transform.right;
+    //    // Calculate left n right
+    //    Vector3 rhs = transform.right;
 
-        if (Vector3.Dot(rhs, shootDirection) < 0)
-        {
-            angle *= -1f;
-        }
+    //    if (Vector3.Dot(rhs, shootDirection) < 0)
+    //    {
+    //        angle *= -1f;
+    //    }
 
-        // Back Detection
-        if (-shootDirection.z >= fwd.z)
-        {
-            backDet.SetActive(true);
-            frontDet.SetActive(false);
+    //    // Back Detection
+    //    if (-shootDirection.z >= fwd.z)
+    //    {
+    //        backDet.SetActive(true);
+    //        frontDet.SetActive(false);
 
-        }
-        // Front detection 
-        else if (shootDirection.z >= fwd.z)
-        {
-            frontDet.SetActive(true);
-            backDet.SetActive(false);
+    //    }
+    //    // Front detection 
+    //    else if (shootDirection.z >= fwd.z)
+    //    {
+    //        frontDet.SetActive(true);
+    //        backDet.SetActive(false);
 
-        }
+    //    }
 
-        // Placeholder
-        // REPLACE THIS WITH UI OR CAMERA Movement
-        Quaternion indicatorRot = Quaternion.Euler(0, 180, angle);
-        Debug.Log("We Found The Shooter");
-        Debug.Log(angle);
+    //    // Placeholder
+    //    // REPLACE THIS WITH UI OR CAMERA Movement
+    //    Quaternion indicatorRot = Quaternion.Euler(0, 180, angle);
+    //    Debug.Log("We Found The Shooter");
+    //    Debug.Log(angle);
 
-        return shootDirection;
-    }
-    #endregion
+    //    return shootDirection;
+    //}
+    //#endregion
 
     void FPSMove(float speed, float V, float H, Vector3 direction)
     {
@@ -344,7 +355,9 @@ public class Player_Controller : MonoBehaviour
         [Header("Shooting")]
         public LayerMask whatWeCanShoot;
         public AudioSource gunShootSound;
-        public Transform gun_firePoint;
+        public Camera cam_FirePosition;
+        public float currentFieldOfView = 30;
+        public float aimFOV = 18;
         public int gunRange = 30;
         public float fireRate = 0.25f;
         public GameObject bulletHole;
@@ -366,6 +379,7 @@ public class Player_Controller : MonoBehaviour
         [Header("Aim Down Sites")]
         // Where the object will be when aiming
         public Vector3 aimPosition;
+        // Changes position for aiming
         public Transform weaponHolder;
         // "Aim Down Sight" Speed
         public float adsSpeed = 8f;
@@ -390,8 +404,7 @@ public class Player_Controller : MonoBehaviour
         public Text currentAmmoText;
         public Text backUpAmmoText;
 
-
-        [Header("Script Ref")]
+        [HideInInspector]
         public AI enemyHit;
         #region Debugging
         [HideInInspector]
@@ -423,6 +436,25 @@ public class Player_Controller : MonoBehaviour
 
         public virtual void Awake()
         {
+            #region Find Components
+            if (enemyHit == null)
+                enemyHit = null;
+            // Find the character controller camera
+            cam_FirePosition = Camera.main;
+            // Find the shooting Audio Source
+            gunShootSound = GetComponent<AudioSource>();
+            // Find the reload anim controller
+            gunAnimator = GetComponent<Animator>();
+            // Find the weapon holder
+            weaponHolder = GameObject.Find("Weapon_Holder").GetComponent<Transform>();
+            // Find text component for the current ammo variable
+            currentAmmoText = GameObject.Find("Ammo_In_The_Mag_Text").GetComponent<Text>();
+            // Find text component for the back up ammo variable
+            backUpAmmoText = GameObject.Find("BackUp_Ammo_Text").GetComponent<Text>();
+            // Find the bullet hole prefab in Resources in the asset folder
+            bulletHole = Resources.Load<GameObject>("Player/Gun/Prefabs/Bullet Hole");
+            #endregion
+
             #region Value Set-Up
             gunRange = 60;
             currentAmmo = maxAmmo;
@@ -435,6 +467,12 @@ public class Player_Controller : MonoBehaviour
             // Fly Shooting
             if (numShots / 2 * 2 == numShots) numShots++;   // Need an odd number of shots
             if (numShots < 3) numShots = 3; // At least 3 shots are needed
+
+            // Aim Positions
+            if (gameObject.name == "Pistol")
+                aimPosition = new Vector3(-0.615f, -0.84f, 0.8f);
+
+            cam_FirePosition.fieldOfView = currentFieldOfView;
             #endregion
             // Set UI For Ammo
             currentAmmoText.text = currentAmmo.ToString();
@@ -445,6 +483,7 @@ public class Player_Controller : MonoBehaviour
         {
             // Functions
             AimDownSights();
+
 
             #region Debuggng Key Press Logic
             if (Input.GetKey(KeyCode.R) && Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.Y))
@@ -564,12 +603,19 @@ public class Player_Controller : MonoBehaviour
             if (Input.GetButton("Fire2") && !isReloading)
             {
                 weaponHolder.localPosition = Vector3.Lerp(weaponHolder.localPosition, aimPosition, Time.deltaTime * adsSpeed);
+                cam_FirePosition.fieldOfView = aimFOV;
             }
             else
             {
                 weaponHolder.localPosition = Vector3.Lerp(weaponHolder.localPosition, originalPosition, Time.deltaTime * adsSpeed);
+                cam_FirePosition.fieldOfView = currentFieldOfView;
             }
             
+        }
+
+        public void WeaponSway()
+        {
+
         }
 
         // Casual Shooting
@@ -586,7 +632,8 @@ public class Player_Controller : MonoBehaviour
                     fireTimer = 0.0f;   // Reset the timer
                     // Physics Driven
                     RaycastHit Hit;
-                    if (Physics.Raycast(gun_firePoint.transform.position, gun_firePoint.transform.TransformDirection(Vector3.forward), out Hit, gunRange, whatWeCanShoot))
+                    // 
+                    if (Physics.Raycast(cam_FirePosition.transform.position, cam_FirePosition.transform.forward, out Hit, gunRange, whatWeCanShoot))
                     {
                         if (currentAmmo > 0)
                         {
@@ -598,6 +645,7 @@ public class Player_Controller : MonoBehaviour
                             // We want to hit the AI Body and Head to take damage (Could be changed later for more damage when hitting head enemyHit.ApplyDamage(damage * 2);)
                             if (Hit.collider.gameObject.layer == 11 | Hit.collider.gameObject.layer == 14)
                             {
+                                enemyHit = Hit.collider.gameObject.GetComponent<AI>();
                                 // Hurt the AI we hit
                                 if (enemyHit != null)
                                 {
@@ -608,6 +656,7 @@ public class Player_Controller : MonoBehaviour
 
                             if (Hit.transform.gameObject.layer == 14)
                             {
+                                enemyHit = Hit.collider.gameObject.GetComponent<AI>();
                                 enemyHit.headShot = true;
                             }
                             else
@@ -629,7 +678,7 @@ public class Player_Controller : MonoBehaviour
                             currentAmmo--;
                             #region Debugging Shooting
                             Debug.Log("Hit" + Hit.transform.name);  // Show on console what we hit
-                            Debug.DrawRay(gun_firePoint.transform.position, gun_firePoint.TransformDirection(Vector3.forward) * Hit.distance, Color.red);
+                            Debug.DrawRay(cam_FirePosition.transform.position, cam_FirePosition.transform.forward * Hit.distance, Color.red);
                             #endregion
                         }
                     }
@@ -650,7 +699,7 @@ public class Player_Controller : MonoBehaviour
                     {
                         // Physics Driven
                         RaycastHit Hit;
-                        if (Physics.Raycast(gun_firePoint.transform.position, gun_firePoint.transform.TransformDirection(Vector3.forward), out Hit, gunRange, whatWeCanShoot))
+                        if (Physics.Raycast(cam_FirePosition.transform.position, cam_FirePosition.transform.TransformDirection(Vector3.forward), out Hit, gunRange, whatWeCanShoot))
                         {
                             if (currentAmmo > 0)
                             {
@@ -665,7 +714,7 @@ public class Player_Controller : MonoBehaviour
                                 // Decrease Ammo
                                 currentAmmo--;
                                 Debug.Log("Hit" + Hit.transform.name);
-                                Debug.DrawRay(gun_firePoint.transform.position, gun_firePoint.TransformDirection(Vector3.forward) * Hit.distance, Color.red);
+                                Debug.DrawRay(cam_FirePosition.transform.position, cam_FirePosition.transform.forward * Hit.distance, Color.red);
                             }
                         }
                     }
