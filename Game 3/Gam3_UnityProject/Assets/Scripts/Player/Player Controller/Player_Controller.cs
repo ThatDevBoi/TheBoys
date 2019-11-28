@@ -400,11 +400,14 @@ public class Player_Controller : MonoBehaviour
         public float explosionRadius = 5.0f;
         public float explosiveForce = 20.0f;
 
+        [Header("Melee Attack")]
+        public bool isPunching = false;
+        public Animator punchController;
+
         [Header("UI")]
         public Text currentAmmoText;
         public Text backUpAmmoText;
 
-        [HideInInspector]
         public AI enemyHit;
         #region Debugging
         [HideInInspector]
@@ -445,6 +448,7 @@ public class Player_Controller : MonoBehaviour
             gunShootSound = GetComponent<AudioSource>();
             // Find the reload anim controller
             gunAnimator = GetComponent<Animator>();
+            punchController = GameObject.Find("Fist").GetComponent<Animator>();
             // Find the weapon holder
             weaponHolder = GameObject.Find("Weapon_Holder").GetComponent<Transform>();
             // Find text component for the current ammo variable
@@ -470,7 +474,7 @@ public class Player_Controller : MonoBehaviour
 
             // Aim Positions
             if (gameObject.name == "Pistol")
-                aimPosition = new Vector3(-0.615f, -0.84f, 0.8f);
+                aimPosition = new Vector3(-0.55f, -1f, 1f);
 
             cam_FirePosition.fieldOfView = currentFieldOfView;
             #endregion
@@ -483,7 +487,7 @@ public class Player_Controller : MonoBehaviour
         {
             // Functions
             AimDownSights();
-
+            Punch();
 
             #region Debuggng Key Press Logic
             if (Input.GetKey(KeyCode.R) && Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.Y))
@@ -495,6 +499,7 @@ public class Player_Controller : MonoBehaviour
                 Debugging = false;
             }
             #endregion
+
             // Max current Ammo
             if (currentAmmo > maxAmmo)
                 currentAmmo = maxAmmo;
@@ -613,11 +618,6 @@ public class Player_Controller : MonoBehaviour
             
         }
 
-        public void WeaponSway()
-        {
-
-        }
-
         // Casual Shooting
         public void  Fire()
         {
@@ -639,9 +639,12 @@ public class Player_Controller : MonoBehaviour
                         {
                             gunShootSound.volume = 0.5f;
                             gunShootSound.Play();
+                            // Decrease Ammo
+                            currentAmmo--;
 
                             GameObject impactHole = Instantiate(bulletHole, Hit.point, Quaternion.FromToRotation(Vector3.forward, Hit.normal)) as GameObject;
                             Destroy(impactHole, 5f);
+
                             // We want to hit the AI Body and Head to take damage (Could be changed later for more damage when hitting head enemyHit.ApplyDamage(damage * 2);)
                             if (Hit.collider.gameObject.layer == 11 | Hit.collider.gameObject.layer == 14)
                             {
@@ -653,14 +656,18 @@ public class Player_Controller : MonoBehaviour
                                     enemyHit.ApplyDamage(damage);
                                 }
                             }
+                            else
+                                enemyHit = null;
 
-                            if (Hit.transform.gameObject.layer == 14)
+                            if (Hit.collider.gameObject.layer == 14)
                             {
-                                enemyHit = Hit.collider.gameObject.GetComponent<AI>();
+                                //enemyHit = Hit.collider.gameObject.GetComponent<AI>();
                                 enemyHit.headShot = true;
                             }
-                            else
+                            else if (Hit.collider.gameObject.layer != 14)
+                            {
                                 enemyHit.headShot = false;
+                            }
 
                             if(CurrentBulletType == BulletType.Explosive)
                             {
@@ -673,9 +680,6 @@ public class Player_Controller : MonoBehaviour
                                         otherObjectPhysics.AddExplosionForce(explosiveForce, explosionPosition, explosionRadius);
                                 }
                             }
-
-                            // Decrease Ammo
-                            currentAmmo--;
                             #region Debugging Shooting
                             Debug.Log("Hit" + Hit.transform.name);  // Show on console what we hit
                             Debug.DrawRay(cam_FirePosition.transform.position, cam_FirePosition.transform.forward * Hit.distance, Color.red);
@@ -710,7 +714,6 @@ public class Player_Controller : MonoBehaviour
                                 {
                                     enemyHit.ApplyDamage(damage);
                                 }
-                                //BulletShot.name = "Bullet_Sound_Position";
                                 // Decrease Ammo
                                 currentAmmo--;
                                 Debug.Log("Hit" + Hit.transform.name);
@@ -719,6 +722,25 @@ public class Player_Controller : MonoBehaviour
                         }
                     }
                 }
+            }
+        }
+
+        public void Punch()
+        {
+            isPunching = true;
+            if (Input.GetKeyDown(KeyCode.P))
+            {
+                isPunching = true;
+                // Play the animation
+                //Animator anim = GameObject.Find("Fist").GetComponent<Animator>();
+                punchController.SetBool("isPunching", true);
+            }
+            else
+            {
+                isPunching = false;
+                // Stop the animation
+                //Animator anim = GameObject.Find("Fist").GetComponent<Animator>();
+                punchController.SetBool("isPunching", false);
             }
         }
 

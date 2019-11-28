@@ -167,6 +167,8 @@ public class AI : MonoBehaviour
         // Component Set-Up
         // Find the navmeshagent
         AI_Physics = gameObject.AddComponent<NavMeshAgent>();
+        // NavMeshAgent will adopt the spped variable
+        AI_Physics.speed = AI_movement_Speed;
         // Make a collider
         AI_Collider = gameObject.AddComponent<CapsuleCollider>();
         aiMeshRend = gameObject.GetComponent<MeshRenderer>();
@@ -196,15 +198,12 @@ public class AI : MonoBehaviour
         gameObject.layer = 11;
         // object name will be enemy
         gameObject.name = "Enemy";
-        // NavMeshAgent will adopt the spped variable
-        AI_Physics.speed = AI_movement_Speed;
 
         // Vector or Position set-up
         // Home position
         startPosition = new Vector3(transform.position.x, transform.position.y, transform.position.z);
         // First position in the array needs to be the startPosition
         Patrol[0] = startPosition;
-
         // Health Set-up
         currentHealth = MaxHealth;
         // change start matieral to the dormant material
@@ -652,6 +651,14 @@ public class AI : MonoBehaviour
                 break;
         }
         yield break;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.gameObject.name == "Fist")
+        {
+            ApplyDamage(damage);
+        }
     }
     #endregion
 }
