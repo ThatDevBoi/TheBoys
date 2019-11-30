@@ -150,52 +150,6 @@ public class Player_Controller : MonoBehaviour
         #endregion
     }
 
-    //#region Where are we being shot from?
-    //public Vector3 PositionOfDamage(Transform objectThatShotUs)
-    //{
-    //    // calculate forward direction
-    //    Vector3 shootDirection = objectThatShotUs.position - gameObject.transform.position;
-    //    shootDirection.y = 0;
-    //    shootDirection.Normalize();
-
-    //    Vector3 fwd = gameObject.transform.forward;
-
-    //    float a = Vector3.Dot(fwd, shootDirection);
-    //    float angle = (a + 1f) * 90;
-
-    //    // Calculate left n right
-    //    Vector3 rhs = transform.right;
-
-    //    if (Vector3.Dot(rhs, shootDirection) < 0)
-    //    {
-    //        angle *= -1f;
-    //    }
-
-    //    // Back Detection
-    //    if (-shootDirection.z >= fwd.z)
-    //    {
-    //        backDet.SetActive(true);
-    //        frontDet.SetActive(false);
-
-    //    }
-    //    // Front detection 
-    //    else if (shootDirection.z >= fwd.z)
-    //    {
-    //        frontDet.SetActive(true);
-    //        backDet.SetActive(false);
-
-    //    }
-
-    //    // Placeholder
-    //    // REPLACE THIS WITH UI OR CAMERA Movement
-    //    Quaternion indicatorRot = Quaternion.Euler(0, 180, angle);
-    //    Debug.Log("We Found The Shooter");
-    //    Debug.Log(angle);
-
-    //    return shootDirection;
-    //}
-    //#endregion
-
     void FPSMove(float speed, float V, float H, Vector3 direction)
     {
         // Input
@@ -297,22 +251,17 @@ public class Player_Controller : MonoBehaviour
     #region On Screen States
     void OnGUI()
     {
-        if(currentHealth <= 100)
+        if(currentHealth <= 100 && currentHealth > 60)
         {
             GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), text1);
         }
 
-        if(currentHealth < 80)
-        {
-            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), text1);
-        }
-
-        if (currentHealth < 60)
+        if (currentHealth <= 60 && currentHealth > 30) 
         {
             GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), text2);
         }
 
-        if (currentHealth < 30)
+        if (currentHealth <= 30)
         {
             GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), text4);
         }
@@ -460,8 +409,11 @@ public class Player_Controller : MonoBehaviour
             #endregion
 
             #region Value Set-Up
+            // Start Range for gun
             gunRange = 30;
+            // Start ammo in mag
             currentAmmo = maxAmmo;
+            // start backup ammo
             backUpAmmo = maxBackupAmmo;
 
             // The hip location of the gun
@@ -475,11 +427,13 @@ public class Player_Controller : MonoBehaviour
             // Aim Positions
             if (gameObject.name == "Pistol")
                 aimPosition = new Vector3(-0.55f, -1f, 1f);
-
+            // Start FOV for the FPS Cam
             cam_FirePosition.fieldOfView = currentFieldOfView;
             #endregion
             // Set UI For Ammo
+            // Text for current ammo
             currentAmmoText.text = currentAmmo.ToString();
+            // Text for current Backup Ammo
             backUpAmmoText.text = backUpAmmo.ToString();
         }
 
@@ -490,25 +444,39 @@ public class Player_Controller : MonoBehaviour
             Punch();
 
             #region Debuggng Key Press Logic
+            // Press alL the keys listed together to see hidden variables
+            //R + Space Bar + Y
             if (Input.GetKey(KeyCode.R) && Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.Y))
             {
                 Debugging = true;
             }
+            // Press all together to revert 
+            // D + M
             else if (Input.GetKey(KeyCode.D) && Input.GetKey(KeyCode.M))
             {
                 Debugging = false;
             }
             #endregion
 
-            // Max current Ammo
+            // Max Ammo limit 
+            // when the current ammo goes past the max amount 
             if (currentAmmo > maxAmmo)
-                currentAmmo = maxAmmo;
-
+                currentAmmo = maxAmmo;  // then the current will always = to max
+            // Back Up Ammo Limit
             if (backUpAmmo > maxBackupAmmo)
-                backUpAmmo = maxBackupAmmo;
+                backUpAmmo = maxBackupAmmo; // Backup Ammo will always = max amount of backup ammo we are allowed
 
             #region Fire Modes n Bullet Types
+            // ShootingModeController
+            // Press Q Key to increase or scroll through shooting types
 
+            // 0 = Auto
+            // 1 = Semi
+            // 2 = Burst
+
+            // Bullet Types 
+            // 0 = Defualt 
+            // 1 = Explosive
             #region Shoot Mode Controller Checks
             if (shootModeController == 0)
                 shootingMode = ShootMode.Auto;
@@ -605,14 +573,19 @@ public class Player_Controller : MonoBehaviour
 
         public void AimDownSights()
         {
+            // if we press the right mouse button and we are not reloading
             if (Input.GetButton("Fire2") && !isReloading)
             {
+                // Lerp the weapon to the aim position we set up outside the script 
                 weaponHolder.localPosition = Vector3.Lerp(weaponHolder.localPosition, aimPosition, Time.deltaTime * adsSpeed);
+                // Chnage the FOV on the camera
                 cam_FirePosition.fieldOfView = aimFOV;
             }
-            else
+            else   // if we are not aiming or the reloading bool is true
             {
+                // make the gun go back to its hip position
                 weaponHolder.localPosition = Vector3.Lerp(weaponHolder.localPosition, originalPosition, Time.deltaTime * adsSpeed);
+                // change the camera FOV to be what it starts as
                 cam_FirePosition.fieldOfView = currentFieldOfView;
             }
             
@@ -648,7 +621,24 @@ public class Player_Controller : MonoBehaviour
                             // We want to hit the AI Body and Head to take damage (Could be changed later for more damage when hitting head enemyHit.ApplyDamage(damage * 2);)
                             if (Hit.collider.gameObject.layer == 11 | Hit.collider.gameObject.layer == 14)
                             {
-                                enemyHit = Hit.collider.gameObject.GetComponent<AI>();
+                                if (Hit.collider.name == "Head")
+                                {
+                                    enemyHit = Hit.collider.gameObject.GetComponentInParent<AI>();
+                                }
+                                else
+                                {
+                                    enemyHit = Hit.collider.gameObject.GetComponent<AI>();
+                                }
+
+                                if (Hit.collider.gameObject.layer == 14)
+                                {
+                                    enemyHit.headShot = true;
+                                }
+                                else if (Hit.collider.gameObject.layer != 14)
+                                {
+                                    enemyHit.headShot = false;
+                                }
+
                                 // Hurt the AI we hit
                                 if (enemyHit != null)
                                 {
@@ -659,17 +649,7 @@ public class Player_Controller : MonoBehaviour
                             else
                                 enemyHit = null;
 
-                            if (Hit.collider.gameObject.layer == 14)
-                            {
-                                //enemyHit = Hit.collider.gameObject.GetComponent<AI>();
-                                enemyHit.headShot = true;
-                            }
-                            else if (Hit.collider.gameObject.layer != 14)
-                            {
-                                enemyHit.headShot = false;
-                            }
-
-                            if(CurrentBulletType == BulletType.Explosive)
+                            if (CurrentBulletType == BulletType.Explosive)
                             {
                                 Vector3 explosionPosition = Hit.transform.position;
                                 Collider[] objectsHit = Physics.OverlapSphere(explosionPosition, explosionRadius);
@@ -689,33 +669,83 @@ public class Player_Controller : MonoBehaviour
                 }
             }
         }
-
+        // Intergrate with Fire Function Later
         public void BurstShot()
         {
+            // when the shooting mode is changes to the value of 2 which is for burst fire
             if(shootModeController == 2)
             {
+                // if the firerate allows us the shoot
                 if (fireTimer < fireRate) return;
-                fireTimer = 0.0f;
-                //nextShot = Time.time + timeBetweenShots;
+                fireTimer = 0.0f;   // reset timer
+                // allow us to shoot more than 1 bullet
                 for (int i = 0; i < numShots; i++)
                 {
+                    // can we shoot?
                     if (isShooting)
                     {
                         // Physics Driven
                         RaycastHit Hit;
+                        // shoot a ray at the direction we desire and the laymask we can shoot at
                         if (Physics.Raycast(cam_FirePosition.transform.position, cam_FirePosition.transform.TransformDirection(Vector3.forward), out Hit, gunRange, whatWeCanShoot))
                         {
+                            // when the current ammo in the gun is above 0
                             if (currentAmmo > 0)
                             {
+                                gunShootSound.volume = 0.5f;
+                                // play the shooting sound
                                 gunShootSound.Play();
-                                //GameObject BulletShot = Instantiate(BulletPosition, gun_firePoint.position, Quaternion.identity) as GameObject;
-                                AI enemyHit = Hit.transform.GetComponent<AI>();
-                                if (enemyHit != null)
-                                {
-                                    enemyHit.ApplyDamage(damage);
-                                }
                                 // Decrease Ammo
                                 currentAmmo--;
+
+                                GameObject impactHole = Instantiate(bulletHole, Hit.point, Quaternion.FromToRotation(Vector3.forward, Hit.normal)) as GameObject;
+                                Destroy(impactHole, 5f);
+
+
+                                // We want to hit the AI Body and Head to take damage (Could be changed later for more damage when hitting head enemyHit.ApplyDamage(damage * 2);)
+                                if (Hit.collider.gameObject.layer == 11 | Hit.collider.gameObject.layer == 14)
+                                {
+                                    if (Hit.collider.name == "Head")
+                                    {
+                                        enemyHit = Hit.collider.gameObject.GetComponentInParent<AI>();
+                                    }
+                                    else
+                                    {
+                                        enemyHit = Hit.collider.gameObject.GetComponent<AI>();
+                                    }
+
+                                    if (Hit.collider.gameObject.layer == 14)
+                                    {
+                                        enemyHit.headShot = true;
+                                    }
+                                    else if (Hit.collider.gameObject.layer != 14)
+                                    {
+                                        enemyHit.headShot = false;
+                                    }
+
+                                    // Hurt the AI we hit
+                                    if (enemyHit != null)
+                                    {
+                                        impactHole.transform.parent = Hit.transform;
+                                        enemyHit.ApplyDamage(damage);
+                                    }
+                                }
+                                else
+                                    enemyHit = null;
+
+                                if (CurrentBulletType == BulletType.Explosive)
+                                {
+                                    Vector3 explosionPosition = Hit.transform.position;
+                                    Collider[] objectsHit = Physics.OverlapSphere(explosionPosition, explosionRadius);
+                                    foreach (Collider objectsInRange in objectsHit)
+                                    {
+                                        Rigidbody otherObjectPhysics = objectsInRange.GetComponent<Rigidbody>();
+                                        if (otherObjectPhysics != null)
+                                            otherObjectPhysics.AddExplosionForce(explosiveForce, explosionPosition, explosionRadius);
+                                    }
+                                }
+
+                                // Removed Later
                                 Debug.Log("Hit" + Hit.transform.name);
                                 Debug.DrawRay(cam_FirePosition.transform.position, cam_FirePosition.transform.forward * Hit.distance, Color.red);
                             }
@@ -727,19 +757,18 @@ public class Player_Controller : MonoBehaviour
 
         public void Punch()
         {
-            isPunching = true;
-            if (Input.GetKeyDown(KeyCode.P))
+            // if the player presses the key P then we play the animation and we must be punching
+            if (Input.GetKey(KeyCode.P))
             {
                 isPunching = true;
                 // Play the animation
                 //Animator anim = GameObject.Find("Fist").GetComponent<Animator>();
                 punchController.SetBool("isPunching", true);
             }
-            else
+            else    // else if the player didnt press p then we are not punching
             {
-                isPunching = false;
-                // Stop the animation
-                //Animator anim = GameObject.Find("Fist").GetComponent<Animator>();
+                isPunching = false;    // cant punch 
+                // dont play animations
                 punchController.SetBool("isPunching", false);
             }
         }
@@ -747,23 +776,32 @@ public class Player_Controller : MonoBehaviour
         // Normal Reloading
         IEnumerator Reload()
         {
+            // cant shoot if we are reloading 
             isShooting = false;
+            // We are now Reloading 
             isReloading = true;
+            // Remove later
             Debug.Log("Reloading. . . .");
+            // Play reload anim
             gunAnimator.SetBool("isReloading", true);
-
+            // Wait a few seconds
             yield return new WaitForSeconds(reloadTime - .25f);
+            // We are no longer animating the gun to reload
             gunAnimator.SetBool("isReloading", false);
+            // Wait more 
             yield return new WaitForSeconds(.25f);
+            // We are no longer reloading
             isReloading = false;
-
+            // var shot is a variable in which takes into considering the max ammo and current 
+            // this will be to make sure we are relevant ammo in the magazin or how much we do have in the magazine
             var shot = maxAmmo - currentAmmo;
+            // if the current backup ammo is less than shot
             if (backUpAmmo < shot)
             {
                 currentAmmo = backUpAmmo;
                 backUpAmmo = 0;
             }
-            else
+            else    // the current ammo will take values from the backup to reload
             {
                 currentAmmo += shot;
                 backUpAmmo -= shot;
