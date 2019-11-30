@@ -460,7 +460,7 @@ public class Player_Controller : MonoBehaviour
             #endregion
 
             #region Value Set-Up
-            gunRange = 60;
+            gunRange = 30;
             currentAmmo = maxAmmo;
             backUpAmmo = maxBackupAmmo;
 
