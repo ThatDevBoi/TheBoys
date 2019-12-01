@@ -309,7 +309,12 @@ public class Player_Controller : MonoBehaviour
         public float aimFOV = 18;
         public int gunRange = 30;
         public float fireRate = 0.25f;
-        public GameObject bulletHole;
+        // Effects
+        private GameObject bulletHole;
+        private GameObject muzzleFlash;
+        // Changes revolver color On Pistol
+        private Material defaultBulletMat;
+        private Material explosiveBulletMat;
 
         [Header("Reloadiing")]
         public bool isReloading = false;
@@ -405,7 +410,13 @@ public class Player_Controller : MonoBehaviour
             // Find text component for the back up ammo variable
             backUpAmmoText = GameObject.Find("BackUp_Ammo_Text").GetComponent<Text>();
             // Find the bullet hole prefab in Resources in the asset folder
-            bulletHole = Resources.Load<GameObject>("Player/Gun/Prefabs/Bullet Hole");
+            bulletHole = Resources.Load<GameObject>("GunEffects/ImpactEffect");
+            // Find Muzzle Flash
+            muzzleFlash = Resources.Load<GameObject>("GunEffects/MuzzleFlash");
+
+            // Pistol color change revolver barrel
+            defaultBulletMat = Resources.Load<Material>("Player/Gun/Materials/Pistol/DefaultBulletMat");
+            explosiveBulletMat = Resources.Load<Material>("Player/Gun/Materials/Pistol/ExplosiveBulletMat");
             #endregion
 
             #region Value Set-Up
@@ -486,11 +497,21 @@ public class Player_Controller : MonoBehaviour
                 shootingMode = ShootMode.Burst;
 
             if (bulletChange == 0)
+            {
                 CurrentBulletType = BulletType.Default;
-            else if (bulletChange == 1)
-                CurrentBulletType = BulletType.Explosive;
+                GameObject revolverBarrel = GameObject.Find("Pistol/RevolverBarrel");
+                Renderer rend = revolverBarrel.GetComponent<Renderer>();
+                rend.material = defaultBulletMat;
+            }
 
-            if (Input.GetKeyUp(KeyCode.Q))
+            else if (bulletChange == 1)
+            {
+                CurrentBulletType = BulletType.Explosive;
+                GameObject revolverBarrel = GameObject.Find("Pistol/RevolverBarrel");
+                Renderer rend = revolverBarrel.GetComponent<Renderer>();
+                rend.material = explosiveBulletMat;
+            }
+            if (Input.GetKeyDown(KeyCode.Q))
             {
                 shootModeController++;
                 if (shootModeController >= 3)
@@ -499,7 +520,7 @@ public class Player_Controller : MonoBehaviour
 
 
             // Key press increases controller value
-            if (Input.GetKeyUp(KeyCode.B))
+            if (Input.GetKeyDown(KeyCode.B))
             {
                 bulletChange++;
                 // value met resets the value
@@ -614,9 +635,19 @@ public class Player_Controller : MonoBehaviour
                             gunShootSound.Play();
                             // Decrease Ammo
                             currentAmmo--;
-
+                            // Muzzle Flash
+                            GameObject firePoint = GameObject.Find("Pistol/ironSights/FirePoint"); // Find the spawn position
+                            GameObject flashMuzzle = Instantiate(muzzleFlash, firePoint.transform.position, Quaternion.identity) as GameObject;
+                            Destroy(flashMuzzle, .5f);
+                            // Impact Effect
                             GameObject impactHole = Instantiate(bulletHole, Hit.point, Quaternion.FromToRotation(Vector3.forward, Hit.normal)) as GameObject;
                             Destroy(impactHole, 5f);
+                            // if we hit any gameObject in the scene
+                            if(Hit.collider.gameObject)
+                            {
+                                // the parent of they object becomes the hit point
+                                impactHole.gameObject.transform.parent = Hit.transform;
+                            }
 
                             // We want to hit the AI Body and Head to take damage (Could be changed later for more damage when hitting head enemyHit.ApplyDamage(damage * 2);)
                             if (Hit.collider.gameObject.layer == 11 | Hit.collider.gameObject.layer == 14)
@@ -697,7 +728,9 @@ public class Player_Controller : MonoBehaviour
                                 gunShootSound.Play();
                                 // Decrease Ammo
                                 currentAmmo--;
-
+                                GameObject firePoint = GameObject.Find("Pistol/ironSights/FirePoint"); // Find the spawn position
+                                GameObject flashMuzzle = Instantiate(muzzleFlash, firePoint.transform.position, Quaternion.identity) as GameObject;
+                                Destroy(flashMuzzle, .5f);
                                 GameObject impactHole = Instantiate(bulletHole, Hit.point, Quaternion.FromToRotation(Vector3.forward, Hit.normal)) as GameObject;
                                 Destroy(impactHole, 5f);
 
