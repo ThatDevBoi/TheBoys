@@ -487,6 +487,7 @@ public class AI : MonoBehaviour
             {
                 Debug.Log("I Hit The Player");
                 Player_Controller applyDamage = GameObject.Find("PC").GetComponent<Player_Controller>();// get PC script
+                applyDamage.HitDetection(gameObject.GetComponent<Transform>());
                 applyDamage.ApplyDamage(damage);    // apply damage to the player
             }
             

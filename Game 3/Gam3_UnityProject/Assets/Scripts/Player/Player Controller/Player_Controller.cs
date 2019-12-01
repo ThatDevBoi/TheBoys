@@ -6,7 +6,6 @@ using UnityEditor;
 [CustomPropertyDrawer(typeof(HideAttributes))]
 public class Player_Controller : MonoBehaviour
 {
-
     #region Variablles
     [Header("Movement")]
     // PUBLIC
@@ -15,21 +14,15 @@ public class Player_Controller : MonoBehaviour
     public float cameraRotationRate = 45;   // Rate we rotate at
     public AudioSource walkingSound;
     public LayerMask slopCheck;
-    // PRIVATE
 
     [Header("Health n Damage")]
     public int maxHealth = 100;
     public int currentHealth;
+    // This array if for the images that are on the Player Healthbar 
+    public Image[] sliderArray;
 
     [Header("Health Bar")]
     public Slider healthBar;
-
-    // Replace Later
-    private Texture text1; // current health < 75
-    private Texture text2; // current health < 50
-    private Texture text3; // current health < 30
-    private Texture text4; // current health < 20 
-
 
     #region Debugging
     [HideInInspector]
@@ -59,6 +52,14 @@ public class Player_Controller : MonoBehaviour
     [Header("$Debugging$ The Value for movement speed")]
     [HideAttributes("Debugging", true)]
     public float speed;
+    [HideAttributes("Debugging", true)]
+    private Texture text1; // current health < 75
+    [HideAttributes("Debugging", true)]
+    private Texture text2; // current health < 50
+    [HideAttributes("Debugging", true)]
+    private Texture text3; // current health < 30
+    [HideAttributes("Debugging", true)]
+    private Texture text4; // current health < 20 
     #endregion
 
     #endregion
@@ -83,8 +84,13 @@ public class Player_Controller : MonoBehaviour
         // Find the Main Camera
         playersEyes = Camera.main.GetComponent<Transform>();
         walkingSound = GetComponent<AudioSource>();
-
+        // Find Health Bar Slider
         healthBar = GameObject.Find("PlayerUIController/PC_HealthBar").GetComponent<Slider>();
+        // Finds the DetectWheel 
+        RectTransform DetectWheel;
+        // Find UI Component
+        DetectWheel = GameObject.Find("HitDetection/DetectionWheel").GetComponent<RectTransform>();
+
 
         // Find Textures in assets folder
         text1 = Resources.Load<Texture>("HurtTexture/UI Screen Hurt");
@@ -112,6 +118,7 @@ public class Player_Controller : MonoBehaviour
         xRotation = 0f;
         // set up audio volume
         walkingSound.volume = 0.3f;
+        DetectWheel.rotation = new Quaternion(0, 0, 180, 0);
         #endregion
 
         #region Debug Components
@@ -149,7 +156,8 @@ public class Player_Controller : MonoBehaviour
         }
         #endregion
     }
-
+    // This function moves the FPS character and covers all its logic
+    #region FPS Movement Function
     void FPSMove(float speed, float V, float H, Vector3 direction)
     {
         // Input
@@ -217,36 +225,63 @@ public class Player_Controller : MonoBehaviour
         transform.Rotate(0, cameraRotationRate * Time.deltaTime * mouseRotX, 0);
         #endregion
     }
+    #endregion
     public void ApplyDamage(int damage)
     {
         currentHealth -= damage;
     }
 
+    // This Function is for the control of the PC health bar slider in unity
+    #region Health Bar Function
     public void HealthBar()
     {
+        // Set up the Slider value to be the current health value
         healthBar.value = currentHealth;
-        #region Change Bar Color
-        if (currentHealth > maxHealth | currentHealth > 60)
+        #region Player Health Bar Transitions
+        // Foreach image that is in our array of images for the healthbar slider
+        foreach (Image PC_HealthBarImages in sliderArray)
         {
-            Image healthImage = GameObject.Find("PlayerHP_Fill").GetComponent<Image>();
-            healthImage.color = Color.green;
-        }
-        // Make fill bar Yellow
-        if(currentHealth  <= 60)
-        {
-            Image healthImage = GameObject.Find("PlayerHP_Fill").GetComponent<Image>();
-            healthImage.color = Color.yellow;
-        }
+            // We need to check that we are at max health as we will be turning the UI Alpha channels to 0
+            if (currentHealth >= maxHealth)
+            {
+                // Change all image color alpha channels to 0
+                PC_HealthBarImages.color = new Color(0, 1, 1, Mathf.Lerp(0, 0, 0));
+            }
+            else    // However when we are no longer at max health
+            {
+                // We need to turn the UI Back on
+                PC_HealthBarImages.color = new Color(1, 1, 1, Mathf.Lerp(1, 1, 1));
+                // Now we need to check what our current health is as the healthbar will change color
+                // so when the current is near the 100 mark we have a green health bar
+                if (currentHealth > maxHealth | currentHealth > 60)
+                {
+                    // We find the image each time as these if statements wont run often and it saves us making ir a variable in the inspector
+                    Image healthImage = GameObject.Find("PlayerHP_Fill").GetComponent<Image>();
+                    healthImage.color = Color.green;
+                }
+                // when the current health is less than 60 or is 60
+                // Make fill bar Yellow
+                if (currentHealth <= 60)
+                {
+                    // We find the image each time as these if statements wont run often and it saves us making ir a variable in the inspector
+                    Image healthImage = GameObject.Find("PlayerHP_Fill").GetComponent<Image>();
+                    healthImage.color = Color.yellow;
+                }
+                // When the current health is 30 or less 
+                // make fill bar Red
+                if (currentHealth <= 30)
+                {
+                    // We find the image each time as these if statements wont run often and it saves us making ir a variable in the inspector
+                    Image healthImage = GameObject.Find("PlayerHP_Fill").GetComponent<Image>();
+                    healthImage.color = Color.red;
+                }
+            }
 
-        // make fill bar Red
-        if (currentHealth <= 30)
-        {
-            Image healthImage = GameObject.Find("PlayerHP_Fill").GetComponent<Image>();
-            healthImage.color = Color.red;
         }
         #endregion
-
     }
+    #endregion
+
 
     #region On Screen States
     void OnGUI()
@@ -265,6 +300,42 @@ public class Player_Controller : MonoBehaviour
         {
             GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), text4);
         }
+    }
+    #endregion
+    #region Players Hit Detection
+    // This Function gets called in the AI shooting logic. Whenever the AI shoots us we need its Transform Component to find its position
+    // I did it this wasy as there will be multiple Enemies and we dont want to monitor each one individually
+    public void HitDetection(Transform targetThatShotUs)
+    {
+        // THE UI WE ARE USING IS IN A CERTAIN PARENT CHILD RELATIONSHIP
+        #region The Order Relationship
+        // CANVAS -- IN WORLD SPACE USING FPS CAM -- Parent
+        // DETECTIONWHEEL -- Uses a Image for a background and is rotated 180 on the Z Axis So the pointer points in the correct position -- Child of Canvas but a sub parent to Rotator
+        // ROTATER -- Rotater is used to make the pointer rotate in a 360 angle -- Child of DetectionWheel but subParent to Pointer
+        // POINTER -- The 2D sprite which is pointing in  the diorection of the enemies that shoot us -- Child of Rotator
+        #endregion
+        
+
+
+        // The layer in UI Which will rotate and show us where the enemy is 
+        RectTransform hitLayer;
+        // Find the UI Layer we want
+        hitLayer = GameObject.Find("HitDetection/DetectionWheel/Rotater").GetComponent<RectTransform>();
+        // TThe Vector3 is local so it needs to equal 0 to begin with
+        Vector3 northDirection = Vector3.zero;
+        // The Z axis of our local Vector3 needs to take into mind the players Euler angles for the Y axis
+        northDirection.z = gameObject.transform.eulerAngles.y;
+        // Rotation variable 
+        Quaternion directionOfHit;
+        // The Direction between the AI that shoots the player and the player pos
+        Vector3 dir = transform.position - targetThatShotUs.position;
+        // Rotate towards the direction of the AI from this position
+        directionOfHit = Quaternion.LookRotation(dir);
+        directionOfHit.z = -directionOfHit.y;
+        directionOfHit.x = 0;
+        directionOfHit.y = 0;
+        // Make the UI Component rotate smoothly
+        hitLayer.localRotation = directionOfHit * Quaternion.Euler(northDirection);
     }
     #endregion
 
