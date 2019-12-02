@@ -284,23 +284,23 @@ public class Player_Controller : MonoBehaviour
 
 
     #region On Screen States
-    void OnGUI()
-    {
-        if(currentHealth <= 100 && currentHealth > 60)
-        {
-            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), text1);
-        }
+    //void OnGUI()
+    //{
+    //    if(currentHealth <= 100 && currentHealth > 60)
+    //    {
+    //        GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), text1);
+    //    }
 
-        if (currentHealth <= 60 && currentHealth > 30) 
-        {
-            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), text2);
-        }
+    //    if (currentHealth <= 60 && currentHealth > 30) 
+    //    {
+    //        GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), text2);
+    //    }
 
-        if (currentHealth <= 30)
-        {
-            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), text4);
-        }
-    }
+    //    if (currentHealth <= 30)
+    //    {
+    //        GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), text4);
+    //    }
+    //}
     #endregion
     #region Players Hit Detection
     // This Function gets called in the AI shooting logic. Whenever the AI shoots us we need its Transform Component to find its position
@@ -519,7 +519,7 @@ public class Player_Controller : MonoBehaviour
             backUpAmmoText.text = backUpAmmo.ToString();
         }
 
-        public virtual void FixedUpdate()
+        public virtual void Update()
         {
             // Functions
             AimDownSights();
@@ -591,7 +591,7 @@ public class Player_Controller : MonoBehaviour
 
 
             // Key press increases controller value
-            if (Input.GetKeyDown(KeyCode.B))
+            if (Input.GetKeyDown(KeyCode.E))
             {
                 bulletChange++;
                 // value met resets the value
@@ -862,7 +862,7 @@ public class Player_Controller : MonoBehaviour
         public void Punch()
         {
             // if the player presses the key P then we play the animation and we must be punching
-            if (Input.GetKey(KeyCode.P))
+            if (Input.GetKey(KeyCode.F))
             {
                 isPunching = true;
                 // Play the animation

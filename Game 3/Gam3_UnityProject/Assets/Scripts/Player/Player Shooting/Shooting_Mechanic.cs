@@ -13,8 +13,8 @@ public class Shooting_Mechanic : Player_Controller.GunMechanic
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    void Update()
     {
-        base.FixedUpdate();
+        base.Update();
     }
 }

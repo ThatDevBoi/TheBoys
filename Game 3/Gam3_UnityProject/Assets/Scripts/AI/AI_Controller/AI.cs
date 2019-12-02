@@ -178,7 +178,7 @@ public class AI : MonoBehaviour
         // Find the players walking and running Audio Source
         playerRunning = GameObject.Find("PC").GetComponent<AudioSource>();
         // Finding the Audio Source Attached to the players Gun
-        /// This will change later where 1 audio source will be on the Weapon_Holder and will change audio source when player changes weapon (We can find the audio clip via Assets)
+        // This will change later where 1 audio source will be on the Weapon_Holder and will change audio source when player changes weapon (We can find the audio clip via Assets)
         playerShooting = GameObject.Find("PC/FPS_Cam/Weapon_Holder/Pistol Holder/Pistol").GetComponent<AudioSource>();
 
         // Find My Head
