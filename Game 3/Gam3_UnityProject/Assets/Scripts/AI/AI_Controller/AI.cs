@@ -183,7 +183,7 @@ public class AI : MonoBehaviour
 
         // Find My Head
         head = GameObject.Find("Head");
-        firePoint = gameObject.transform.FindChild("Gun/Shooting_Point").GetComponent<Transform>();
+        firePoint = gameObject.transform.Find("Gun/Shooting_Point").GetComponent<Transform>();
 
         // Find the materials from the assets folder
         dormantMat = Resources.Load<Material>("Material/Dormant");
