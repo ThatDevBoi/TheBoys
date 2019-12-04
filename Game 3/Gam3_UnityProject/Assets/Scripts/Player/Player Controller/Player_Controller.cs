@@ -21,6 +21,7 @@ public class Player_Controller : MonoBehaviour
     public int currentHealth;
     // This array if for the images that are on the Player Healthbar 
     public Image[] sliderArray;
+    public Text healthPercentageText;
 
     [Header("Health Bar")]
     public Slider healthBar;
@@ -91,6 +92,9 @@ public class Player_Controller : MonoBehaviour
         RectTransform DetectWheel;
         // Find UI Component
         DetectWheel = GameObject.Find("HitDetection/DetectionWheel").GetComponent<RectTransform>();
+        // Finding Percentage Text
+        healthPercentageText = GameObject.Find("Percentage_Health_Text").GetComponent<Text>();
+
 
 
         // Find Textures in assets folder
@@ -145,6 +149,8 @@ public class Player_Controller : MonoBehaviour
         {
             currentHealth = maxHealth;
         }
+        // Show on screen Health bar percentage with this text
+        healthPercentageText.text = currentHealth + "%";
 
         #region Debuggng Key Press Logic
         if (Input.GetKey(KeyCode.R) && Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.Y))
@@ -446,6 +452,7 @@ public class Player_Controller : MonoBehaviour
         public Text backUpAmmoText;
 
         public AI enemyHit;
+
         #region Debugging
         [HideInInspector]
         public bool Debugging;
@@ -648,7 +655,6 @@ public class Player_Controller : MonoBehaviour
             // Update the UI for current ammo and backup ammo per frame
             currentAmmoText.text = currentAmmo.ToString();
             backUpAmmoText.text = backUpAmmo.ToString();
-
             // Fire Rate
             if (fireTimer < fireRate)
                 fireTimer += Time.deltaTime;
