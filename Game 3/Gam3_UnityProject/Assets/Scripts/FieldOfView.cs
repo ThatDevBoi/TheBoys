@@ -20,6 +20,7 @@ public class FieldOfView : MonoBehaviour
     Mesh viewMesh;
 
     [Header("Script Reference")]
+    [HideInInspector]
     public AI script;
 
     GameObject player;

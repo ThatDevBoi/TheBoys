@@ -14,6 +14,7 @@ public class Player_Controller : MonoBehaviour
     public float cameraRotationRate = 45;   // Rate we rotate at
     public AudioSource walkingSound;
     public LayerMask slopCheck;
+    private float runTime = 1;
 
     [Header("Health n Damage")]
     public int maxHealth = 100;
@@ -160,6 +161,7 @@ public class Player_Controller : MonoBehaviour
     #region FPS Movement Function
     void FPSMove(float speed, float V, float H, Vector3 direction)
     {
+        #region Core Movement
         // Input
         V = Input.GetAxis("Vertical");
         H = Input.GetAxis("Horizontal");
@@ -169,7 +171,28 @@ public class Player_Controller : MonoBehaviour
         direction = (transform.forward * V + (transform.right * H));
         // Make the vector to the equal of 1
         direction = direction.normalized * speed;
-
+        // Running
+        if (r != 0)
+        { 
+            // cooldown for not being detected on key press straight away by the NPC
+            runTime -= Time.deltaTime;
+            Debug.Log(runTime);
+            if(runTime <= 0)
+            {
+                walkingSound.volume = 0.6f;
+                runTime = 1;
+            }
+            speed = runSpeed;
+        }
+        else
+        {
+            runTime = 1;
+            walkingSound.volume = 0.3f;
+            speed = currentSpeed;
+        }
+        // move with physics
+        playerPhysics.velocity = direction * speed * Time.deltaTime;
+        #endregion
         #region Slop Check
         // Slop Check
         RaycastHit hit;
@@ -184,21 +207,8 @@ public class Player_Controller : MonoBehaviour
             direction.y = direction.y + Physics.gravity.y;  // Turn gravity back on
         }
         #endregion
-
-        // Running
-        if (Input.GetAxis("Run") != 0)
-        {
-            walkingSound.volume = 0.6f;
-            speed = runSpeed;
-        }
-        else
-        {
-            walkingSound.volume = 0.3f;
-            speed = currentSpeed;
-        }
            
-        // move with physics
-        playerPhysics.velocity = direction * speed * Time.deltaTime;
+
 
         // Camera Rotation Logic
         #region Fixed Camera Rotation
@@ -302,6 +312,7 @@ public class Player_Controller : MonoBehaviour
     //    }
     //}
     #endregion
+
     #region Players Hit Detection
     // This Function gets called in the AI shooting logic. Whenever the AI shoots us we need its Transform Component to find its position
     // I did it this wasy as there will be multiple Enemies and we dont want to monitor each one individually
@@ -380,6 +391,7 @@ public class Player_Controller : MonoBehaviour
         public float aimFOV = 18;
         public int gunRange = 30;
         public float fireRate = 0.25f;
+        public int damage;  
         // Effects
         private GameObject bulletHole;
         private GameObject muzzleFlash;
@@ -452,9 +464,6 @@ public class Player_Controller : MonoBehaviour
         [Header("$Debugging$ The Value which overrides enum BulletType")]
         [HideAttributes("Debugging", true)]
         public int bulletChange;
-        [Header("$Debugging$ Damage which the player sends to the AI")]
-        [HideAttributes("Debugging", true)]
-        public int damage;  // This is set in the switch statement 
 
 
 
