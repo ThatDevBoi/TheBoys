@@ -82,6 +82,8 @@ public class AI : MonoBehaviour
     public float fireRate = 0.25f;
     // How accuracte is each shot
     public int firingAccuracy = 1000;
+    // How much damage the AI Does per shot
+    public int damage = 5;
     // The Range of shooting
     public int shootingRange = 60;
     // What the AI can shoot
@@ -138,9 +140,6 @@ public class AI : MonoBehaviour
     [Header("$Debugging$ Noise Detection where the player was when they made a sound")]
     [HideAttributes("Debugging", true)]
     public Vector3 playersLastPosition;
-    [Header("$Debugging$ How much the AI gets damaged per bullet")]
-    [HideAttributes("Debugging", true)]
-    public int damage = 5;
     [Header("$Debugging$ How Fast The AI Fires There gun ")]
     [HideAttributes("Debugging", true)]
     public float FireRateTimer;
