@@ -401,6 +401,7 @@ public class Player_Controller : MonoBehaviour
         // Effects
         private GameObject bulletHole;
         private GameObject muzzleFlash;
+        private GameObject hitMarker;
         // Changes revolver color On Pistol
         private Material defaultBulletMat;
         private Material explosiveBulletMat;
@@ -504,6 +505,7 @@ public class Player_Controller : MonoBehaviour
             // Pistol color change revolver barrel
             defaultBulletMat = Resources.Load<Material>("Player/Gun/Materials/Pistol/DefaultBulletMat");
             explosiveBulletMat = Resources.Load<Material>("Player/Gun/Materials/Pistol/ExplosiveBulletMat");
+            hitMarker = Resources.Load<GameObject>("Player/Gun/Prefabs/Hitmarker");
             #endregion
 
             #region Value Set-Up
@@ -738,6 +740,9 @@ public class Player_Controller : MonoBehaviour
                             // We want to hit the AI Body and Head to take damage (Could be changed later for more damage when hitting head enemyHit.ApplyDamage(damage * 2);)
                             if (Hit.collider.gameObject.layer == 11 | Hit.collider.gameObject.layer == 14)
                             {
+                                GameObject HitMark = Instantiate(hitMarker, Hit.point, Quaternion.FromToRotation(Vector3.forward, Hit.normal)) as GameObject;
+                                HitMark.transform.parent = Hit.transform;
+                                Destroy(HitMark, .2f);
                                 if (Hit.collider.name == "Head")
                                 {
                                     enemyHit = Hit.collider.gameObject.GetComponentInParent<AI>();
