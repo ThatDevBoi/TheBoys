@@ -35,6 +35,9 @@ public class AI : MonoBehaviour
     [Header("Searching Behaviour Variables")]
     // PUBLIC
     public float searchRadius = 10;
+    public float TimeUntilAlerted = 2;
+    public float TimeUntilSearching = 1;
+
     // PRIVATE
 
     [Header("Time Until Reset Behaviour")]
@@ -153,13 +156,6 @@ public class AI : MonoBehaviour
     [Header("$Debugging$ How long the AI Searches for the player")]
     [HideAttributes("Debugging", true)]
     public float SearchingTime = 0;
-    // Value that agrees or disagrees if the ai is hunting
-    [Header("$Debugging$ The Time it takes for the AI to detect the player for searching (Detects when in FOV)")]
-    [HideAttributes("Debugging", true)]
-    public float TimeUntilSearching = 1;
-    [Header("$Debugging$ The Time it takes for the AI to detect the player for Alert")]
-    [HideAttributes("Debugging", true)]
-    public float TimeUntilAlerted = 2;
     // The time that meets the random alert time
     // Its so the NPC can Behave alerted until the player is gone and hidden
     [Header("$Debugging$ How long the AI is Alert for the player")]

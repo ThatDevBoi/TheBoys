@@ -779,7 +779,7 @@ public class Player_Controller : MonoBehaviour
                                 {
                                     Rigidbody otherObjectPhysics = objectsInRange.GetComponent<Rigidbody>();
                                     if (otherObjectPhysics != null)
-                                        otherObjectPhysics.AddExplosionForce(explosiveForce, explosionPosition, explosionRadius);
+                                        otherObjectPhysics.AddExplosionForce(explosiveForce, explosionPosition, Mathf.Infinity);
                                 }
                             }
                             #region Debugging Shooting
