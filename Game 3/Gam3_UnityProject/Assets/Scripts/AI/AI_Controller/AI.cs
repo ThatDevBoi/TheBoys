@@ -80,7 +80,7 @@ public class AI : MonoBehaviour
     [Header("Shooting Variables")]
     // PUBLIC
     public bool headShot = false;
-    public GameObject head;
+    public Transform head;
     // Rate of fire
     public float fireRate = 0.25f;
     // How accuracte is each shot
@@ -191,7 +191,7 @@ public class AI : MonoBehaviour
         playerShooting = GameObject.Find("PC/FPS_Cam/Weapon_Holder/Pistol Holder/Pistol").GetComponent<AudioSource>();
 
         // Find My Head
-        head = GameObject.Find("Head");
+        head = gameObject.transform.GetChild(2);
         firePoint = gameObject.transform.Find("Gun/Shooting_Point").GetComponent<Transform>();
 
         // Find the materials from the assets folder
@@ -295,7 +295,7 @@ public class AI : MonoBehaviour
         else if (headShot && currentHealth <= 0)    // however if we have no health but the bool is true
         {
             // Make sure we make a seperate GameObject so we dont delete a reference Variable
-            GameObject aiHead = head;
+            Transform aiHead = head;
             // Detech The Head
             aiHead.transform.parent = null;
             // Destroy the parent
@@ -330,8 +330,8 @@ public class AI : MonoBehaviour
         {
             // Countdown the reset
             howManyHitsReset -= Time.deltaTime;
-            Debug.Log(howManyHitsReset);
-            Debug.Log(howmanyHits);
+            //Debug.Log(howManyHitsReset);
+            //Debug.Log(howmanyHits);
             // if the howmanyHits is less than the required value and the reset has reached 0 or more
             if (howManyHitsReset <= 0)
             {

@@ -65,7 +65,6 @@ public class Player_Controller : MonoBehaviour
     #endregion
 
     #endregion
-
     Shooting_Mechanic gunScript;
     // Start is called before the first frame update
     void Start()
@@ -397,7 +396,9 @@ public class Player_Controller : MonoBehaviour
         public float aimFOV = 18;
         public int gunRange = 30;
         public float fireRate = 0.25f;
-        public int damage;  
+        public int damage;
+        public GameObject bridge;
+
         // Effects
         private GameObject bulletHole;
         private GameObject muzzleFlash;
@@ -478,7 +479,7 @@ public class Player_Controller : MonoBehaviour
 
         #endregion
         #endregion
-
+        public Animator Bridge;
         public virtual void Awake()
         {
             #region Find Components
@@ -730,8 +731,9 @@ public class Player_Controller : MonoBehaviour
                             // Impact Effect
                             GameObject impactHole = Instantiate(bulletHole, Hit.point, Quaternion.FromToRotation(Vector3.forward, Hit.normal)) as GameObject;
                             Destroy(impactHole, 5f);
+
                             // if we hit any gameObject in the scene
-                            if(Hit.collider.gameObject)
+                            if (Hit.collider.gameObject)
                             {
                                 // the parent of they object becomes the hit point
                                 impactHole.gameObject.transform.parent = Hit.transform;
@@ -770,6 +772,13 @@ public class Player_Controller : MonoBehaviour
                             }
                             else
                                 enemyHit = null;
+
+                            // if we hit the trigger that belongs to the bridge 
+                            if (Hit.collider.gameObject.name == "default")
+                            {
+                                // Play the animation for the bridge to appear
+                                bridge.GetComponent<Animator>().SetBool("Activate", true);
+                            }
 
                             if (CurrentBulletType == BulletType.Explosive)
                             {
