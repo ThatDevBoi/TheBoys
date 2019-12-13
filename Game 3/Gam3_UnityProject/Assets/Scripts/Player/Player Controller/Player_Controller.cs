@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using UnityEditor;
 
 [CustomPropertyDrawer(typeof(HideAttributes))]
+[RequireComponent(typeof(FieldOfView))]
 public class Player_Controller : MonoBehaviour
 {
     #region Variablles

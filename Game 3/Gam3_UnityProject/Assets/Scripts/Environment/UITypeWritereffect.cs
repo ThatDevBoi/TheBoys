@@ -1,4 +1,4 @@
-﻿   using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
 using System.Text;
@@ -12,7 +12,8 @@ public class UITypeWritereffect : MonoBehaviour
     public float delayBetweenChars = 0.125f;
     public float delayAfterPunctuation = 0.5f;
 
-    private string story;
+    [HideInInspector]
+    public string story;
     private float originDelayBetweenChars;
     private bool lastCharPunctuation = false;
     private char charComma;
@@ -43,12 +44,12 @@ public class UITypeWritereffect : MonoBehaviour
         Invoke("Start_PlayText", delayBetweenChars); //Invoke effect
     }
 
-    void Start_PlayText()
+    public void Start_PlayText()
     {
         StartCoroutine(PlayText());
     }
 
-    IEnumerator PlayText()
+    public IEnumerator PlayText()
     {
 
         foreach (char c in story)

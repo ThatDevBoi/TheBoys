@@ -5,6 +5,7 @@ using UnityEditor;
 using UnityEngine.AI;
 
 [CustomPropertyDrawer(typeof(HideAttributes))]
+[RequireComponent(typeof(FieldOfView))]
 public class AI : MonoBehaviour
 {
     #region Default AI Variables
