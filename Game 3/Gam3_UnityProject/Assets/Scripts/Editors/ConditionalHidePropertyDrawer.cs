@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
+#if (UNITY_EDITOR) 
+
 [CustomPropertyDrawer(typeof(HideAttributes))]
 public class ConditionalHidePropertyDrawer : PropertyDrawer
 {
@@ -54,3 +56,5 @@ public class ConditionalHidePropertyDrawer : PropertyDrawer
         return enabled;
     }
 }
+
+#endif

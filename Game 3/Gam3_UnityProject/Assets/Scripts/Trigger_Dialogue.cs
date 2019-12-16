@@ -70,23 +70,29 @@ public class Trigger_Dialogue : MonoBehaviour
             if (Vector3.Distance(transform.position, playerObject.position) < distanceToTalk && !isTalking)
             {
                 // text shows
-                projectTextObject.text = "Press" + ":" + KeyPressToTalk;
+                projectTextObject.text = "Press" + ":" + " "+KeyPressToTalk+" ";
                 // boolean ticks 
                 isTalking = true;
             }
             else if (Vector3.Distance(transform.position, playerObject.position) > distanceToTalk)
             {
+                projectTextObject.text = "Press" + ":" + " " + KeyPressToTalk + " ";
                 isTalking = false;
+             
             }
             // when boolean is true 
             if (isTalking)
             {
+                
                 // Conversation starts
                 Conversation = objectConversation[conversationScroller];
 
                 // when key is pressed 
                 if (Input.GetKeyDown(KeyPressToTalk))
                 {
+                    if(conversationScroller==1)
+                    projectTextObject.text = " ";
+
                     // increase array scroller by 1
                     conversationScroller++;
                     // call function to type write
@@ -116,6 +122,7 @@ public class Trigger_Dialogue : MonoBehaviour
             typeWriterScript.StopCoroutine(typeWriterScript.PlayText());
             // reset the array scroller
             conversationScroller = 0;
+
             // TextMesh needs to know what to print 
             projectTextObject.text = Conversation;
         }

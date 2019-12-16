@@ -4,8 +4,10 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.AI;
 
+#if (UNITY_EDITOR) 
 [CustomPropertyDrawer(typeof(HideAttributes))]
 [RequireComponent(typeof(FieldOfView))]
+#endif
 public class AI : MonoBehaviour
 {
     #region Default AI Variables

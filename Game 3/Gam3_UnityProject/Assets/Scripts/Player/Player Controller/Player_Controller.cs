@@ -2,9 +2,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEditor;
-
+#if (UNITY_EDITOR) 
 [CustomPropertyDrawer(typeof(HideAttributes))]
 [RequireComponent(typeof(FieldOfView))]
+#endif
 public class Player_Controller : MonoBehaviour
 {
     #region Variablles
