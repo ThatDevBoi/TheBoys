@@ -20,7 +20,7 @@ public class Head_Motion : MonoBehaviour
         float vertical = Input.GetAxis("Vertical");
 
         // localPosition of object this script is applied to
-        Vector3 cSharpConversion = transform.localPosition;
+        Vector3 head_Bobbing = transform.localPosition;
         // the absolute value of both inputs getting - & +
         if (Mathf.Abs(horizontal) == 0 && Mathf.Abs(vertical) == 0)
         {
@@ -44,14 +44,14 @@ public class Head_Motion : MonoBehaviour
             // the change amount for bobbing
             translateChange = totalAxes * translateChange;
             // We bob on the y axis which takes into consideration the start and change of head position
-            cSharpConversion.y = midpoint + translateChange;
+            head_Bobbing.y = midpoint + translateChange;
         }
         else
         {
-            cSharpConversion.y = midpoint;  // the midpoint is the Y position start point
+            head_Bobbing.y = midpoint;  // the midpoint is the Y position start point
         }
         // position is midpoint
-        transform.localPosition = cSharpConversion;
+        transform.localPosition = head_Bobbing;
     }
 
 }

@@ -180,7 +180,10 @@ public class Player_Controller : MonoBehaviour
         direction = direction.normalized * speed;
         // Running
         if (r != 0)
-        { 
+        {
+            Weapon_Sway weapon = GameObject.Find("Pistol Holder").GetComponent<Weapon_Sway>();
+            weapon.amount = 0.12f;
+            weapon.maxAmount = 0.14f;
             // cooldown for not being detected on key press straight away by the NPC
             runTime -= Time.deltaTime;
             Debug.Log(runTime);
@@ -195,6 +198,9 @@ public class Player_Controller : MonoBehaviour
         {
             runTime = 1;
             walkingSound.volume = 0.3f;
+            Weapon_Sway weapon = GameObject.Find("Pistol Holder").GetComponent<Weapon_Sway>();
+            weapon.amount = 0.02f;
+            weapon.maxAmount = 0.06f;
             speed = currentSpeed;
         }
         // move with physics
