@@ -17,6 +17,8 @@ public class Trigger_Dialogue : MonoBehaviour
     // value which can change and monitor how far the player needs to be until talk can be exacuted
     public float distanceToTalk = 3;
     public Vector3 boxCollider_Size = new Vector3(5, 1, 5);
+    // value in which allows the timer to reset for cooldown timer needs to meet this value
+    public float time_Between_Inputs = 3;
 
 
     // Private Variables
@@ -33,6 +35,10 @@ public class Trigger_Dialogue : MonoBehaviour
     private bool playerApprrachedMe = false;
     // TextMeshPro component UI
     private TextMeshPro projectTextObject;
+    // timer in which cools down when the player can talk
+    private float keyTimer = 0.0f;
+    // bool which allows timer to start ticking "keyTimer"
+    bool keypressed = false;
 
 
     // Start is called before the first frame update
@@ -54,6 +60,16 @@ public class Trigger_Dialogue : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // input cooldown
+        if (keypressed)
+        {
+            keyTimer += Time.deltaTime;
+            if (keyTimer >= time_Between_Inputs)
+            {
+                keyTimer = 0;
+                keypressed = false;
+            }
+        }
         #region Conversation Logic
         // if the conversation is over
         if (conversationScroller >= objectConversation.Length)
@@ -83,21 +99,30 @@ public class Trigger_Dialogue : MonoBehaviour
             // when boolean is true 
             if (isTalking)
             {
-                
-                // Conversation starts
-                Conversation = objectConversation[conversationScroller];
-
-                // when key is pressed 
-                if (Input.GetKeyDown(KeyPressToTalk))
+                if (!keypressed)
                 {
-                    if(conversationScroller==1)
-                    projectTextObject.text = " ";
+                    // Conversation starts
+                    Conversation = objectConversation[conversationScroller];
+                    if (keyTimer >= 0)
+                    {
+                        // when key is pressed 
+                        if (Input.GetKeyDown(KeyPressToTalk))
+                        {
+                            keypressed = true;
+                            if (conversationScroller == 1)
+                                projectTextObject.text = " ";
 
-                    // increase array scroller by 1
-                    conversationScroller++;
-                    // call function to type write
-                    typeWriterScript.ChangeText(Conversation, 0);
+                            // increase array scroller by 1
+                            conversationScroller++;
+                            // call function to type write
+                            typeWriterScript.ChangeText(Conversation, 0);
+                        }
+                    }
+                    else
+                        keypressed = false;
                 }
+                else
+                    return;
             }
         }
         #endregion

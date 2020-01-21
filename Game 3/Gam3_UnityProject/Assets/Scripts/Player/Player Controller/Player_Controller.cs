@@ -12,6 +12,8 @@ public class Player_Controller : MonoBehaviour
     [Header("Movement")]
     // PUBLIC
     public float runSpeed = 30;
+    // are we holding shift
+    public bool running = false;
     public float currentSpeed = 20;
     public float cameraRotationRate = 45;   // Rate we rotate at
     public AudioSource walkingSound;
@@ -181,6 +183,7 @@ public class Player_Controller : MonoBehaviour
         // Running
         if (r != 0)
         {
+            running = true;
             Weapon_Sway weapon = GameObject.Find("Pistol Holder").GetComponent<Weapon_Sway>();
             weapon.amount = 0.12f;
             weapon.maxAmount = 0.14f;
@@ -196,6 +199,7 @@ public class Player_Controller : MonoBehaviour
         }
         else
         {
+            running = false;
             runTime = 1;
             walkingSound.volume = 0.3f;
             Weapon_Sway weapon = GameObject.Find("Pistol Holder").GetComponent<Weapon_Sway>();
@@ -416,6 +420,7 @@ public class Player_Controller : MonoBehaviour
         private Material explosiveBulletMat;
 
         [Header("Reloadiing")]
+        // are we reloading the gun?
         public bool isReloading = false;
         public Animator gunAnimator;
 
@@ -427,6 +432,7 @@ public class Player_Controller : MonoBehaviour
         // the ammo the player has spare
         public int backUpAmmo;
         public int maxBackupAmmo = 90;
+        // are we shooting the gun?
         public bool isShooting = true;
 
         [Header("Aim Down Sites")]
@@ -452,6 +458,7 @@ public class Player_Controller : MonoBehaviour
         // Explosive Bullets
         public float explosionRadius = 5.0f;
         public float explosiveForce = 20.0f;
+        public float upforce = 1;
 
         [Header("Melee Attack")]
         public bool isPunching = false;
@@ -462,6 +469,10 @@ public class Player_Controller : MonoBehaviour
         public Text backUpAmmoText;
 
         public AI enemyHit;
+
+        public Recoil recoilScript;
+
+
 
         #region Debugging
         [HideInInspector]
@@ -502,6 +513,9 @@ public class Player_Controller : MonoBehaviour
             punchController = GameObject.Find("Fist").GetComponent<Animator>();
             // Find the weapon holder
             weaponHolder = GameObject.Find("Weapon_Holder").GetComponent<Transform>();
+            // find recoil script
+            GameObject gunHolder = GameObject.Find("Pistol Holder");
+            recoilScript = gunHolder.GetComponent<Recoil>();
             // Find text component for the current ammo variable
             currentAmmoText = GameObject.Find("Ammo_In_The_Mag_Text").GetComponent<Text>();
             // Find text component for the back up ammo variable
@@ -688,23 +702,31 @@ public class Player_Controller : MonoBehaviour
             else
                 isShooting = true;  // Yes we still have bullets 
         }
-
+        Player_Controller PlayerClass;
         public void AimDownSights()
         {
-            // if we press the right mouse button and we are not reloading
-            if (Input.GetButton("Fire2") && !isReloading)
+            PlayerClass = GameObject.Find("PC").GetComponent<Player_Controller>();
+            if(PlayerClass.running == false)
             {
-                // Lerp the weapon to the aim position we set up outside the script 
-                weaponHolder.localPosition = Vector3.Lerp(weaponHolder.localPosition, aimPosition, Time.deltaTime * adsSpeed);
-                // Chnage the FOV on the camera
-                cam_FirePosition.fieldOfView = aimFOV;
+                // if we press the right mouse button and we are not reloading
+                if (Input.GetButton("Fire2") && !isReloading)
+                {
+                    // Lerp the weapon to the aim position we set up outside the script 
+                    weaponHolder.localPosition = Vector3.Lerp(weaponHolder.localPosition, aimPosition, Time.deltaTime * adsSpeed);
+                    // Chnage the FOV on the camera
+                    cam_FirePosition.fieldOfView = aimFOV;
+                }
+                else   // if we are not aiming or the reloading bool is true
+                {
+                    // make the gun go back to its hip position
+                    weaponHolder.localPosition = Vector3.Lerp(weaponHolder.localPosition, originalPosition, Time.deltaTime * adsSpeed);
+                    // change the camera FOV to be what it starts as
+                    cam_FirePosition.fieldOfView = currentFieldOfView;
+                }
             }
-            else   // if we are not aiming or the reloading bool is true
+            else
             {
-                // make the gun go back to its hip position
-                weaponHolder.localPosition = Vector3.Lerp(weaponHolder.localPosition, originalPosition, Time.deltaTime * adsSpeed);
-                // change the camera FOV to be what it starts as
-                cam_FirePosition.fieldOfView = currentFieldOfView;
+                return;
             }
             
         }
@@ -715,137 +737,48 @@ public class Player_Controller : MonoBehaviour
             // if we are not burst firing
             if(shootModeController != 2)
             {
-                // Simple Shoot
-                if (isShooting)
+                // we need to check run as we dont want to shoot the gun while running
+                if (PlayerClass.running == false)
                 {
-                    // If the timer isnt less than the rate of fire then we dont run the code below
-                    if (fireTimer < fireRate) return;
-                    fireTimer = 0.0f;   // Reset the timer
-                    // Physics Driven
-                    RaycastHit Hit;
-                    // 
-                    if (Physics.Raycast(cam_FirePosition.transform.position, cam_FirePosition.transform.forward, out Hit, gunRange, whatWeCanShoot))
-                    {
-                        if (currentAmmo > 0)
-                        {
-                            gunShootSound.volume = 0.5f;
-                            gunShootSound.Play();
-                            // Decrease Ammo
-                            currentAmmo--;
-                            // Muzzle Flash
-                            GameObject firePoint = GameObject.Find("Pistol/ironSights/FirePoint"); // Find the spawn position
-                            GameObject flashMuzzle = Instantiate(muzzleFlash, firePoint.transform.position, Quaternion.identity) as GameObject;
-                            Destroy(flashMuzzle, .5f);
-                            // Impact Effect
-                            GameObject impactHole = Instantiate(bulletHole, Hit.point, Quaternion.FromToRotation(Vector3.forward, Hit.normal)) as GameObject;
-                            Destroy(impactHole, 5f);
-
-                            // if we hit any gameObject in the scene
-                            if (Hit.collider.gameObject)
-                            {
-                                // the parent of they object becomes the hit point
-                                impactHole.gameObject.transform.parent = Hit.transform;
-                            }
-
-                            // We want to hit the AI Body and Head to take damage (Could be changed later for more damage when hitting head enemyHit.ApplyDamage(damage * 2);)
-                            if (Hit.collider.gameObject.layer == 11 | Hit.collider.gameObject.layer == 14)
-                            {
-                                GameObject HitMark = Instantiate(hitMarker, Hit.point, Quaternion.FromToRotation(Vector3.forward, Hit.normal)) as GameObject;
-                                HitMark.transform.parent = Hit.transform;
-                                Destroy(HitMark, .2f);
-                                if (Hit.collider.name == "Head")
-                                {
-                                    enemyHit = Hit.collider.gameObject.GetComponentInParent<AI>();
-                                }
-                                else
-                                {
-                                    enemyHit = Hit.collider.gameObject.GetComponent<AI>();
-                                }
-
-                                if (Hit.collider.gameObject.layer == 14)
-                                {
-                                    enemyHit.headShot = true;
-                                }
-                                else if (Hit.collider.gameObject.layer != 14)
-                                {
-                                    enemyHit.headShot = false;
-                                }
-
-                                // Hurt the AI we hit
-                                if (enemyHit != null)
-                                {
-                                    impactHole.transform.parent = Hit.transform;
-                                    enemyHit.ApplyDamage(damage);
-                                }
-                            }
-                            else
-                                enemyHit = null;
-
-                            // if we hit the trigger that belongs to the bridge 
-                            if (Hit.collider.gameObject.name == "default")
-                            {
-                                // Play the animation for the bridge to appear
-                                bridge.GetComponent<Animator>().SetBool("Activate", true);
-                            }
-
-                            if (CurrentBulletType == BulletType.Explosive)
-                            {
-                                Vector3 explosionPosition = Hit.transform.position;
-                                Collider[] objectsHit = Physics.OverlapSphere(explosionPosition, explosionRadius);
-                                foreach(Collider objectsInRange in objectsHit)
-                                {
-                                    Rigidbody otherObjectPhysics = objectsInRange.GetComponent<Rigidbody>();
-                                    if (otherObjectPhysics != null)
-                                        otherObjectPhysics.AddExplosionForce(explosiveForce, explosionPosition, Mathf.Infinity);
-                                }
-                            }
-                            #region Debugging Shooting
-                            Debug.Log("Hit" + Hit.transform.name);  // Show on console what we hit
-                            Debug.DrawRay(cam_FirePosition.transform.position, cam_FirePosition.transform.forward * Hit.distance, Color.red);
-                            #endregion
-                        }
-                    }
-                }
-            }
-        }
-        // Intergrate with Fire Function Later
-        public void BurstShot()
-        {
-            // when the shooting mode is changes to the value of 2 which is for burst fire
-            if(shootModeController == 2)
-            {
-                // if the firerate allows us the shoot
-                if (fireTimer < fireRate) return;
-                fireTimer = 0.0f;   // reset timer
-                // allow us to shoot more than 1 bullet
-                for (int i = 0; i < numShots; i++)
-                {
-                    // can we shoot?
+                    // Simple Shoot
                     if (isShooting)
                     {
-                        // Physics Driven
+                        // If the timer isnt less than the rate of fire then we dont run the code below
+                        if (fireTimer < fireRate) return;
+                        fireTimer = 0.0f;   // Reset the timer
+                                            // Physics Driven
                         RaycastHit Hit;
-                        // shoot a ray at the direction we desire and the laymask we can shoot at
-                        if (Physics.Raycast(cam_FirePosition.transform.position, cam_FirePosition.transform.TransformDirection(Vector3.forward), out Hit, gunRange, whatWeCanShoot))
+                        // 
+                        if (Physics.Raycast(cam_FirePosition.transform.position, cam_FirePosition.transform.forward, out Hit, gunRange, whatWeCanShoot))
                         {
-                            // when the current ammo in the gun is above 0
                             if (currentAmmo > 0)
                             {
+                                recoilScript.StartRecoil(0.2f, 10f, 10f);
                                 gunShootSound.volume = 0.5f;
-                                // play the shooting sound
                                 gunShootSound.Play();
                                 // Decrease Ammo
                                 currentAmmo--;
+                                // Muzzle Flash
                                 GameObject firePoint = GameObject.Find("Pistol/ironSights/FirePoint"); // Find the spawn position
                                 GameObject flashMuzzle = Instantiate(muzzleFlash, firePoint.transform.position, Quaternion.identity) as GameObject;
                                 Destroy(flashMuzzle, .5f);
+                                // Impact Effect
                                 GameObject impactHole = Instantiate(bulletHole, Hit.point, Quaternion.FromToRotation(Vector3.forward, Hit.normal)) as GameObject;
                                 Destroy(impactHole, 5f);
 
+                                // if we hit any gameObject in the scene
+                                if (Hit.collider.gameObject)
+                                {
+                                    // the parent of they object becomes the hit point
+                                    impactHole.gameObject.transform.parent = Hit.transform;
+                                }
 
                                 // We want to hit the AI Body and Head to take damage (Could be changed later for more damage when hitting head enemyHit.ApplyDamage(damage * 2);)
                                 if (Hit.collider.gameObject.layer == 11 | Hit.collider.gameObject.layer == 14)
                                 {
+                                    GameObject HitMark = Instantiate(hitMarker, Hit.point, Quaternion.FromToRotation(Vector3.forward, Hit.normal)) as GameObject;
+                                    HitMark.transform.parent = Hit.transform;
+                                    Destroy(HitMark, .2f);
                                     if (Hit.collider.name == "Head")
                                     {
                                         enemyHit = Hit.collider.gameObject.GetComponentInParent<AI>();
@@ -874,6 +807,13 @@ public class Player_Controller : MonoBehaviour
                                 else
                                     enemyHit = null;
 
+                                // if we hit the trigger that belongs to the bridge 
+                                if (Hit.collider.gameObject.name == "default")
+                                {
+                                    // Play the animation for the bridge to appear
+                                    bridge.GetComponent<Animator>().SetBool("Activate", true);
+                                }
+
                                 if (CurrentBulletType == BulletType.Explosive)
                                 {
                                     Vector3 explosionPosition = Hit.transform.position;
@@ -882,16 +822,111 @@ public class Player_Controller : MonoBehaviour
                                     {
                                         Rigidbody otherObjectPhysics = objectsInRange.GetComponent<Rigidbody>();
                                         if (otherObjectPhysics != null)
-                                            otherObjectPhysics.AddExplosionForce(explosiveForce, explosionPosition, explosionRadius);
+                                            otherObjectPhysics.AddExplosionForce(explosiveForce, explosionPosition, explosionRadius, upforce, ForceMode.Impulse);
                                     }
                                 }
-
-                                // Removed Later
-                                Debug.Log("Hit" + Hit.transform.name);
+                                #region Debugging Shooting
+                                Debug.Log("Hit" + Hit.transform.name);  // Show on console what we hit
                                 Debug.DrawRay(cam_FirePosition.transform.position, cam_FirePosition.transform.forward * Hit.distance, Color.red);
+                                #endregion
                             }
                         }
                     }
+                }
+                else
+                    return;
+            }
+        }
+        // Intergrate with Fire Function Later
+        public void BurstShot()
+        {
+            // when the shooting mode is changes to the value of 2 which is for burst fire
+            if(shootModeController == 2)
+            {
+                // if the firerate allows us the shoot
+                if (fireTimer < fireRate) return;
+                fireTimer = 0.0f;   // reset timer
+                // allow us to shoot more than 1 bullet
+                for (int i = 0; i < numShots; i++)
+                {
+                    if (PlayerClass.running == false)
+                    {
+                        // can we shoot?
+                        if (isShooting)
+                        {
+                            // Physics Driven
+                            RaycastHit Hit;
+                            // shoot a ray at the direction we desire and the laymask we can shoot at
+                            if (Physics.Raycast(cam_FirePosition.transform.position, cam_FirePosition.transform.TransformDirection(Vector3.forward), out Hit, gunRange, whatWeCanShoot))
+                            {
+                                // when the current ammo in the gun is above 0
+                                if (currentAmmo > 0)
+                                {
+                                    recoilScript.StartRecoil(0.2f, 10f, 10f);
+                                    gunShootSound.volume = 0.5f;
+                                    // play the shooting sound
+                                    gunShootSound.Play();
+                                    // Decrease Ammo
+                                    currentAmmo--;
+                                    GameObject firePoint = GameObject.Find("Pistol/ironSights/FirePoint"); // Find the spawn position
+                                    GameObject flashMuzzle = Instantiate(muzzleFlash, firePoint.transform.position, Quaternion.identity) as GameObject;
+                                    Destroy(flashMuzzle, .5f);
+                                    GameObject impactHole = Instantiate(bulletHole, Hit.point, Quaternion.FromToRotation(Vector3.forward, Hit.normal)) as GameObject;
+                                    Destroy(impactHole, 5f);
+
+
+                                    // We want to hit the AI Body and Head to take damage (Could be changed later for more damage when hitting head enemyHit.ApplyDamage(damage * 2);)
+                                    if (Hit.collider.gameObject.layer == 11 | Hit.collider.gameObject.layer == 14)
+                                    {
+                                        if (Hit.collider.name == "Head")
+                                        {
+                                            enemyHit = Hit.collider.gameObject.GetComponentInParent<AI>();
+                                        }
+                                        else
+                                        {
+                                            enemyHit = Hit.collider.gameObject.GetComponent<AI>();
+                                        }
+
+                                        if (Hit.collider.gameObject.layer == 14)
+                                        {
+                                            enemyHit.headShot = true;
+                                        }
+                                        else if (Hit.collider.gameObject.layer != 14)
+                                        {
+                                            enemyHit.headShot = false;
+                                        }
+
+                                        // Hurt the AI we hit
+                                        if (enemyHit != null)
+                                        {
+                                            impactHole.transform.parent = Hit.transform;
+                                            enemyHit.ApplyDamage(damage);
+                                        }
+                                    }
+                                    else
+                                        enemyHit = null;
+
+                                    if (CurrentBulletType == BulletType.Explosive)
+                                    {
+                                        Vector3 explosionPosition = Hit.transform.position;
+                                        Collider[] objectsHit = Physics.OverlapSphere(explosionPosition, explosionRadius);
+                                        foreach (Collider objectsInRange in objectsHit)
+                                        {
+                                            Rigidbody otherObjectPhysics = objectsInRange.GetComponent<Rigidbody>();
+                                            if (otherObjectPhysics != null)
+                                                otherObjectPhysics.AddExplosionForce(explosiveForce, explosionPosition, explosionRadius);
+                                        }
+                                    }
+
+                                    // Removed Later
+                                    Debug.Log("Hit" + Hit.transform.name);
+                                    Debug.DrawRay(cam_FirePosition.transform.position, cam_FirePosition.transform.forward * Hit.distance, Color.red);
+                                }
+                            }
+                        }
+                    }
+                    else
+                        return;
                 }
             }
         }
