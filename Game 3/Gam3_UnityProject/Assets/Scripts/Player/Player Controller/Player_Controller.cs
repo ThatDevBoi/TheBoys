@@ -20,12 +20,16 @@ public class Player_Controller : MonoBehaviour
     public LayerMask slopCheck;
     private float runTime = 1;
 
+    public static Vector3 savedPosition;
+    public bool playerDead=false;
+
     [Header("Health n Damage")]
     public int maxHealth = 100;
     public int currentHealth;
     // This array if for the images that are on the Player Healthbar 
     public Image[] sliderArray;
     public Text healthPercentageText;
+    public Canvas respawnCan;
 
     [Header("Health Bar")]
     public Slider healthBar;
@@ -73,6 +77,7 @@ public class Player_Controller : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        savedPosition = gameObject.transform.position;
         // States on start that need changing
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = true;
@@ -144,27 +149,37 @@ public class Player_Controller : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Functions
-        FPSMove(speed, dirX, dirZ, movementDirection);
-        HealthBar();
-        // Never go over max health
-        if(currentHealth > maxHealth)
+        if(playerDead)
         {
-            currentHealth = maxHealth;
+            transform.position = savedPosition;
         }
-        // Show on screen Health bar percentage with this text
-        healthPercentageText.text = currentHealth + "%";
+        else
+        {
+            respawnCan.enabled = false;
+            respawnCan.transform.GetChild(0).gameObject.SetActive(true);
+            Debug.Log(savedPosition);
+            // Functions
+            FPSMove(speed, dirX, dirZ, movementDirection);
+            HealthBar();
+            // Never go over max health
+            if (currentHealth > maxHealth)
+            {
+                currentHealth = maxHealth;
+            }
+            // Show on screen Health bar percentage with this text
+            healthPercentageText.text = currentHealth + "%";
 
-        #region Debuggng Key Press Logic
-        if (Input.GetKey(KeyCode.R) && Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.Y))
-        {
-            Debugging = true;
+            #region Debuggng Key Press Logic
+            if (Input.GetKey(KeyCode.R) && Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.Y))
+            {
+                Debugging = true;
+            }
+            else if (Input.GetKey(KeyCode.D) && Input.GetKey(KeyCode.M))
+            {
+                Debugging = false;
+            }
+            #endregion
         }
-        else if (Input.GetKey(KeyCode.D) && Input.GetKey(KeyCode.M))
-        {
-            Debugging = false;
-        }
-        #endregion
     }
     // This function moves the FPS character and covers all its logic
     #region FPS Movement Function
@@ -253,11 +268,12 @@ public class Player_Controller : MonoBehaviour
         #endregion
     }
     #endregion
+    #region Damage
     public void ApplyDamage(int damage)
     {
         currentHealth -= damage;
     }
-
+    #endregion
     // This Function is for the control of the PC health bar slider in unity
     #region Health Bar Function
     public void HealthBar()
@@ -305,31 +321,17 @@ public class Player_Controller : MonoBehaviour
             }
 
         }
+
+        if (currentHealth <= 0)
+        {
+            playerDead = true;
+            respawnCan.enabled = true;
+            Time.timeScale = 0;
+            Cursor.lockState = CursorLockMode.None;
+        }
         #endregion
     }
     #endregion
-
-
-    #region On Screen States
-    //void OnGUI()
-    //{
-    //    if(currentHealth <= 100 && currentHealth > 60)
-    //    {
-    //        GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), text1);
-    //    }
-
-    //    if (currentHealth <= 60 && currentHealth > 30) 
-    //    {
-    //        GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), text2);
-    //    }
-
-    //    if (currentHealth <= 30)
-    //    {
-    //        GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), text4);
-    //    }
-    //}
-    #endregion
-
     #region Players Hit Detection
     // This Function gets called in the AI shooting logic. Whenever the AI shoots us we need its Transform Component to find its position
     // I did it this wasy as there will be multiple Enemies and we dont want to monitor each one individually
@@ -392,6 +394,12 @@ public class Player_Controller : MonoBehaviour
                 // we increase the backup ammo
                 gunScript.backUpAmmo += 3;
             }
+        }
+
+        // when we hit the trigger then we save the position
+        if(other.gameObject.tag == "CheckPoint")
+        {
+            savedPosition = other.transform.position;
         }
     }
     #endregion
