@@ -14,6 +14,7 @@ public class Player_Controller : MonoBehaviour
     public float runSpeed = 30;
     // are we holding shift
     public bool running = false;
+    public float RB_Mass = 100;
     public float currentSpeed = 20;
     public float cameraRotationRate = 45;   // Rate we rotate at
     public AudioSource walkingSound;
@@ -24,7 +25,7 @@ public class Player_Controller : MonoBehaviour
     public bool playerDead=false;
 
     [Header("Health n Damage")]
-    public int maxHealth = 100;
+    private int maxHealth = 100;
     public int currentHealth;
     // This array if for the images that are on the Player Healthbar 
     public Image[] sliderArray;
@@ -86,6 +87,7 @@ public class Player_Controller : MonoBehaviour
         #region Find Compoents / Assets
         // Add Rigidbody to this gameObject
         playerPhysics = gameObject.AddComponent<Rigidbody>();
+        playerPhysics.mass = RB_Mass;
 
         // Add Collision to this gameObject
         playerCollision = gameObject.AddComponent<CapsuleCollider>();
@@ -195,8 +197,10 @@ public class Player_Controller : MonoBehaviour
         direction = (transform.forward * V + (transform.right * H));
         // Make the vector to the equal of 1
         direction = direction.normalized * speed;
+        Physics.gravity = new Vector3(0, -400, 0);
         // Running
-        if (r != 0 && Input.GetAxis("Vertical") != 0 || Input.GetAxis("Horizontal") != 0)
+        // if there is input that says te player is holding shift and w or S or arrow keys 
+        if (r != 0 && Input.GetAxis("Vertical") != 0)
         {
             running = true;
             Weapon_Sway weapon = GameObject.Find("Pistol Holder").GetComponent<Weapon_Sway>();

@@ -17,6 +17,7 @@ public class Elevator : MonoBehaviour
     private bool parentPlayer;
     public bool elevate;
     public int triggerTime=0;
+    public bool reachedPoint = false;
 
 
     // Start is called before the first frame update
@@ -36,6 +37,16 @@ public class Elevator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+        if(transform.position.y == endPosition.y)
+        {
+            reachedPoint = true;
+        }
+        else
+        {
+            reachedPoint = false;
+        }
+
         if (triggerTime >= 2)
             elevate = false;
 
@@ -60,6 +71,11 @@ public class Elevator : MonoBehaviour
             {
                 triggerTime = 0;
             }
+        }
+        // back up if the player jumps off before reaching the top
+        else if(!reachedPoint && triggerTime < 2)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, homePosition, Time.deltaTime * speed);
         }
     }
 
