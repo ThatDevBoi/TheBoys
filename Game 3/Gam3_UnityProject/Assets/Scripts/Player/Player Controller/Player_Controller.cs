@@ -196,7 +196,7 @@ public class Player_Controller : MonoBehaviour
         // Make the vector to the equal of 1
         direction = direction.normalized * speed;
         // Running
-        if (r != 0)
+        if (r != 0 && Input.GetAxis("Vertical") != 0 || Input.GetAxis("Horizontal") != 0)
         {
             running = true;
             Weapon_Sway weapon = GameObject.Find("Pistol Holder").GetComponent<Weapon_Sway>();
