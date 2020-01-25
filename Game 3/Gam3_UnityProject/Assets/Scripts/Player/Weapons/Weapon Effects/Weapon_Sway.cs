@@ -21,6 +21,7 @@ public class Weapon_Sway : MonoBehaviour
     public Player_Controller playerScript;
     public float runSway = 20f;
     public float runSwaySpeed = 2;
+    public float amountSway = 20f;
     [Space(10)]
     public float runSway_downRot = 10f;
 
@@ -67,7 +68,7 @@ public class Weapon_Sway : MonoBehaviour
         {
             // generate the number in which the gun rotates across to
             // change the values to decide how far left the gun sways when running
-            runSway = Random.Range(-50, -50);
+            runSway = Random.Range(-50+amountSway, -50+amountSway);
             // make rotation
             Quaternion runSwaying = Quaternion.Euler(runSway_downRot, runSway, 0);
             // rotate
