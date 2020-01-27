@@ -39,6 +39,7 @@ public class Trigger_Dialogue : MonoBehaviour
     private float keyTimer = 0.0f;
     // bool which allows timer to start ticking "keyTimer"
     bool keypressed = false;
+    string startSring= "Press C";
 
 
     // Start is called before the first frame update
@@ -86,13 +87,13 @@ public class Trigger_Dialogue : MonoBehaviour
             if (Vector3.Distance(transform.position, playerObject.position) < distanceToTalk && !isTalking)
             {
                 // text shows
-                projectTextObject.text = "Press" + ":" + " "+KeyPressToTalk+" ";
+                projectTextObject.text = startSring + " ";
                 // boolean ticks 
                 isTalking = true;
             }
             else if (Vector3.Distance(transform.position, playerObject.position) > distanceToTalk)
             {
-                projectTextObject.text = "Press" + ":" + " " + KeyPressToTalk + " ";
+                projectTextObject.text = startSring + " " ;
                 isTalking = false;
              
             }
@@ -101,6 +102,7 @@ public class Trigger_Dialogue : MonoBehaviour
             {
                 if (!keypressed)
                 {
+                    startSring = "";
                     // Conversation starts
                     Conversation = objectConversation[conversationScroller];
                     if (keyTimer >= 0)
@@ -122,7 +124,11 @@ public class Trigger_Dialogue : MonoBehaviour
                         keypressed = false;
                 }
                 else
+                {
+                    startSring = "Press C";
                     return;
+                }
+
             }
         }
         #endregion
@@ -141,6 +147,7 @@ public class Trigger_Dialogue : MonoBehaviour
     {
         if (other.gameObject.name == "PC")
         {
+            startSring = "Press C";
             playerApprrachedMe = false;
             // set the conversation to be shown as over
             Conversation = "Conversation Over";

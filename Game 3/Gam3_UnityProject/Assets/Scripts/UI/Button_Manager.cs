@@ -60,6 +60,11 @@ public class Button_Manager : MonoBehaviour
         mainCamera.transform.position = Vector3.RotateTowards(mainCamera.transform.position, mainMenu_Pos.position, 10, rotSpeed);
     }
 
+    public void resumeGame()
+    {
+        Time.timeScale = 1;
+    }
+
     void Fade()
     { 
 

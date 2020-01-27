@@ -14,7 +14,8 @@ public class Player_Controller : MonoBehaviour
     public float runSpeed = 30;
     // are we holding shift
     public bool running = false;
-    public float RB_Mass = 100;
+    public float RB_Mass = 50;
+    public float gravityModifier = -260f;
     public float currentSpeed = 20;
     public float cameraRotationRate = 45;   // Rate we rotate at
     public AudioSource walkingSound;
@@ -23,6 +24,9 @@ public class Player_Controller : MonoBehaviour
 
     public static Vector3 savedPosition;
     public bool playerDead=false;
+
+
+    GameObject pauseCan;
 
     [Header("Health n Damage")]
     private int maxHealth = 100;
@@ -34,6 +38,9 @@ public class Player_Controller : MonoBehaviour
 
     [Header("Health Bar")]
     public Slider healthBar;
+
+    [Header("Events")]
+    public KeyCode pauseGame;
 
     #region Debugging
     [HideInInspector]
@@ -104,6 +111,11 @@ public class Player_Controller : MonoBehaviour
         DetectWheel = GameObject.Find("HitDetection/DetectionWheel").GetComponent<RectTransform>();
         // Finding Percentage Text
         healthPercentageText = GameObject.Find("Percentage_Health_Text").GetComponent<Text>();
+        // Find pause Canvas
+        pauseCan = GameObject.Find("Pause_Canvas");
+        pauseCan.SetActive(false);
+
+
 
 
 
@@ -181,6 +193,13 @@ public class Player_Controller : MonoBehaviour
                 Debugging = false;
             }
             #endregion
+
+            if(Input.GetKey(pauseGame))
+            {
+                Time.timeScale = 0;
+                Cursor.lockState = CursorLockMode.None;
+                pauseCan.SetActive(true);
+            }
         }
     }
     // This function moves the FPS character and covers all its logic
@@ -197,7 +216,7 @@ public class Player_Controller : MonoBehaviour
         direction = (transform.forward * V + (transform.right * H));
         // Make the vector to the equal of 1
         direction = direction.normalized * speed;
-        Physics.gravity = new Vector3(0, -400, 0);
+        Physics.gravity = new Vector3(0, -gravityModifier, 0);
         // Running
         // if there is input that says te player is holding shift and w or S or arrow keys 
         if (r != 0 && Input.GetAxis("Vertical") != 0)
@@ -240,7 +259,8 @@ public class Player_Controller : MonoBehaviour
         else
         {
             // Player gravity
-            direction.y = direction.y + Physics.gravity.y;  // Turn gravity back on
+            Physics.gravity = new Vector3(0, gravityModifier, 0);
+            direction.y = direction.y + Physics.gravity.y;
         }
         #endregion
            
