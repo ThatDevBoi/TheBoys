@@ -433,15 +433,28 @@ public class Player_Controller : MonoBehaviour
     {
         #region Variables
         [Header("Shooting")]
+        // the objects with relevent layers to shoot
         public LayerMask whatWeCanShoot;
+        // audio source we use to shoot
         public AudioSource gunShootSound;
+        // the players FPS camera
         public Camera cam_FirePosition;
+        // the view of the camera when not aiming
         public float currentFieldOfView = 30;
+        // the FOV when we are aimig down sights
         public float aimFOV = 18;
+        // boolean which tells us if we are aiming
+        public bool imAiming = false;
+        // range of hor far we can shoot
         public int gunRange = 30;
+        // the rate of fire
         public float fireRate = 0.25f;
+        // the damage we deal to enemies
         public int damage;
+        // bridge that should be triggered
         public GameObject bridge;
+        // weapon script for recoil
+        public Weapon_Recoil recoilScript;
 
         // Effects
         private GameObject bulletHole;
@@ -502,8 +515,6 @@ public class Player_Controller : MonoBehaviour
 
         public AI enemyHit;
 
-        public Recoil recoilScript;
-
 
 
         #region Debugging
@@ -547,7 +558,8 @@ public class Player_Controller : MonoBehaviour
             weaponHolder = GameObject.Find("Weapon_Holder").GetComponent<Transform>();
             // find recoil script
             GameObject gunHolder = GameObject.Find("Pistol Holder");
-            recoilScript = gunHolder.GetComponent<Recoil>();
+            // find the recoil script
+            recoilScript = GetComponent<Weapon_Recoil>();
             // Find text component for the current ammo variable
             currentAmmoText = GameObject.Find("Ammo_In_The_Mag_Text").GetComponent<Text>();
             // Find text component for the back up ammo variable
@@ -734,6 +746,7 @@ public class Player_Controller : MonoBehaviour
             else
                 isShooting = true;  // Yes we still have bullets 
         }
+        // player conmtroller script
         Player_Controller PlayerClass;
         public void AimDownSights()
         {
@@ -743,6 +756,7 @@ public class Player_Controller : MonoBehaviour
                 // if we press the right mouse button and we are not reloading
                 if (Input.GetButton("Fire2") && !isReloading)
                 {
+                    imAiming = true;
                     // Lerp the weapon to the aim position we set up outside the script 
                     weaponHolder.localPosition = Vector3.Lerp(weaponHolder.localPosition, aimPosition, Time.deltaTime * adsSpeed);
                     // Chnage the FOV on the camera
@@ -750,6 +764,7 @@ public class Player_Controller : MonoBehaviour
                 }
                 else   // if we are not aiming or the reloading bool is true
                 {
+                    imAiming = false;
                     // make the gun go back to its hip position
                     weaponHolder.localPosition = Vector3.Lerp(weaponHolder.localPosition, originalPosition, Time.deltaTime * adsSpeed);
                     // change the camera FOV to be what it starts as
@@ -758,6 +773,7 @@ public class Player_Controller : MonoBehaviour
             }
             else
             {
+                imAiming = false;
                 return;
             }
             
@@ -785,14 +801,14 @@ public class Player_Controller : MonoBehaviour
                         {
                             if (currentAmmo > 0)
                             {
-                                recoilScript.StartRecoil(0.2f, 10f, 10f);
+                                recoilScript.Fire();
                                 gunShootSound.volume = 0.5f;
                                 gunShootSound.Play();
                                 // Decrease Ammo
                                 currentAmmo--;
                                 // Muzzle Flash
-                                GameObject firePoint = GameObject.Find("Pistol/ironSights/FirePoint"); // Find the spawn position
-                                GameObject flashMuzzle = Instantiate(muzzleFlash, firePoint.transform.position, Quaternion.identity) as GameObject;
+                                GameObject particle_point = GameObject.Find("Pistol/ironSights/FirePoint"); // Find the spawn position
+                                GameObject flashMuzzle = Instantiate(muzzleFlash, particle_point.transform.position, Quaternion.identity) as GameObject;
                                 Destroy(flashMuzzle, .5f);
                                 // Impact Effect
                                 GameObject impactHole = Instantiate(bulletHole, Hit.point, Quaternion.FromToRotation(Vector3.forward, Hit.normal)) as GameObject;
@@ -894,7 +910,7 @@ public class Player_Controller : MonoBehaviour
                                 // when the current ammo in the gun is above 0
                                 if (currentAmmo > 0)
                                 {
-                                    recoilScript.StartRecoil(0.2f, 10f, 10f);
+                                    //recoilScript.StartRecoil(0.2f, 10f, 10f);
                                     gunShootSound.volume = 0.5f;
                                     // play the shooting sound
                                     gunShootSound.Play();

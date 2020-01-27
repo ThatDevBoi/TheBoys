@@ -42,22 +42,42 @@ public class Button_Manager : MonoBehaviour
     public void Respawn()
     {
         Time.timeScale = 1;
+
+        #region Set up player values again
         player.GetComponent<Player_Controller>().currentHealth = 100;
         player.GetComponent<Player_Controller>().playerDead = false;
+        #endregion
     }
 
     public void Go_To_HelpScreen()
     {
         helpNeeded = true;
-        // Rotate Camera
-        mainCamera.transform.position = Vector3.RotateTowards(mainCamera.transform.position, Help_cameraPosition.position, 10, rotSpeed);
+
+        if(SceneManager.sceneCount != 0)
+        {
+            return;
+        }
+        else
+        {
+            // Rotate Camera
+            mainCamera.transform.position = Vector3.RotateTowards(mainCamera.transform.position, Help_cameraPosition.position, 10, rotSpeed);
+        }
     }
 
     public void Go_To_Main_Menu()
     {
         helpNeeded = false;
-        // rotate camera to new position
-        mainCamera.transform.position = Vector3.RotateTowards(mainCamera.transform.position, mainMenu_Pos.position, 10, rotSpeed);
+        // if the scene is not the main menu scene
+        if(SceneManager.sceneCount != 0)
+        {
+            // do nothing
+            return;
+        }
+        else    // if it is the main menu 
+        {
+            // rotate camera to new position
+            mainCamera.transform.position = Vector3.RotateTowards(mainCamera.transform.position, mainMenu_Pos.position, 10, rotSpeed);
+        }
     }
 
     public void resumeGame()
