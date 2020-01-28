@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEditor;
@@ -14,8 +15,8 @@ public class Player_Controller : MonoBehaviour
     public float runSpeed = 30;
     // are we holding shift
     public bool running = false;
-    public float RB_Mass = 50;
-    public float gravityModifier = -260f;
+    public float dragRB = 5;
+    public float gravityModifier = 120f;
     public float currentSpeed = 20;
     public float cameraRotationRate = 45;   // Rate we rotate at
     public AudioSource walkingSound;
@@ -24,9 +25,6 @@ public class Player_Controller : MonoBehaviour
 
     public static Vector3 savedPosition;
     public bool playerDead=false;
-
-
-    GameObject pauseCan;
 
     [Header("Health n Damage")]
     private int maxHealth = 100;
@@ -39,37 +37,59 @@ public class Player_Controller : MonoBehaviour
     [Header("Health Bar")]
     public Slider healthBar;
 
+    [Header("Steps")]
+    // The max height of the step that player can step up on
+    public float maxStepHeight = 0.4f;
+    // how much overshoot does the direction of a potential step in units prevents stepping on low steps
+    public float stepSearchOvershoot = 0.01f;
+    // the liost of points the player collds with
+    private List<ContactPoint> allCPs = new List<ContactPoint>();
+    // The Velocity of the last step
+    public Vector3 lastVelocity;
+
     [Header("Events")]
     public KeyCode pauseGame;
 
     #region Debugging
     [HideInInspector]
     public bool Debugging;
+    /// <summary>
+    /// Player Components The components that the player relies on to set up
+    /// </summary>
     [Header("$Debugging$ The Rigidbody Physics Component")]
     [Header("For QA Tester")]
     [HideAttributes("Debugging", true)]
+    // Rigidbody for player movement
     public Rigidbody playerPhysics;
     [Header("$Debugging$ Players Collision detection")]
     [HideAttributes("Debugging", true)]
-    public CapsuleCollider playerCollision;
+    // Collider for player detection
+    public BoxCollider playerCollision;
     [Header("$Debugging$ The Main Camera Component")]
     [HideAttributes("Debugging", true)]
+    // Player FPS camera
     public Transform playersEyes; // Player Camera
+    /// <summary>
+    /// Player Movement Variables This can be for the players position, rotation etc
+    /// </summary>
     [Header("$Debugging$ The Players Movement Direction")]
     [HideAttributes("Debugging", true)]
     public Vector3 movementDirection;
-    [Header("$Debugging$ Value which monitors X Rotation")]
-    [HideAttributes("Debugging", true)]
-    public float xRotation = 0f;   // Value that monitors X Rotation keep it at 0 for default
     [Header("$Debugging$ The X Direction of movement")]
     [HideAttributes("Debugging", true)]
     public float dirX;
     [Header("$Debugging$ The Z Direction of movemet")]
     [HideAttributes("Debugging", true)]
     public float dirZ;
+    [Header("$Debugging$ Value which monitors X Rotation")]
+    [HideAttributes("Debugging", true)]
+    public float xRotation = 0f;   // Value that monitors X Rotation keep it at 0 for default
     [Header("$Debugging$ The Value for movement speed")]
     [HideAttributes("Debugging", true)]
     public float speed;
+    /// <summary>
+    /// References to find in the assets folder
+    /// </summary>
     [HideAttributes("Debugging", true)]
     private Texture text1; // current health < 75
     [HideAttributes("Debugging", true)]
@@ -78,13 +98,23 @@ public class Player_Controller : MonoBehaviour
     private Texture text3; // current health < 30
     [HideAttributes("Debugging", true)]
     private Texture text4; // current health < 20 
+    [HideAttributes("Debugging", true)]
+    private GameObject pauseCan;
+    /// <summary>
+    /// Scripts the player movemtn needs to access
+    /// </summary>
+    [HideAttributes("Debugging", true)]
+    Shooting_Mechanic gunScript;
+
     #endregion
 
     #endregion
-    Shooting_Mechanic gunScript;
+
+    #region Start & Update
     // Start is called before the first frame update
     void Start()
     {
+        // when the player spawns it saves that spawn position as a saved place when death occurs
         savedPosition = gameObject.transform.position;
         // States on start that need changing
         Cursor.lockState = CursorLockMode.Locked;
@@ -92,12 +122,28 @@ public class Player_Controller : MonoBehaviour
 
         // Find Components / Set them up
         #region Find Compoents / Assets
-        // Add Rigidbody to this gameObject
-        playerPhysics = gameObject.AddComponent<Rigidbody>();
-        playerPhysics.mass = RB_Mass;
-
-        // Add Collision to this gameObject
-        playerCollision = gameObject.AddComponent<CapsuleCollider>();
+        if (gameObject.GetComponent<Rigidbody>() == null)
+        {
+            // Add Rigidbody to this gameObject
+            playerPhysics = gameObject.AddComponent<Rigidbody>();
+        }
+        else
+        {
+            Debug.LogWarning("Note the script makes the rigidbody for you, so you dont need to add it if you dont want to");
+            playerPhysics = gameObject.GetComponent<Rigidbody>();
+        }
+        // alter the drag of the players Rigidbody drag value
+        playerPhysics.drag = dragRB;
+        if(gameObject.GetComponent<BoxCollider>() == null)
+        {
+            // Add Collision to this gameObject
+            playerCollision = gameObject.AddComponent<BoxCollider>();
+        }
+        else
+        {
+            // Find the collision already attached
+            playerCollision = gameObject.GetComponent<BoxCollider>();
+        }
         // Find the derived class
         gunScript = transform.Find("FPS_Cam/Weapon_Holder/Pistol Holder/Pistol").GetComponent<Shooting_Mechanic>();
         // Find the Main Camera
@@ -114,26 +160,19 @@ public class Player_Controller : MonoBehaviour
         // Find pause Canvas
         pauseCan = GameObject.Find("Pause_Canvas");
         pauseCan.SetActive(false);
-
-
-
-
-
+        #region Finding variables from assets
         // Find Textures in assets folder
         text1 = Resources.Load<Texture>("HurtTexture/UI Screen Hurt");
         text2 = Resources.Load<Texture>("HurtTexture/UI Screen Hurt Alot");
         text3 = Resources.Load<Texture>("HurtTexture/UI Screen Hurt");
         text4 = Resources.Load<Texture>("HurtTexture/UI Almost Dead");
+            #endregion
         #endregion
 
         #region Edit Values / Variables and Properties
         // Set up components
         // Freeze rotation for now so no falling down
         playerPhysics.constraints = RigidbodyConstraints.FreezeRotation;
-        // Change capsule collider height to fit mesh
-        playerCollision.height = 2;
-        // change capsule collider Radius to fit mesh
-        playerCollision.radius = 0.5f;
         // Change object layer to the player layer
         gameObject.layer = 10;
         // Current health will need to start at the max amount
@@ -202,6 +241,7 @@ public class Player_Controller : MonoBehaviour
             }
         }
     }
+    #endregion
     // This function moves the FPS character and covers all its logic
     #region FPS Movement Function
     void FPSMove(float speed, float V, float H, Vector3 direction)
@@ -216,54 +256,51 @@ public class Player_Controller : MonoBehaviour
         direction = (transform.forward * V + (transform.right * H));
         // Make the vector to the equal of 1
         direction = direction.normalized * speed;
-        Physics.gravity = new Vector3(0, -gravityModifier, 0);
-        // Running
+        #endregion
+
+        #region Running
         // if there is input that says te player is holding shift and w or S or arrow keys 
         if (r != 0 && Input.GetAxis("Vertical") != 0)
         {
+            // we are running
             running = true;
+            // we need this script attached to a child of me
             Weapon_Sway weapon = GameObject.Find("Pistol Holder").GetComponent<Weapon_Sway>();
+            // change sway amount
             weapon.amount = 0.12f;
             weapon.maxAmount = 0.14f;
             // cooldown for not being detected on key press straight away by the NPC
             runTime -= Time.deltaTime;
-            Debug.Log(runTime);
+            // when value is 0 or more
             if(runTime <= 0)
             {
+                // change value of audio volume
                 walkingSound.volume = 0.6f;
+                // reset runtime
                 runTime = 1;
             }
+            // speed value becomes runspeed
             speed = runSpeed;
         }
         else
         {
+            // no longer running
             running = false;
+            // reset timer
             runTime = 1;
+            // change audio trigger
             walkingSound.volume = 0.3f;
+            // find weapon sway again
             Weapon_Sway weapon = GameObject.Find("Pistol Holder").GetComponent<Weapon_Sway>();
+            // cahnge values
             weapon.amount = 0.02f;
             weapon.maxAmount = 0.06f;
+            // change speed back to the current speed we walk at
             speed = currentSpeed;
         }
         // move with physics
         playerPhysics.velocity = direction * speed * Time.deltaTime;
-        #endregion
-        #region Slop Check
-        // Slop Check
-        RaycastHit hit;
-        if(Physics.Raycast(transform.position, transform.TransformDirection(Vector3.down), out hit, .6f, slopCheck))
-        {
-            direction.y = playerPhysics.velocity.y; // Cancel Gravity
-            Debug.DrawRay(transform.position, Vector3.down * 50, Color.green);
-        }
-        else
-        {
-            // Player gravity
-            Physics.gravity = new Vector3(0, gravityModifier, 0);
-            direction.y = direction.y + Physics.gravity.y;
-        }
-        #endregion
-           
+        #endregion           
 
 
         // Camera Rotation Logic
@@ -292,6 +329,7 @@ public class Player_Controller : MonoBehaviour
         #endregion
     }
     #endregion
+
     #region Damage
     public void ApplyDamage(int damage)
     {
@@ -356,6 +394,7 @@ public class Player_Controller : MonoBehaviour
         #endregion
     }
     #endregion
+
     #region Players Hit Detection
     // This Function gets called in the AI shooting logic. Whenever the AI shoots us we need its Transform Component to find its position
     // I did it this wasy as there will be multiple Enemies and we dont want to monitor each one individually
@@ -390,6 +429,148 @@ public class Player_Controller : MonoBehaviour
         directionOfHit.y = 0;
         // Make the UI Component rotate smoothly
         hitLayer.localRotation = directionOfHit * Quaternion.Euler(northDirection);
+    }
+    #endregion
+
+    #region Slop & Stair Detection
+    void FixedUpdate()
+    {
+        // get the rigibody velocity
+        Vector3 velocity = this.GetComponent<Rigidbody>().velocity;
+
+        //Filter through the ContactPoints to see if we're grounded and to see if we can step up
+        ContactPoint groundCP = default(ContactPoint);
+        // bool is true or false depeinging on bool function detecing ground 
+        bool grounded = FindGround(out groundCP, allCPs);
+        //Vector3 that is used for the step up to the stair we detect
+        Vector3 stepUpOffset = default(Vector3);
+        // Make bool to detect if we step up
+        bool stepUp = false;
+        // if we are grounded and not stepping up
+        if (grounded)
+        {
+            // make boolean the logic of the Find step boolean function
+            stepUp = FindStep(out stepUpOffset, allCPs, groundCP, velocity);
+            // have normal gravity if we are on the ground
+            Physics.gravity = new Vector3(0, -9.81f, 0);
+        }
+        else
+        {
+            // if we are not on the ground add gravity to decline faster
+            Physics.gravity = new Vector3(0, -gravityModifier, 0);
+        }
+
+        //if we are able to step upward to a new velocity level
+        if (stepUp)
+        {
+            // increase the position
+            this.GetComponent<Rigidbody>().position += stepUpOffset;
+            // let the physics have the last known velocity
+            this.GetComponent<Rigidbody>().velocity = lastVelocity;
+        }
+        // clear all of the List for contact points
+        allCPs.Clear();
+        // the last velcity the player had is the velocity of the Rigidbody now
+        lastVelocity = velocity;
+    }
+    #region Find Contact Points
+    void OnCollisionEnter(Collision col)
+    {
+        allCPs.AddRange(col.contacts);
+    }
+
+    void OnCollisionStay(Collision col)
+    {
+        allCPs.AddRange(col.contacts);
+    }
+    #endregion
+
+    /// Finds the MOST grounded (flattest y component) ContactPoint
+    /// \param allCPs List to search
+    /// \param groundCP The contact point with the ground
+    /// \return If grounded
+    bool FindGround(out ContactPoint groundCP, List<ContactPoint> allCPs)
+    {
+        // the ground contact point
+        groundCP = default(ContactPoint);
+        // boolean so we can find the ground
+        bool found = false;
+        foreach (ContactPoint cp in allCPs)
+        {
+            //Pointing with some up direction
+            if (cp.normal.y > 0.0001f && (found == false || cp.normal.y > groundCP.normal.y))
+            {
+                groundCP = cp;
+                found = true;
+            }
+        }
+        return found;
+    }
+
+    /// Find the first step up point if we hit a step
+    /// \param allCPs List to search
+    /// \param stepUpOffset A Vector3 of the offset of the player to step up the step
+    /// \return If we found a step
+    bool FindStep(out Vector3 stepUpOffset, List<ContactPoint> allCPs, ContactPoint groundCP, Vector3 currVelocity)
+    {
+        // how far we can step up 
+        stepUpOffset = default(Vector3);
+
+        //No chance to step if the player is not moving
+        Vector2 velocityXZ = new Vector2(currVelocity.x, currVelocity.z);
+        if (velocityXZ.sqrMagnitude < 0.0001f)
+            return false;
+
+        foreach (ContactPoint cp in allCPs)
+        {
+            bool test = ResolveStepUp(out stepUpOffset, cp, groundCP);
+            if (test)
+                return test;
+        }
+        return false;
+    }
+
+    /// Takes a contact point that looks as though it's the side face of a step and sees if we can climb it
+    /// \param stepTestCP ContactPoint to check.
+    /// \param groundCP ContactPoint on the ground.
+    /// \param stepUpOffset The offset from the stepTestCP.point to the stepUpPoint (to add to the player's position so they're now on the step)
+    /// \return If the passed ContactPoint was a step
+    bool ResolveStepUp(out Vector3 stepUpOffset, ContactPoint stepTestCP, ContactPoint groundCP)
+    {
+        stepUpOffset = default(Vector3);
+        Collider stepCol = stepTestCP.otherCollider;
+
+        //( 1 ) Check if the contact point normal matches that of a step (y close to 0)
+        if (Mathf.Abs(stepTestCP.normal.y) >= 0.01f)
+        {
+            return false;
+        }
+
+        //( 2 ) Make sure the contact point is low enough to be a step
+        if (!(stepTestCP.point.y - groundCP.point.y < maxStepHeight))
+        {
+            return false;
+        }
+
+        //( 3 ) Check to see if there's actually a place to step in front of us
+        //Fires one Raycast
+        RaycastHit hitInfo;
+        float stepHeight = groundCP.point.y + maxStepHeight + 0.0001f;
+        Vector3 stepTestInvDir = new Vector3(-stepTestCP.normal.x, 0, -stepTestCP.normal.z).normalized;
+        Vector3 origin = new Vector3(stepTestCP.point.x, stepHeight, stepTestCP.point.z) + (stepTestInvDir * stepSearchOvershoot);
+        Vector3 direction = Vector3.down;
+        if (!(stepCol.Raycast(new Ray(origin, direction), out hitInfo, maxStepHeight)))
+        {
+            return false;
+        }
+
+        //We have enough info to calculate the points
+        Vector3 stepUpPoint = new Vector3(stepTestCP.point.x, hitInfo.point.y + 0.0001f, stepTestCP.point.z) + (stepTestInvDir * stepSearchOvershoot);
+        Vector3 stepUpPointOffset = stepUpPoint - new Vector3(stepTestCP.point.x, groundCP.point.y, stepTestCP.point.z);
+
+        //We passed all the checks! Calculate and return the point!
+        stepUpOffset = stepUpPointOffset;
+        return true;
     }
     #endregion
 
@@ -1000,39 +1181,45 @@ public class Player_Controller : MonoBehaviour
         // Normal Reloading
         IEnumerator Reload()
         {
-            // cant shoot if we are reloading 
-            isShooting = false;
-            // We are now Reloading 
-            isReloading = true;
-            // Remove later
-            Debug.Log("Reloading. . . .");
-            // Play reload anim
-            gunAnimator.SetBool("isReloading", true);
-            // Wait a few seconds
-            yield return new WaitForSeconds(reloadTime - .25f);
-            // We are no longer animating the gun to reload
-            gunAnimator.SetBool("isReloading", false);
-            // Wait more 
-            yield return new WaitForSeconds(.25f);
-            // We are no longer reloading
-            isReloading = false;
-            // var shot is a variable in which takes into considering the max ammo and current 
-            // this will be to make sure we are relevant ammo in the magazin or how much we do have in the magazine
-            var shot = maxAmmo - currentAmmo;
-            // if the current backup ammo is less than shot
-            if (backUpAmmo < shot)
+            if (currentAmmo >= maxAmmo)
+                yield break;
+            else
             {
-                currentAmmo = backUpAmmo;
-                backUpAmmo = 0;
+                // cant shoot if we are reloading 
+                isShooting = false;
+                // We are now Reloading 
+                isReloading = true;
+                // Remove later
+                Debug.Log("Reloading. . . .");
+                // Play reload anim
+                gunAnimator.SetBool("isReloading", true);
+                // Wait a few seconds
+                yield return new WaitForSeconds(reloadTime - .25f);
+                // We are no longer animating the gun to reload
+                gunAnimator.SetBool("isReloading", false);
+                // Wait more 
+                yield return new WaitForSeconds(.25f);
+                // We are no longer reloading
+                isReloading = false;
+                // var shot is a variable in which takes into considering the max ammo and current 
+                // this will be to make sure we are relevant ammo in the magazin or how much we do have in the magazine
+                var shot = maxAmmo - currentAmmo;
+                // if the current backup ammo is less than shot
+                if (backUpAmmo < shot)
+                {
+                    currentAmmo = backUpAmmo;
+                    backUpAmmo = 0;
+                }
+                else    // the current ammo will take values from the backup to reload
+                {
+                    currentAmmo += shot;
+                    backUpAmmo -= shot;
+                }
+                // Updating UI For Ammo
+                currentAmmoText.text = currentAmmo.ToString();
+                backUpAmmoText.text = backUpAmmo.ToString();
             }
-            else    // the current ammo will take values from the backup to reload
-            {
-                currentAmmo += shot;
-                backUpAmmo -= shot;
-            }
-            // Updating UI For Ammo
-            currentAmmoText.text = currentAmmo.ToString();
-            backUpAmmoText.text = backUpAmmo.ToString();
+
         }
     }
     #endregion
