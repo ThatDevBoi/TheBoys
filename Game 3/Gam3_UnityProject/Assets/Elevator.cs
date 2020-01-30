@@ -28,8 +28,15 @@ public class Elevator : MonoBehaviour
         triggerZone.isTrigger = true;
         triggerZone.size = colliderSize;
         triggerZone.center = colliderCenter;
-        // find the Player Character
-        playerCharacter = GameObject.Find("PC");
+        if(GameObject.Find("PC") == null)
+        {
+            return;
+        }
+        else
+        {
+            // find the Player Character
+            playerCharacter = GameObject.Find("PC");
+        }
         // set up vector3 position
         homePosition = transform.position;
     }
@@ -37,6 +44,12 @@ public class Elevator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(playerCharacter == null)
+        {
+            // find the Player Character
+            playerCharacter = GameObject.Find("PC");
+        }
+
 
         if(transform.position.y == endPosition.y)
         {
