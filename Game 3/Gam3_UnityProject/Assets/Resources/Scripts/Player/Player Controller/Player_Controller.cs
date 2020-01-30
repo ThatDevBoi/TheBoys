@@ -234,6 +234,7 @@ public class Player_Controller : MonoBehaviour
         }
         else
         {
+            playerDead = false;
             respawnCan.enabled = false;
             respawnCan.transform.GetChild(0).gameObject.SetActive(true);
             Debug.Log(savedPosition);
@@ -370,6 +371,7 @@ public class Player_Controller : MonoBehaviour
         healthBar.value = currentHealth;
         #region Player Health Bar Transitions
         // Foreach image that is in our array of images for the healthbar slider
+        // The images are the slider graphics
         //foreach (Image PC_HealthBarImages in sliderArray)
         //{
         //    // We need to check that we are at max health as we will be turning the UI Alpha channels to 0
@@ -418,6 +420,15 @@ public class Player_Controller : MonoBehaviour
             respawnCan.enabled = true;
             Time.timeScale = 0;
             Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+        else
+        {
+            playerDead = false;
+            respawnCan.enabled = false;
+            Time.timeScale = 1;
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
         }
         #endregion
     }
@@ -1087,6 +1098,10 @@ public class Player_Controller : MonoBehaviour
                                 // if we hit the trigger that belongs to the bridge 
                                 if (Hit.collider.gameObject.name == "default")
                                 {
+                                    if(bridge == null)
+                                    {
+                                        bridge = GameObject.Find("Bridge");
+                                    }
                                     // Play the animation for the bridge to appear
                                     bridge.GetComponent<Animator>().SetBool("Activate", true);
                                 }

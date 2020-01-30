@@ -46,14 +46,14 @@ public class Button_Manager : MonoBehaviour
     {
         SceneManager.LoadScene(levelname);
     }
-
+    [HideInInspector]
+    public Player_Controller playerLogic;
     public void Respawn()
     {
-        Time.timeScale = 1;
-
+        //Time.timeScale = 1;
         #region Set up player values again
-        player.GetComponent<Player_Controller>().currentHealth = 100;
-        player.GetComponent<Player_Controller>().playerDead = false;
+        GameObject.Find("PC").GetComponent<Player_Controller>().currentHealth = 100;
+        GameObject.Find("PC").GetComponent<Player_Controller>().playerDead = false;
         #endregion
     }
 

@@ -236,7 +236,7 @@ public class AI : MonoBehaviour
         if (states != AI_States.Dormant)
             Debug.LogError(gameObject.name + ":" + "The Starting enum Behaviour is wrong");
 
-        if (Patrol.Length < 0)
+        if (Patrol.Length == 0)
             Debug.LogWarning(gameObject.name + ":" + "Patrol Array is not been set up");
         #endregion
     }
@@ -257,10 +257,8 @@ public class AI : MonoBehaviour
 
         // Functions
         enumMonitor();
-        if(playerPosition != null)
-        {
-            HearingDetection();
-        }
+        HearingDetection();
+
         // The Navmesh agent speed property teams with AI_Movement_Speed Variable
         if (!stoppingDistance)
         {
@@ -268,6 +266,17 @@ public class AI : MonoBehaviour
         }
         else
             AI_Physics.speed = 0;
+
+        if(GameObject.Find("PC").GetComponent<Player_Controller>().playerDead == true)
+        {
+            AI_Physics.speed = AI_movement_Speed;
+            stoppingDistance = false;
+            // reset the generated value
+            random_Alert_Value = 0;
+            // reset current time for alert
+            AlertedTime = 0;
+            states = AI_States.Dormant;
+        }
 
 
         #region Behaviour Conditions
@@ -289,6 +298,12 @@ public class AI : MonoBehaviour
             {
                 states = AI_States.Searching;
                 Randomizer();
+            }
+
+            if (GameObject.Find("PC").GetComponent<Player_Controller>().playerDead == true)
+            {
+                states = AI_States.Dormant;
+                PC_in_FOV = false;
             }
         }
         // However
@@ -378,6 +393,7 @@ public class AI : MonoBehaviour
             i_Heard_Something = false;
         else if (states == AI_States.Searching && i_Heard_Something)
             i_Heard_Something = false;
+
         // Fire weapon (We can call this wheenever. We use a Switch stateent in the function)
         StartCoroutine("FireWeapon");
         #endregion
@@ -665,8 +681,6 @@ public class AI : MonoBehaviour
                 {
                     patrolArrayScroller = 0;    // reset the scroller int so we can patrol the same manual patrol
                 }
-                else   // however if we still have positions to go to
-                    transform.LookAt(Patrol[patrolArrayScroller]);  // Lookat the next position
             }
             // Move to the Vector3 with The NavMeshAgent
             AI_Physics.SetDestination(moveDirection);
