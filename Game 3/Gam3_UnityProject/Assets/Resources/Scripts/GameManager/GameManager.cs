@@ -4,24 +4,39 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    #region Level Manager Variables
+    /// <summary>
+    /// GameObjects that need to be gathered/found
+    /// </summary>
     public GameObject[] Obsticles;
     public GameObject[] AI;
     public GameObject Player_Character;
-
+    /// <summary>
+    /// UI Variables
+    /// </summary>
     public GameObject PauseUI;
     public GameObject restartUI;
     public GameObject PCUI_Controller;
-
+    /// <summary>
+    /// Find Objects of layer
+    /// </summary>
+    [HideInInspector]
+    // all the walls in the scene
+    private GameObject[] wall_goArray;
+    // All the Transform walls (applied manually)   --// Find solution for this later \\--
+    public Transform[] wall_tranArray;
+    // List in which holds all the GameObjects that are walls
+    public List<GameObject> goList = new List<GameObject>();
+    [HideInInspector]
+    // the wall that is nearest to the player
+    private Transform nearestWall;
+    #endregion
     private void Awake()
     {
+        // Start game correctly
         InitiatGame();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
     // the player in the scene
     GameObject PC;
     // Find GameObjects in assets
@@ -49,14 +64,17 @@ public class GameManager : MonoBehaviour
         }
         #endregion
         #region Find Player Camera
-        // Find the player camera
-        Transform playercam_Transform;
-        Camera playerCamera;
-        // Find the camera in children of player
-        playercam_Transform = PC.transform.GetChild(0);
-        playerCamera = playercam_Transform.GetComponent<Camera>();
-        // tag player
-        playerCamera.tag = "MainCamera";
+        if(PC == null)
+        {
+            // Find the player camera
+            Transform playercam_Transform;
+            Camera playerCamera;
+            // Find the camera in children of player
+            playercam_Transform = PC.transform.GetChild(0);
+            playerCamera = playercam_Transform.GetComponent<Camera>();
+            // tag player
+            playerCamera.tag = "MainCamera";
+        }
         #endregion
         #region Pause and Restart Set Up
         if (GameObject.Find("Pause_Canvas") == null)
@@ -120,7 +138,7 @@ public class GameManager : MonoBehaviour
             playerUIcan_instance = playerUI_instance.GetComponent<Canvas>();
             // allow the UI to have access to the Camera attached to the player
             // if not the canvas wont display correctly
-            playerUIcan_instance.worldCamera = playerCamera;
+            playerUIcan_instance.worldCamera = PC.transform.GetChild(0).GetComponent<Camera>();
         }
         else
         {
@@ -128,8 +146,7 @@ public class GameManager : MonoBehaviour
             PCUI_Controller = GameObject.Find("PlayerUIController");
         }
         #endregion
-
-
+        #region Find all the AI
         // Setting up what objects are where
         // Could be handy later for saving CPU process 
         AI = GameObject.FindGameObjectsWithTag("NPC");
@@ -144,6 +161,7 @@ public class GameManager : MonoBehaviour
             // Set Head Layer
             NPCHead.gameObject.layer = 14;
         }
+        #endregion
 
         Obsticles = GameObject.FindGameObjectsWithTag("Obstacles");
 
@@ -151,5 +169,63 @@ public class GameManager : MonoBehaviour
         {
             obsticles.layer = 12;
         }
+        // find all the walls
+        FindObjectsWithLayer(16);
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        GetClosestWall(wall_tranArray);
+        if(Vector3.Distance(nearestWall.position, PC.transform.position) < 4)
+        {
+            // make the player hold their gun upward
+            Debug.Log("Yield Back Gun");
+        }
+        else
+        {
+            // make the player hold their gun normal
+            Debug.Log("Normal Gun Hold");
+        }
+    }
+
+    GameObject[] FindObjectsWithLayer(int layer)
+    {
+        wall_goArray = FindObjectsOfType(typeof(GameObject)) as GameObject[];
+        for(int i = 0; i < wall_goArray.Length; i++)
+        {
+            if (wall_goArray[i].layer == layer)
+            {
+                goList.Add(wall_goArray[i]);
+            }
+        }
+
+        if(goList.Count == 0)
+        {
+            return null;
+        }
+        return goList.ToArray();
+    }
+    /// <summary>
+    /// Tranform in which gets the players closest wall near to them
+    /// </summary>
+    /// <param name="walls"></param>
+    /// <returns></returns>
+    Transform GetClosestWall(Transform[] walls)
+    {
+        nearestWall = null;
+        float mindist = Mathf.Infinity;
+        Vector3 currentPosition = PC.transform.position;
+        foreach(Transform t in walls)
+        {
+            float dist = Vector3.Distance(t.position, currentPosition);
+            if(dist < mindist)
+            {
+                nearestWall = t;
+                mindist = dist;
+            }
+        }
+        return nearestWall;
+
     }
 }
