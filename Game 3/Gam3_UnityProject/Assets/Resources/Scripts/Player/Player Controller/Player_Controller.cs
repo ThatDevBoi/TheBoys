@@ -48,7 +48,7 @@ public class Player_Controller : MonoBehaviour
     public Vector3 lastVelocity;
 
     [Header("Events")]
-    public KeyCode pauseGame;
+    public KeyCode pauseGamekey;
 
     #region Debugging
     [HideInInspector]
@@ -124,7 +124,7 @@ public class Player_Controller : MonoBehaviour
         savedPosition = gameObject.transform.position;
         // States on start that need changing
         Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = true;
+        Cursor.visible = false;
 
         // Find Components / Set them up
         #region Find Compoents / Assets
@@ -226,6 +226,18 @@ public class Player_Controller : MonoBehaviour
         #endregion
 
 
+        if (Input.GetKey(pauseGamekey))
+        {
+            // turn on the canvas
+            pauseCan.SetActive(true);
+            // unlock the cursor
+            Cursor.lockState = CursorLockMode.None;
+            // make the cursor visable
+            Cursor.visible = true;
+            // Pause the entire scene
+            Time.timeScale = 0;
+        }
+
         // if the player has died   currentHealth >= 0
         if (playerDead)
         {
@@ -259,13 +271,6 @@ public class Player_Controller : MonoBehaviour
                 Debugging = false;
             }
             #endregion
-
-            if(Input.GetKey(pauseGame))
-            {
-                Time.timeScale = 0;
-                Cursor.lockState = CursorLockMode.None;
-                pauseCan.SetActive(true);
-            }
         }
     }
     #endregion
@@ -427,8 +432,8 @@ public class Player_Controller : MonoBehaviour
             playerDead = false;
             respawnCan.enabled = false;
             Time.timeScale = 1;
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
+            //Cursor.lockState = CursorLockMode.Locked;
+            //Cursor.visible = false;
         }
         #endregion
     }

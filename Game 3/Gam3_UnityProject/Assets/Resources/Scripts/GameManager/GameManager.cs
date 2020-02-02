@@ -8,15 +8,15 @@ public class GameManager : MonoBehaviour
     /// <summary>
     /// GameObjects that need to be gathered/found
     /// </summary>
-    public GameObject[] Obsticles;
-    public GameObject[] AI;
-    public GameObject Player_Character;
+    public GameObject[] Obsticles;  // the environment of the scene
+    public GameObject[] AI;     // The AI in the current scene
+    public GameObject Player_Character; // The player character that needs to spawn or be found
     /// <summary>
     /// UI Variables
     /// </summary>
-    public GameObject PauseUI;
-    public GameObject restartUI;
-    public GameObject PCUI_Controller;
+    public GameObject PauseUI;  // UI element for pausing the game
+    public GameObject restartUI;    // Restart UI spawns on player death
+    public GameObject PCUI_Controller;  // The UI the player gets visual feedback from
     /// <summary>
     /// Find Objects of layer
     /// </summary>
@@ -30,7 +30,12 @@ public class GameManager : MonoBehaviour
     [HideInInspector]
     // the wall that is nearest to the player
     private Transform nearestWall;
+    /// <summary>
+    ///  Static bools ints float passed into scripts for balance or functionality reasons
+    /// </summary>
 
+    // Overrides the guns position and stops anything to do with the gun
+    // This involves shooting, recoil, aiming and sway
     public static bool gunOverride = false;
     #endregion
     private void Awake()
@@ -62,7 +67,7 @@ public class GameManager : MonoBehaviour
         else
         {
             // player is already in the scene
-            Player_Character = GameObject.Find("PC");
+            PC = GameObject.Find("PC");
         }
         #endregion
         #region Find Player Camera
@@ -77,6 +82,15 @@ public class GameManager : MonoBehaviour
             // tag player
             playerCamera.tag = "MainCamera";
         }
+        else
+        {
+            Transform playerCam;
+            Camera playerCamera;
+            playerCam = PC.transform.GetChild(0);
+            playerCamera = playerCam.GetComponent<Camera>();
+            playerCamera.tag = "MainCamera";
+        }
+        
         #endregion
         #region Pause and Restart Set Up
         if (GameObject.Find("Pause_Canvas") == null)
