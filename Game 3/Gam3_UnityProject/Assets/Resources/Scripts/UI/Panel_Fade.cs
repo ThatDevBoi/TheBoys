@@ -18,10 +18,13 @@ public class Panel_Fade : MonoBehaviour
         if (player.GetComponent<Player_Controller>().lastVelocity != Vector3.zero)
         {
             GetComponent<CanvasRenderer>().SetAlpha(0);
-            GetComponentInChildren<MeshRenderer>().material.color*=new Vector4(1,1,1,0);
+            GetComponentInChildren<TextMeshPro>().faceColor = new Color32(1, 1, 1, 0);
         }
         else
-            GetComponent<CanvasRenderer>().SetAlpha(1);
+        {
+            GetComponent<CanvasRenderer>().SetAlpha(255);
+            GetComponentInChildren<TextMeshPro>().faceColor = new Color32(255, 255, 255, 255);
+        }
     }
 
    
