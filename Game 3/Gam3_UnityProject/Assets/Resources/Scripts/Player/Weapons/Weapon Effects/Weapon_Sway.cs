@@ -47,37 +47,45 @@ public class Weapon_Sway : MonoBehaviour
     float _smooth;
     public void WeaponSway()
     {
-        if(playerScript.running == false)
+        // if the player is not near a wall
+        if(GameManager.gunOverride == false)
         {
-            _smooth = smoothTime;
+            // and the player is not running
+            if (playerScript.running == false)
+            {
+                _smooth = smoothTime;
 
-            float MovementX = -Input.GetAxis("Mouse X") * amount;
-            float MovementY = -Input.GetAxis("Mouse Y") * amount;
+                float MovementX = -Input.GetAxis("Mouse X") * amount;
+                float MovementY = -Input.GetAxis("Mouse Y") * amount;
 
-            MovementX = Mathf.Clamp(MovementX, -maxAmount, maxAmount);
-            MovementY = Mathf.Clamp(MovementY, -maxAmount, maxAmount);
+                MovementX = Mathf.Clamp(MovementX, -maxAmount, maxAmount);
+                MovementY = Mathf.Clamp(MovementY, -maxAmount, maxAmount);
 
-            Vector3 final = new Vector3(def.x + MovementX, def.y + MovementY, def.z);
-            this.transform.localPosition = Vector3.Lerp(this.transform.localPosition, final, Time.deltaTime * _smooth);
+                Vector3 final = new Vector3(def.x + MovementX, def.y + MovementY, def.z);
+                this.transform.localPosition = Vector3.Lerp(this.transform.localPosition, final, Time.deltaTime * _smooth);
+            }
         }
     }
 
     public void RunningSway()
     {
-        if(playerScript.running == true)
+        if(GameManager.gunOverride == false)
         {
-            // generate the number in which the gun rotates across to
-            // change the values to decide how far left the gun sways when running
-            runSway = Random.Range(-50+amountSway, -50+amountSway);
-            // make rotation
-            Quaternion runSwaying = Quaternion.Euler(runSway_downRot, runSway, 0);
-            // rotate
-            transform.localRotation = Quaternion.Slerp(transform.localRotation, runSwaying, Time.deltaTime * runSwaySpeed);
-        }
-        else
-        {
-            runSway = 0;
-            transform.localRotation = Quaternion.Slerp(transform.localRotation, Quaternion.identity, Time.deltaTime * runSwaySpeed / 2);
+            if (playerScript.running == true)
+            {
+                // generate the number in which the gun rotates across to
+                // change the values to decide how far left the gun sways when running
+                runSway = Random.Range(-50 + amountSway, -50 + amountSway);
+                // make rotation
+                Quaternion runSwaying = Quaternion.Euler(runSway_downRot, runSway, 0);
+                // rotate
+                transform.localRotation = Quaternion.Slerp(transform.localRotation, runSwaying, Time.deltaTime * runSwaySpeed);
+            }
+            else
+            {
+                runSway = 0;
+                transform.localRotation = Quaternion.Slerp(transform.localRotation, Quaternion.identity, Time.deltaTime * runSwaySpeed / 2);
+            }
         }
     }
 }

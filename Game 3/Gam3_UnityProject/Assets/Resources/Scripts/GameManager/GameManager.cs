@@ -30,6 +30,8 @@ public class GameManager : MonoBehaviour
     [HideInInspector]
     // the wall that is nearest to the player
     private Transform nearestWall;
+
+    public static bool gunOverride = false;
     #endregion
     private void Awake()
     {
@@ -181,11 +183,13 @@ public class GameManager : MonoBehaviour
         {
             // make the player hold their gun upward
             Debug.Log("Yield Back Gun");
+            gunOverride = true;
         }
         else
         {
             // make the player hold their gun normal
             Debug.Log("Normal Gun Hold");
+            gunOverride = false;
         }
     }
 
