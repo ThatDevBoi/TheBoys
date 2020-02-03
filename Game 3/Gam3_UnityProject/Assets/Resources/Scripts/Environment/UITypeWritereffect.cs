@@ -11,7 +11,9 @@ public class UITypeWritereffect : MonoBehaviour
     public float delayToStart;
     public float delayBetweenChars = 0.125f;
     public float delayAfterPunctuation = 0.5f;
-
+    private GameObject player;
+    private float speed;
+    public bool talking=false;
     [HideInInspector]
     public string story;
     private float originDelayBetweenChars;
@@ -28,16 +30,21 @@ public class UITypeWritereffect : MonoBehaviour
 
         charComma = Convert.ToChar(44);
         charPeriod = Convert.ToChar(46);
-
+        player = GameObject.Find("PC");
         if (playOnAwake)
-        {
+        {            
             ChangeText(text.text, delayToStart);
-        }
+            
+        }   
+            
+        
     }
 
     //Update text and start typewriter effect
     public void ChangeText(string textContent, float delayBetweenChars = 0f)
     {
+        
+        
         StopCoroutine(PlayText()); //stop Coroutime if exist
         story = textContent;
         text.text = ""; //clean text
@@ -47,10 +54,12 @@ public class UITypeWritereffect : MonoBehaviour
     public void Start_PlayText()
     {
         StartCoroutine(PlayText());
+       
     }
 
     public IEnumerator PlayText()
     {
+        
 
         foreach (char c in story)
         {
@@ -68,7 +77,9 @@ public class UITypeWritereffect : MonoBehaviour
             }
 
             text.text += c;
+           
             yield return new WaitForSeconds(delayBetweenChars);
         }
+        player.GetComponent<Player_Controller>().speed = 20;
     }
 }

@@ -37,6 +37,9 @@ public class Trigger_Dialogue : MonoBehaviour
     public TextMeshPro projectTextObject;
     // timer in which cools down when the player can talk
     private float keyTimer = 0.0f;
+    //store player current speed
+    private float speed;
+    private GameObject player;
     // bool which allows timer to start ticking "keyTimer"
     bool keypressed = false;
     string startSring= "Press C";
@@ -46,6 +49,8 @@ public class Trigger_Dialogue : MonoBehaviour
     {
         #region Find Variables Loop
         StartCoroutine(loopFind());
+
+        player = GameObject.Find("PC");
         #endregion
 
         #region Build Collider
@@ -79,6 +84,7 @@ public class Trigger_Dialogue : MonoBehaviour
         // if the conversation is over
         if (conversationScroller >= objectConversation.Length)
         {
+            
             // reset 
             conversationScroller = 0;
             // tick boolean back
@@ -104,6 +110,7 @@ public class Trigger_Dialogue : MonoBehaviour
             // when boolean is true 
             if (isTalking)
             {
+                
                 if (!keypressed)
                 {
                     startSring = "";
@@ -122,6 +129,7 @@ public class Trigger_Dialogue : MonoBehaviour
                             conversationScroller++;
                             // call function to type write
                             typeWriterScript.ChangeText(Conversation, 0);
+                            player.GetComponent<Player_Controller>().speed = 0;
                         }
                     }
                     else
@@ -132,6 +140,7 @@ public class Trigger_Dialogue : MonoBehaviour
                     startSring = "Press C";
                     return;
                 }
+                
 
             }
         }
@@ -143,6 +152,7 @@ public class Trigger_Dialogue : MonoBehaviour
     {
         if (other.gameObject.name == "PC")
         {
+           
             playerApprrachedMe = true;
         }
     }
@@ -158,7 +168,6 @@ public class Trigger_Dialogue : MonoBehaviour
             typeWriterScript.StopCoroutine(typeWriterScript.PlayText());
             // reset the array scroller
             conversationScroller = 0;
-
             // TextMesh needs to know what to print 
             projectTextObject.text = Conversation;
         }
