@@ -22,6 +22,8 @@ public class Player_Controller : MonoBehaviour
     public AudioSource walkingSound;
     public LayerMask slopCheck;
     private float runTime = 1;
+    public float sensitivity_x;
+    public float sensitivity_y;
 
     public static Vector3 savedPosition;
     public bool playerDead=false;
@@ -119,6 +121,9 @@ public class Player_Controller : MonoBehaviour
             Debug.LogWarning("The PC needs to be named -PC- try not to change it");
             gameObject.name = "PC";
         }
+
+        sensitivity_x = 20;
+        sensitivity_y = 20;
 
         // when the player spawns it saves that spawn position as a saved place when death occurs
         savedPosition = gameObject.transform.position;
@@ -343,8 +348,8 @@ public class Player_Controller : MonoBehaviour
 
         // Camera Rotation
         // Input for rotation
-        mouseRotX = Input.GetAxis("Mouse X") * cameraRotationRate * Time.deltaTime;
-        mouseRotY = Input.GetAxis("Mouse Y") * cameraRotationRate * Time.deltaTime;
+        mouseRotX = Input.GetAxis("Mouse X") * sensitivity_x * Time.deltaTime;
+        mouseRotY = Input.GetAxis("Mouse Y") * sensitivity_y * Time.deltaTime;
 
         // For clamping (Rotate between these values)
         float minRotX = -60;
