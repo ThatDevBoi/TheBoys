@@ -486,7 +486,7 @@ public class Player_Controller : MonoBehaviour
     {
         // get the rigibody velocity
         Vector3 velocity = this.GetComponent<Rigidbody>().velocity;
-
+        Debug.Log(Physics.gravity);
         //Filter through the ContactPoints to see if we're grounded and to see if we can step up
         ContactPoint groundCP = default(ContactPoint);
         // bool is true or false depeinging on bool function detecing ground 
@@ -500,8 +500,17 @@ public class Player_Controller : MonoBehaviour
         {
             // make boolean the logic of the Find step boolean function
             stepUp = FindStep(out stepUpOffset, allCPs, groundCP, velocity);
-            // have normal gravity if we are on the ground
-            Physics.gravity = new Vector3(0, -9.81f, 0);
+            // check if the velocity on the Characters Y is less than 0
+            if(this.GetComponent<Rigidbody>().velocity.y <= 0)
+            {
+                // have normal gravity if we are on the ground
+                Physics.gravity = new Vector3(0, -9.81f, 0);
+            }
+            else
+            {
+                // if we are not on the ground add gravity to decline faster
+                Physics.gravity = new Vector3(0, -60, 0);
+            }
         }
         else
         {
@@ -699,6 +708,14 @@ public class Player_Controller : MonoBehaviour
         public bool isReloading = false;
         public Animator gunAnimator;
 
+
+        [SerializeField]
+        private AudioSource audioComponent;
+        [SerializeField]
+        private AudioClip shootingSound;
+        [SerializeField]
+        private AudioClip reloadSound;
+
         [Header("Ammo")]  
         // Max ammo in 1 magazine
         public int maxAmmo = 12;
@@ -810,6 +827,10 @@ public class Player_Controller : MonoBehaviour
             defaultBulletMat = Resources.Load<Material>("Player/Gun/Materials/Pistol/DefaultBulletMat");
             explosiveBulletMat = Resources.Load<Material>("Player/Gun/Materials/Pistol/ExplosiveBulletMat");
             hitMarker = Resources.Load<GameObject>("Player/Gun/Prefabs/Hitmarker");
+
+            // Find sounds
+            shootingSound = Resources.Load<AudioClip>("Audio/Player/Guns/laser-gun-19sf");
+            reloadSound = Resources.Load<AudioClip>("Audio/Player/Guns/laser reload");
             #endregion
 
             #region Value Set-Up
@@ -833,6 +854,9 @@ public class Player_Controller : MonoBehaviour
                 aimPosition = new Vector3(-0.55f, -1f, 1f);
             // Start FOV for the FPS Cam
             cam_FirePosition.fieldOfView = currentFieldOfView;
+
+            audioComponent = gameObject.GetComponent<AudioSource>();
+            audioComponent.clip = shootingSound;
             #endregion
         }
 
@@ -995,6 +1019,21 @@ public class Player_Controller : MonoBehaviour
                 isShooting = false;
             else
                 isShooting = true;  // Yes we still have bullets 
+
+            #region Sound Switcher
+            if (isReloading && !isShooting && currentAmmo <= 0)
+            {
+                audioComponent.clip = reloadSound;
+            }
+            else if(isReloading && !isShooting && currentAmmo > 0 && Input.GetKeyDown(KeyCode.R))
+            {
+                audioComponent.clip = reloadSound;
+            }
+            else if(!isReloading && isShooting && currentAmmo > 0)
+            {
+                audioComponent.clip = shootingSound;
+            }
+            #endregion
         }
         // player conmtroller script
         Player_Controller PlayerClass;
@@ -1268,10 +1307,12 @@ public class Player_Controller : MonoBehaviour
                 yield break;
             else
             {
+                audioComponent.clip = reloadSound;
                 // cant shoot if we are reloading 
                 isShooting = false;
                 // We are now Reloading 
                 isReloading = true;
+                audioComponent.Play();
                 // Remove later
                 Debug.Log("Reloading. . . .");
                 // Play reload anim

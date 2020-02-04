@@ -33,6 +33,10 @@ public class GameManager : MonoBehaviour
     /// <summary>
     ///  Static bools ints float passed into scripts for balance or functionality reasons
     /// </summary>
+    /// 
+    // Balcne Game Variables
+    public GameObject[] textMesh_AI_UI;
+    public float timercooldown = 1f;
 
     // Overrides the guns position and stops anything to do with the gun
     // This involves shooting, recoil, aiming and sway
@@ -45,7 +49,7 @@ public class GameManager : MonoBehaviour
     }
 
     // the player in the scene
-    GameObject PC;
+    public GameObject PC;
     // Find GameObjects in assets
     void InitiatGame()
     {
@@ -205,8 +209,35 @@ public class GameManager : MonoBehaviour
             Debug.Log("Normal Gun Hold");
             gunOverride = false;
         }
+        // call this to balance the games frames
+        balanceGame();
     }
 
+
+    void balanceGame()
+    {
+        // find the texts
+        timercooldown -= Time.deltaTime;
+        if (timercooldown <= 0)
+        {
+            if (GameObject.FindGameObjectsWithTag("AI_UI") == null)
+            {
+                timercooldown = 1;
+                return;
+            }
+            else
+            {
+                textMesh_AI_UI = GameObject.FindGameObjectsWithTag("AI_UI");
+                timercooldown = 1;
+            }
+        }
+
+        // find all the current objects of text damage
+        foreach(GameObject go in textMesh_AI_UI)
+        {
+            Destroy(go, 2);
+        }
+    }
     GameObject[] FindObjectsWithLayer(int layer)
     {
         wall_goArray = FindObjectsOfType(typeof(GameObject)) as GameObject[];

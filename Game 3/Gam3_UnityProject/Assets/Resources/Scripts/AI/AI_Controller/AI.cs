@@ -105,6 +105,7 @@ public class AI : MonoBehaviour
     private Material dormantMat;
     private Material searchingMat;
     private Material alertMat;
+    private GameObject damageText;
 
     [Header("FOV")]
     public float dormantFOVRadius = 9;
@@ -207,6 +208,8 @@ public class AI : MonoBehaviour
         dormantMat = Resources.Load<Material>("Material/Dormant");
         searchingMat = Resources.Load<Material>("Material/Searching");
         alertMat = Resources.Load<Material>("Material/Alert");
+
+        damageText = Resources.Load<GameObject>("Prefabs/AI/Feedback/FloatingText");
         // Placeholder //
         // Find Materials
         #endregion
@@ -334,7 +337,9 @@ public class AI : MonoBehaviour
         {
             // Make sure we make a seperate GameObject so we dont delete a reference Variable
             Transform aiHead = head;
-            // Detech The Head
+            // Find the head child as a object
+            GameObject GO_Head = this.gameObject.transform.GetChild(2).gameObject;
+            // Detech The Head from its body
             aiHead.transform.parent = null;
             // Destroy the parent
             Destroy(gameObject);
@@ -345,7 +350,7 @@ public class AI : MonoBehaviour
             // Knock the head object back
             headRB.AddForce(-transform.forward * 500);
             // Destroy the head after 10 seconds 
-            Destroy(aiHead, 10f);
+            Destroy(GO_Head, 10f);
 
         }
         #endregion
@@ -550,6 +555,23 @@ public class AI : MonoBehaviour
         // reduce health with the damage value that gets passed through by the player (Its in the shooting mechanic)
         currentHealth -= damage;
         howmanyHits++;
+        #region Pop up text spawn
+        Quaternion enumRotation_Changer;
+        if(states == AI_States.Alert)
+        {
+            enumRotation_Changer = new Quaternion(0, -180, 0, 0);
+        }
+        else
+        {
+            enumRotation_Changer = new Quaternion(0, 180, 0, 0);
+        }
+        // spawn text feedback
+        GameObject instanceText = Instantiate(damageText, new Vector3(transform.position.x - 1, transform.position.y + 4, transform.position.z), enumRotation_Changer, transform) as GameObject;
+        // Set the tag
+        instanceText.tag = "AI_UI";
+        // print the health
+        instanceText.GetComponent<TextMesh>().text = currentHealth.ToString();
+        #endregion
     }
     #endregion
 
