@@ -343,13 +343,13 @@ public class AI : MonoBehaviour
             aiHead.transform.parent = null;
             // Destroy the parent
             Destroy(gameObject);
-            // Add Rigidbody for Physics
+            //// Add Rigidbody for Physics
             Rigidbody headRB = head.gameObject.AddComponent<Rigidbody>();
-            // We want the head to fall to the ground
+            //// We want the head to fall to the ground
             headRB.useGravity = true;
-            // Knock the head object back
+            //// Knock the head object back
             headRB.AddForce(-transform.forward * 500);
-            // Destroy the head after 10 seconds 
+            //// Destroy the head after 10 seconds 
             Destroy(GO_Head, 10f);
 
         }
@@ -606,11 +606,15 @@ public class AI : MonoBehaviour
             if (hit.transform.gameObject.layer == 10)
             {
                 Debug.Log("I Hit The Player");
+                //
+                //Canvas hitdetecter = playerPosition.gameObject.GetComponent<Canvas>();
+                //hitdetecter.enabled = true;
+                // 
                 Player_Controller applyDamage = GameObject.Find("PC").GetComponent<Player_Controller>();// get PC script
                 applyDamage.HitDetection(gameObject.GetComponent<Transform>());
+                //applyDamage.HitDetection(gameObject.GetComponent<Transform>(), false);
                 applyDamage.ApplyDamage(damage);    // apply damage to the player
             }
-            
         }
 
     }

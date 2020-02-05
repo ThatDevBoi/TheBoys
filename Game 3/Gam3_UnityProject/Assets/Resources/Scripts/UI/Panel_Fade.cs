@@ -15,7 +15,8 @@ public class Panel_Fade : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (player.GetComponent<Player_Controller>().lastVelocity != Vector3.zero)
+        // When the players Rigidbody Velocity is not moving
+        if (player.GetComponent<Player_Controller>().playerPhysics.velocity != Vector3.zero)
         {
             GetComponent<CanvasRenderer>().SetAlpha(0);
             GetComponentInChildren<TextMeshPro>().faceColor = new Color32(1, 1, 1, 0);
