@@ -835,7 +835,7 @@ public class Player_Controller : MonoBehaviour
 
             #region Value Set-Up
             // Start Range for gun
-            gunRange = 30;
+           // gunRange = 30; this was resetting the range DM
             // Start ammo in mag
             currentAmmo = maxAmmo;
             // start backup ammo
