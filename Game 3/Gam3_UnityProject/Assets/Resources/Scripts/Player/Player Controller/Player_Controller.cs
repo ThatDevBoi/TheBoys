@@ -289,9 +289,6 @@ public class Player_Controller : MonoBehaviour
         V = Input.GetAxis("Vertical");
         H = Input.GetAxis("Horizontal");
 
-        dirX = V;
-        dirX = H;
-
         // Run Input
         float r = Input.GetAxis("Run");
         // direction we are moving
@@ -520,7 +517,7 @@ public class Player_Controller : MonoBehaviour
             // make boolean the logic of the Find step boolean function
             stepUp = FindStep(out stepUpOffset, allCPs, groundCP, velocity);
             // check if the velocity on the Characters Y is less than 0
-            if(this.GetComponent<Rigidbody>().velocity.y <= 0 | Input.GetKeyDown(KeyCode.LeftShift) == null)
+            if(this.GetComponent<Rigidbody>().velocity.y <= 0 && Input.GetKeyDown(KeyCode.LeftShift) == null)
             {
                 // have normal gravity if we are on the ground
                 Physics.gravity = new Vector3(0, -9.81f, 0);
