@@ -54,6 +54,10 @@ public class Button_Manager : MonoBehaviour
         #region Set up player values again
         GameObject.Find("PC").GetComponent<Player_Controller>().currentHealth = 100;
         GameObject.Find("PC").GetComponent<Player_Controller>().playerDead = false;
+
+        // 
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
         #endregion
     }
 
@@ -91,6 +95,8 @@ public class Button_Manager : MonoBehaviour
     public void resumeGame()
     {
         Time.timeScale = 1;
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     public void QuitGame()
