@@ -863,7 +863,7 @@ public class Player_Controller : MonoBehaviour
 
             #region Value Set-Up
             // Start Range for gun
-            gunRange = 30;
+           // gunRange = 30;//this prevents the variable to be changed in ide DM
             // Start ammo in mag
             currentAmmo = maxAmmo;
             // start backup ammo
