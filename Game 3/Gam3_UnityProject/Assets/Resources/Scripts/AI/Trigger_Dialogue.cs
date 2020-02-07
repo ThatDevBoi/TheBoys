@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
@@ -152,8 +152,9 @@ public class Trigger_Dialogue : MonoBehaviour
     {
         if (other.gameObject.name == "PC")
         {
-           
-            playerApprrachedMe = true;
+            GameObject.Find("PlayerUIController/Panel").GetComponent<Panel_Fade>().dialouge = true;
+
+           playerApprrachedMe = true;
         }
     }
     // We end the conversation with the object
@@ -161,10 +162,11 @@ public class Trigger_Dialogue : MonoBehaviour
     {
         if (other.gameObject.name == "PC")
         {
+            GameObject.Find("PlayerUIController/Panel").GetComponent<Panel_Fade>().dialouge = false;
             startSring = "Press C";
             playerApprrachedMe = false;
             // set the conversation to be shown as over
-            Conversation = "Conversation Over";
+            //Conversation = "Conversation Over";
             typeWriterScript.StopCoroutine(typeWriterScript.PlayText());
             // reset the array scroller
             conversationScroller = 0;

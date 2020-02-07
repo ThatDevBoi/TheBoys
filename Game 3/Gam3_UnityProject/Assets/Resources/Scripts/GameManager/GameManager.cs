@@ -197,6 +197,8 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         GetClosestWall(wall_tranArray);
+        if (nearestWall == null)
+            Debug.Log("wall not found");
         if(Vector3.Distance(nearestWall.position, PC.transform.position) < 4)
         {
             // make the player hold their gun upward
