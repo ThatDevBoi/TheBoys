@@ -152,7 +152,7 @@ public class Trigger_Dialogue : MonoBehaviour
     {
         if (other.gameObject.name == "PC")
         {
-            GameObject.Find("PlayerUIController/Panel").GetComponent<Panel_Fade>().dialouge = true;
+            GameObject.Find("PlayerUIController/Panel").GetComponent<Panel_Fade>().dialouge = true;//this will tell the fade script to be deactivated DM
 
            playerApprrachedMe = true;
         }
@@ -162,7 +162,7 @@ public class Trigger_Dialogue : MonoBehaviour
     {
         if (other.gameObject.name == "PC")
         {
-            GameObject.Find("PlayerUIController/Panel").GetComponent<Panel_Fade>().dialouge = false;
+            GameObject.Find("PlayerUIController/Panel").GetComponent<Panel_Fade>().dialouge = false;//this will tell the fade script to be activated DM
             startSring = "Press C";
             playerApprrachedMe = false;
             // set the conversation to be shown as over
