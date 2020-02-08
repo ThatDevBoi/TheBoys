@@ -1184,7 +1184,7 @@ public class Player_Controller : MonoBehaviour
                                             enemyHit = null;
 
                                         // if we hit the trigger that belongs to the bridge 
-                                        if (Hit.collider.gameObject.name == "default")
+                                        if (Hit.collider.gameObject.layer == 17)
                                         {
                                             if (bridge == null)
                                             {
