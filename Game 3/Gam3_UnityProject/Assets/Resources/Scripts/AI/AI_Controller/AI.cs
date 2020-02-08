@@ -106,6 +106,10 @@ public class AI : MonoBehaviour
     private Material searchingMat;
     private Material alertMat;
     private GameObject damageText;
+    [SerializeField]
+    private GameObject searchingGO;
+    [SerializeField]
+    private GameObject AlertGO;
 
     [Header("FOV")]
     public float dormantFOVRadius = 9;
@@ -203,13 +207,16 @@ public class AI : MonoBehaviour
         // Find My Head
         head = gameObject.transform.GetChild(2);
         firePoint = gameObject.transform.Find("Gun/Shooting_Point").GetComponent<Transform>();
-
+        #region Find Variables Thorugh Assets
         // Find the materials from the assets folder
         dormantMat = Resources.Load<Material>("Material/Dormant");
         searchingMat = Resources.Load<Material>("Material/Searching");
         alertMat = Resources.Load<Material>("Material/Alert");
 
         damageText = Resources.Load<GameObject>("Prefabs/AI/Feedback/FloatingText");
+        searchingGO = Resources.Load<GameObject>("Prefabs/AI/Feedback/QuestionMark");
+        AlertGO = Resources.Load<GameObject>("Prefabs/AI/Feedback/!");
+        #endregion
         // Placeholder //
         // Find Materials
         #endregion
@@ -241,6 +248,18 @@ public class AI : MonoBehaviour
 
         if (Patrol.Length == 0)
             Debug.LogWarning(gameObject.name + ":" + "Patrol Array is not been set up");
+        #endregion
+
+        #region Spawning
+        Vector3 GO_Search_instance_Pos = new Vector3(head.transform.position.x, head.transform.position.y + 0.5f, head.transform.position.z);
+        GameObject searchGO_instance = Instantiate(searchingGO, GO_Search_instance_Pos, Quaternion.identity, gameObject.transform) as GameObject;
+        searchGO_instance.name = "QuestionMark";
+        searchGO_instance.SetActive(false);
+
+        Vector3 GO_Alert_instance_Pos = new Vector3(head.transform.position.x, head.transform.position.y + 0.5f, head.transform.position.z);
+        GameObject AlertGO_instance = Instantiate(AlertGO, GO_Search_instance_Pos, Quaternion.identity, gameObject.transform) as GameObject;
+        AlertGO_instance.name = "!";
+        AlertGO_instance.SetActive(false);
         #endregion
     }
 
@@ -447,6 +466,10 @@ public class AI : MonoBehaviour
         // if the gameObject is Searching for the player
         if (states == AI_States.Searching)
         {
+            GameObject searchMesh = gameObject.transform.GetChild(4).gameObject;
+            searchMesh.SetActive(true);
+            if (states == AI_States.Dormant || states == AI_States.Alert)
+                searchMesh.SetActive(false);
             AI_movement_Speed = AI_movement_searchingSpeed;
             // Change material for visual feedback
             aiMeshRend.material = searchingMat;
@@ -475,6 +498,10 @@ public class AI : MonoBehaviour
         // if we are alert
         if (states == AI_States.Alert)
         {
+            GameObject alertMesh = gameObject.transform.GetChild(5).gameObject;
+            alertMesh.SetActive(true);
+            if (states == AI_States.Dormant || states == AI_States.Searching)
+                alertMesh.SetActive(false);
             AI_movement_Speed = AI_movement_alertSpeed;
             // Change material for visual feedback
             aiMeshRend.material = alertMat;
