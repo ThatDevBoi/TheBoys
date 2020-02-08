@@ -430,6 +430,11 @@ public class AI : MonoBehaviour
         #region Dormant
         if (states == AI_States.Dormant)
         {
+            if(gameObject.transform.GetChild(4).gameObject.active == true || gameObject.transform.GetChild(5).gameObject.active == true)
+            {
+                gameObject.transform.GetChild(4).gameObject.SetActive(false);
+                gameObject.transform.GetChild(5).gameObject.SetActive(false);
+            }
             AI_movement_Speed = AI_Movement_dormantSpeed;
             // Find FOV script
             FieldOfView FOVscript = gameObject.GetComponent<FieldOfView>();
@@ -466,6 +471,8 @@ public class AI : MonoBehaviour
         // if the gameObject is Searching for the player
         if (states == AI_States.Searching)
         {
+            gameObject.transform.GetChild(5).gameObject.SetActive(false);
+
             GameObject searchMesh = gameObject.transform.GetChild(4).gameObject;
             searchMesh.SetActive(true);
             if (states == AI_States.Dormant || states == AI_States.Alert)
@@ -498,10 +505,10 @@ public class AI : MonoBehaviour
         // if we are alert
         if (states == AI_States.Alert)
         {
+            gameObject.transform.GetChild(4).gameObject.SetActive(false);
+            searchingGO.SetActive(false);
             GameObject alertMesh = gameObject.transform.GetChild(5).gameObject;
             alertMesh.SetActive(true);
-            if (states == AI_States.Dormant || states == AI_States.Searching)
-                alertMesh.SetActive(false);
             AI_movement_Speed = AI_movement_alertSpeed;
             // Change material for visual feedback
             aiMeshRend.material = alertMat;
@@ -700,14 +707,14 @@ public class AI : MonoBehaviour
     void GenerateNewPath()
     {
         // The Path will be 
-        Vector3 distanceBetweenObjects = transform.position - playerPosition.position;
+        Vector3 distanceBetweenObjects = transform.position + playerPosition.position;
 
         // Generate Random Search Position
         Vector3 newGeneratedPath = new Vector3(Random.value, gameObject.transform.position.y, Random.value) - distanceBetweenObjects;
         // This is our new path
         new_AI_Path = newGeneratedPath;
 
-        Debug.Log(newGeneratedPath + "New Path");
+        //Debug.Log(newGeneratedPath + "New Path");
     }
     #endregion
 
@@ -736,7 +743,7 @@ public class AI : MonoBehaviour
                 }
             }
             // Move to the Vector3 with The NavMeshAgent
-            AI_Physics.SetDestination(moveDirection);
+            //AI_Physics.SetDestination(moveDirection);
         }
         #endregion
         // Searching for the player
@@ -745,16 +752,18 @@ public class AI : MonoBehaviour
         {
             AI_Physics.SetDestination(new_AI_Path);
             // if the value between both objects is greater than our search radius we cant go any further
-            if(Vector3.Distance(transform.position, playerPosition.position) > searchRadius)    // if the player is outside the search radius turn back
+            if (Vector3.Distance(transform.position, playerPosition.position) > searchRadius)    // if the player is outside the search radius turn back
             {
                 Debug.Log("Player Out Of Range" + ":" + AI_States.Dormant);
+                states = AI_States.Dormant;
             }
+
             // When the current Position is equal to the new path
-            if(transform.position.x == new_AI_Path.x)
+            if (transform.position.x == new_AI_Path.x)
             {
                 // Make a new path
                 GenerateNewPath();
-
+                Debug.Log(new_AI_Path);
                 StartCoroutine("FireWeapon");
             }
         }
