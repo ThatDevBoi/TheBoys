@@ -16,7 +16,7 @@ public class LookAt : MonoBehaviour
     void Update()
     {
        // Debug.Log(Vector3.Distance(player.transform.position, GetComponentInParent<Transform>().position));
-        
+        if(player!=null)
             transform.LookAt(player.transform.position);
             
         
