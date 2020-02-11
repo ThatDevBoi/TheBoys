@@ -22,12 +22,11 @@ public class Panel_Fade : MonoBehaviour
     void Update()
     {
 
-        
-            
-            
-                
-           
-         if (player.GetComponent<Player_Controller>().playerPhysics.velocity != Vector3.zero|| Input.GetButton("Fire1")|| Input.GetButton("Fire2")&&!dialouge)// When the players Rigidbody Velocity is not moving
+
+
+
+
+            if (player.GetComponent<Player_Controller>().playerPhysics.velocity != Vector3.zero|| Input.GetButton("Fire1")|| Input.GetButton("Fire2")&&!dialouge)// When the players Rigidbody Velocity is not moving
             {
             GetComponent<CanvasRenderer>().SetAlpha(0);
             GetComponentInChildren<TextMeshPro>().faceColor = new Color32(1, 1, 1, 0);//hide the text panel

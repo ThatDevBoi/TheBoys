@@ -19,7 +19,7 @@ public class Weapon_Sway : MonoBehaviour
 
     [Header("Running Sway")]
     public Player_Controller playerScript;
-    public float runSway = 20f;
+    private float runSway = 20f;
     public float runSwaySpeed = 2;
     public float amountSway = 20f;
     [Space(10)]
@@ -84,7 +84,7 @@ public class Weapon_Sway : MonoBehaviour
             else
             {
                 runSway = 0;
-                transform.localRotation = Quaternion.Slerp(transform.localRotation, Quaternion.identity, Time.deltaTime * runSwaySpeed / 2);
+                transform.localRotation = Quaternion.Slerp(transform.localRotation, Quaternion.identity, Time.deltaTime * runSwaySpeed);
             }
         }
     }
