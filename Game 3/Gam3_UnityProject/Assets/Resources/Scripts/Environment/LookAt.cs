@@ -10,8 +10,10 @@ public class LookAt : MonoBehaviour
     void Start()
     {
         player = GameObject.Find("PC");
-        if (GetComponentInParent<GameObject>().name == "Charging Port")
+        if (transform.parent.name == "Charging Port")
             chargingPort = true;
+        //if (GetComponentInParent<GameObject>().name == "Charging Port")
+        //    chargingPort = true;
     }
 
     // Update is called once per frame
@@ -24,7 +26,7 @@ public class LookAt : MonoBehaviour
             float distance = Vector3.Distance(player.transform.position, GetComponent<Transform>().position);
             if (chargingPort)
             {
-                print("Distance to other: " + distance);
+                //print("Distance to other: " + distance);
 
                 if (distance < 35f)
                 {

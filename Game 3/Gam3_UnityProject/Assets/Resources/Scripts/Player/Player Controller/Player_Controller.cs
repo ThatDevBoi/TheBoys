@@ -35,6 +35,7 @@ public class Player_Controller : MonoBehaviour
     public Image[] sliderArray;
     public Text healthPercentageText;
     public Canvas respawnCan;
+    public Color[] HealthBar_StageColors;
 
     [Header("Health Bar")]
     public Slider healthBar;
@@ -92,14 +93,6 @@ public class Player_Controller : MonoBehaviour
     /// <summary>
     /// References to find in the assets folder
     /// </summary>
-    [HideAttributes("Debugging", true)]
-    private Texture text1; // current health < 75
-    [HideAttributes("Debugging", true)]
-    private Texture text2; // current health < 50
-    [HideAttributes("Debugging", true)]
-    private Texture text3; // current health < 30
-    [HideAttributes("Debugging", true)]
-    private Texture text4; // current health < 20 
     [HideAttributes("Debugging", true)]
     private GameObject pauseCan;
     /// <summary>
@@ -179,12 +172,11 @@ public class Player_Controller : MonoBehaviour
             pauseCan.SetActive(false);
         }
         respawnCan = GameObject.Find("RestartCanvas").GetComponent<Canvas>();
+        // Find all the images in the slider
+        sliderArray = healthBar.transform.GetComponentsInChildren<Image>();
+
         #region Finding variables from assets
-        // Find Textures in assets folder
-        text1 = Resources.Load<Texture>("HurtTexture/UI Screen Hurt");
-        text2 = Resources.Load<Texture>("HurtTexture/UI Screen Hurt Alot");
-        text3 = Resources.Load<Texture>("HurtTexture/UI Screen Hurt");
-        text4 = Resources.Load<Texture>("HurtTexture/UI Almost Dead");
+
             #endregion
         #endregion
 
@@ -385,46 +377,46 @@ public class Player_Controller : MonoBehaviour
         #region Player Health Bar Transitions
         // Foreach image that is in our array of images for the healthbar slider
         // The images are the slider graphics
-        //foreach (Image PC_HealthBarImages in sliderArray)
-        //{
-        //    // We need to check that we are at max health as we will be turning the UI Alpha channels to 0
-        //    if (currentHealth >= maxHealth)
-        //    {
-        //        // Change all image color alpha channels to 0
-        //        PC_HealthBarImages.color = new Color(0, 1, 1, Mathf.Lerp(0, 0, 0));
-        //    }
-        //    else    // However when we are no longer at max health
-        //    {
-        //        // We need to turn the UI Back on
-        //        PC_HealthBarImages.color = new Color(1, 1, 1, Mathf.Lerp(1, 1, 1));
-
-        //    }
-
-        //}
-
-        // Now we need to check what our current health is as the healthbar will change color
-        // so when the current is near the 100 mark we have a green health bar
-        if (currentHealth > maxHealth | currentHealth > 60)
+        foreach (Image PC_HealthBarImages in sliderArray)
         {
-            // We find the image each time as these if statements wont run often and it saves us making ir a variable in the inspector
-            Image healthImage = GameObject.Find("PlayerHP_Fill").GetComponent<Image>();
-            healthImage.color = Color.green;
-        }
-        // when the current health is less than 60 or is 60
-        // Make fill bar Yellow
-        else if (currentHealth <= 60)
-        {
-            // We find the image each time as these if statements wont run often and it saves us making ir a variable in the inspector
-            Image healthImage = GameObject.Find("PlayerHP_Fill").GetComponent<Image>();
-            healthImage.color = Color.yellow;
-        }
-        // When the current health is 30 or less 
-        // make fill bar Red
-        else if (currentHealth <= 30)
-        {
-            // We find the image each time as these if statements wont run often and it saves us making ir a variable in the inspector
-            Image healthImage = GameObject.Find("PlayerHP_Fill").GetComponent<Image>();
-            healthImage.color = Color.red;
+            // We need to check that we are at max health as we will be turning the UI Alpha channels to 0
+            if (currentHealth >= maxHealth)
+            {
+                // Change all image color alpha channels to 0
+                PC_HealthBarImages.color = new Color(0, 1, 1, Mathf.Lerp(0, 0, 0));
+            }
+            else    // However when we are no longer at max health
+            {
+                // We need to turn the UI Back on
+                PC_HealthBarImages.color = new Color(1, 1, 1, Mathf.Lerp(1, 1, 1));
+
+
+                // Now we need to check what our current health is as the healthbar will change color
+                // so when the current is near the 100 mark we have a green health bar
+                if (currentHealth > maxHealth | currentHealth > 60)
+                {
+                    // We find the image each time as these if statements wont run often and it saves us making ir a variable in the inspector
+                    Image healthImage = GameObject.Find("PlayerHP_Fill").GetComponent<Image>();
+                    healthImage.color = HealthBar_StageColors[0];
+                }
+                // when the current health is less than 60 or is 60
+                // Make fill bar Yellow
+                else if (currentHealth == 60)
+                {
+                    // We find the image each time as these if statements wont run often and it saves us making ir a variable in the inspector
+                    Image healthImage = GameObject.Find("PlayerHP_Fill").GetComponent<Image>();
+                    healthImage.color = HealthBar_StageColors[1];
+                }
+                // When the current health is 30 or less 
+                // make fill bar Red
+                else if (currentHealth == 30)
+                {
+                    // We find the image each time as these if statements wont run often and it saves us making ir a variable in the inspector
+                    Image healthImage = GameObject.Find("PlayerHP_Fill").GetComponent<Image>();
+                    healthImage.color = HealthBar_StageColors[2];
+                }
+            }
+
         }
 
         if (currentHealth <= 0)
@@ -789,8 +781,6 @@ public class Player_Controller : MonoBehaviour
         public Text backUpAmmoText;
 
         public AI enemyHit;
-
-
 
         #region Debugging
         [HideInInspector]
