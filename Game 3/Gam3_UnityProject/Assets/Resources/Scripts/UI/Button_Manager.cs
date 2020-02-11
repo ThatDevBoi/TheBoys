@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 public class Button_Manager : MonoBehaviour
 {
     public Camera mainCamera;
@@ -64,32 +65,33 @@ public class Button_Manager : MonoBehaviour
     public void Go_To_HelpScreen()
     {
         helpNeeded = true;
+        // Rotate Camera
+        mainCamera.transform.position = Vector3.RotateTowards(mainCamera.transform.position, Help_cameraPosition.position, 10, rotSpeed);
+        //if (SceneManager.sceneCount != 0)
+        //{
+        //    return;
+        //}
+        //else
+        //{
 
-        if(SceneManager.sceneCount != 0)
-        {
-            return;
-        }
-        else
-        {
-            // Rotate Camera
-            mainCamera.transform.position = Vector3.RotateTowards(mainCamera.transform.position, Help_cameraPosition.position, 10, rotSpeed);
-        }
+        //}
     }
 
     public void Go_To_Main_Menu()
     {
         helpNeeded = false;
-        // if the scene is not the main menu scene
-        if(SceneManager.sceneCount != 0)
-        {
-            // do nothing
-            return;
-        }
-        else    // if it is the main menu 
-        {
-            // rotate camera to new position
-            mainCamera.transform.position = Vector3.RotateTowards(mainCamera.transform.position, mainMenu_Pos.position, 10, rotSpeed);
-        }
+        // rotate camera to new position
+        mainCamera.transform.position = Vector3.RotateTowards(mainCamera.transform.position, mainMenu_Pos.position, 10, rotSpeed);
+        //// if the scene is not the main menu scene
+        //if (SceneManager.sceneCount != 0)
+        //{
+        //    // do nothing
+        //    return;
+        //}
+        //else    // if it is the main menu 
+        //{
+
+        //}
     }
 
     public void resumeGame()
@@ -103,4 +105,5 @@ public class Button_Manager : MonoBehaviour
     {
         Application.Quit();
     }
+
 }

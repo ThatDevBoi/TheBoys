@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     #region Level Manager Variables
@@ -41,6 +41,7 @@ public class GameManager : MonoBehaviour
     // Overrides the guns position and stops anything to do with the gun
     // This involves shooting, recoil, aiming and sway
     public static bool gunOverride = false;
+
     #endregion
     private void Awake()
     {
