@@ -41,7 +41,20 @@ public class GameManager : MonoBehaviour
     // Overrides the guns position and stops anything to do with the gun
     // This involves shooting, recoil, aiming and sway
     public static bool gunOverride = false;
+    #endregion
 
+    #region Gun Upgrade Control
+    // bools to maintain gun
+    public bool explosiveAmmo = false;
+    public string explosiveUpgradeName = "";
+
+    public bool fullAuto = false;
+    public string fullAutoUpgradeName = "";
+
+    public bool burstFire = false;
+    public string burstFireUpgradeName = "";
+
+    public bool singleFire = true;
     #endregion
     private void Awake()
     {
@@ -192,6 +205,8 @@ public class GameManager : MonoBehaviour
         }
         // find all the walls
         FindObjectsWithLayer(16);
+
+
     }
 
     // Update is called once per frame
@@ -241,6 +256,11 @@ public class GameManager : MonoBehaviour
             Destroy(go, 2);
         }
     }
+    /// <summary>
+    /// Finds all objects of a certain layer type
+    /// </summary>
+    /// <param name="layer"></param>
+    /// <returns></returns>
     GameObject[] FindObjectsWithLayer(int layer)
     {
         wall_goArray = FindObjectsOfType(typeof(GameObject)) as GameObject[];

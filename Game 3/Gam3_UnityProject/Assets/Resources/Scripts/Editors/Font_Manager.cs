@@ -10,10 +10,10 @@ public class Font_Manager : MonoBehaviour
 
     [Header("Normal Unity Text")]
     #region Font change (Normal Text)
-    public Text[] allTextComp;
-    public Font[] fonts;
-    public Font currentFont;
-    int FontTracker = 0;
+    //public Text[] allTextComp;
+    //public Font[] fonts;
+    //public Font currentFont;
+    //int FontTracker = 0;
     #endregion
     [Space(10)]
     [Header("Text Mesh Pro Text")]
@@ -28,9 +28,9 @@ public class Font_Manager : MonoBehaviour
     void Start()
     {
         // Find all the text
-        allTextComp = FindObjectsOfType<Text>();
+        //allTextComp = FindObjectsOfType<Text>();
         allTMPTextComp = FindObjectsOfType<TMP_Text>();
-        currentFont = fonts[0];
+        //currentFont = fonts[0];
         currentTMPFont = TMP_Fonts[0];
         // Carry it through scenes
         DontDestroyOnLoad(this.gameObject);
@@ -40,7 +40,7 @@ public class Font_Manager : MonoBehaviour
     void Update()
     {
         // Find all the text
-        allTextComp = FindObjectsOfType<Text>();
+        //allTextComp = FindObjectsOfType<Text>();
         allTMPTextComp = FindObjectsOfType<TMP_Text>();
         TextMonitor();
         // Start at the beginning of the array
@@ -49,15 +49,15 @@ public class Font_Manager : MonoBehaviour
 
     public void fontChange(int fontType)
     {
-        currentFont = fonts[fontType];
+        //currentFont = fonts[fontType];
     }
     /// <summary>
     /// This function allows you to change the Font by clicking a button
     /// </summary>
     public void TextMonitor()
     {
-        foreach (Text text in allTextComp)
-            text.font = currentFont;
+        //foreach (Text text in allTextComp)
+        //    text.font = currentFont;
 
         foreach(TMP_Text text in allTMPTextComp)
         {
@@ -72,10 +72,10 @@ public class Font_Manager : MonoBehaviour
         // allow int to obtain frop down value 
         dropdownValue = fontMenu.value;
         // allow the font tracker to obtain the current drop down value (DropDownValue = current font)
-        FontTracker = dropdownValue;
+        //FontTracker = dropdownValue;
         TMP_FontTraccker = dropdownValue;
         // change the font
-        currentFont = fonts[FontTracker];
+        //currentFont = fonts[FontTracker];
         currentTMPFont = TMP_Fonts[TMP_FontTraccker];
     }
 }

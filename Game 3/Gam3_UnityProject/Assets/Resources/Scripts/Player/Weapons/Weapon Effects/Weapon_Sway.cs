@@ -25,6 +25,10 @@ public class Weapon_Sway : MonoBehaviour
     [Space(10)]
     public float runSway_downRot = 10f;
 
+    [Header("Loop Run Vertical")]
+    public float speed = 5;
+    public float height = 0.05f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -39,9 +43,9 @@ public class Weapon_Sway : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // Functions
         WeaponSway();
         RunningSway();
-
     }
 
     float _smooth;
@@ -53,24 +57,35 @@ public class Weapon_Sway : MonoBehaviour
             // and the player is not running
             if (playerScript.running == false)
             {
+                // Time we use to Sway the weapon within a Lerp
                 _smooth = smoothTime;
-
-                float MovementX = -Input.GetAxis("Mouse X") * amount;
-                float MovementY = -Input.GetAxis("Mouse Y") * amount;
-
-                MovementX = Mathf.Clamp(MovementX, -maxAmount, maxAmount);
-                MovementY = Mathf.Clamp(MovementY, -maxAmount, maxAmount);
-
-                Vector3 final = new Vector3(def.x + MovementX, def.y + MovementY, def.z);
+                // Mouse Inputs for X and Y positions
+                float Mouse_MovementX = -Input.GetAxis("Mouse X") * amount;
+                float Mouse_MovementY = -Input.GetAxis("Mouse Y") * amount;
+                // dont let mouse movement let the gun go over its max intended sway
+                Mouse_MovementX = Mathf.Clamp(Mouse_MovementX, -maxAmount, maxAmount);
+                Mouse_MovementY = Mathf.Clamp(Mouse_MovementY, -maxAmount, maxAmount);
+                // The final position we will lerp towards is the position of the gun with the variables controlling the clamp
+                Vector3 final = new Vector3(def.x + Mouse_MovementX, def.y + Mouse_MovementY, def.z);
+                // the new position of the gun when rotating the mouse up, down left or right
                 this.transform.localPosition = Vector3.Lerp(this.transform.localPosition, final, Time.deltaTime * _smooth);
             }
         }
     }
 
+    void verticalRun()
+    {
+        Vector3 position = transform.localPosition;
+        float newY = Mathf.Sin(Time.time * speed);
+        transform.localPosition = new Vector3(position.x, newY, position.z) * height;
+    }
+
     public void RunningSway()
     {
+        // When the gun is not being controlled
         if(GameManager.gunOverride == false)
         {
+            // when the player runs 
             if (playerScript.running == true)
             {
                 // generate the number in which the gun rotates across to
@@ -80,9 +95,12 @@ public class Weapon_Sway : MonoBehaviour
                 Quaternion runSwaying = Quaternion.Euler(runSway_downRot, runSway, 0);
                 // rotate
                 transform.localRotation = Quaternion.Slerp(transform.localRotation, runSwaying, Time.deltaTime * runSwaySpeed);
+                // call function to make gun move up and down in a loop
+                verticalRun();
             }
             else
             {
+                // reset localRotation of the gun so it sits back when not running 
                 runSway = 0;
                 transform.localRotation = Quaternion.Slerp(transform.localRotation, Quaternion.identity, Time.deltaTime * runSwaySpeed);
             }

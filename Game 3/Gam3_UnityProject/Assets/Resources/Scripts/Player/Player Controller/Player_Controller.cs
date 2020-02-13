@@ -287,6 +287,12 @@ public class Player_Controller : MonoBehaviour
         direction = (transform.forward * V + (transform.right * H));
         // Make the vector to the equal of 1
         direction = direction.normalized * speed;
+        if (playerPhysics.velocity.magnitude > 2f && walkingSound.isPlaying == false && running == false)
+        {
+            walkingSound.volume = Random.Range(0.4f, 0.6f);
+            walkingSound.pitch = Random.Range(0.4f, 0.6f);
+            walkingSound.Play();
+        }
         #endregion
 
         #region Running
@@ -295,11 +301,15 @@ public class Player_Controller : MonoBehaviour
         {
             // we are running
             running = true;
-            // we need this script attached to a child of me
-            Weapon_Sway weapon = GameObject.Find("Pistol Holder").GetComponent<Weapon_Sway>();
-            // change sway amount
-            weapon.amount = 0.12f;
-            weapon.maxAmount = 0.14f;
+            #region Footsteps
+            // Footsteps
+            if (playerPhysics.velocity.magnitude > 2f && walkingSound.isPlaying == false)
+            {
+                walkingSound.volume = Random.Range(0.8f, 1f);
+                walkingSound.pitch = Random.Range(0.8f, 1f);
+                walkingSound.Play();
+            }
+            #endregion
             // cooldown for not being detected on key press straight away by the NPC
             runTime -= Time.deltaTime;
             // when value is 0 or more
@@ -321,11 +331,7 @@ public class Player_Controller : MonoBehaviour
             runTime = 1;
             // change audio trigger
             walkingSound.volume = 0.3f;
-            // find weapon sway again
-            Weapon_Sway weapon = GameObject.Find("Pistol Holder").GetComponent<Weapon_Sway>();
-            // cahnge values
-            weapon.amount = 0.02f;
-            weapon.maxAmount = 0.06f;
+
             // change speed back to the current speed we walk at
             speed = currentSpeed;
         }
@@ -782,6 +788,8 @@ public class Player_Controller : MonoBehaviour
 
         public AI enemyHit;
 
+        private GameManager game_manager;
+
         #region Debugging
         [HideInInspector]
         public bool Debugging;
@@ -836,6 +844,9 @@ public class Player_Controller : MonoBehaviour
                 // Find text component for the back up ammo variable
                 backUpAmmoText = GameObject.Find("BackUp_Ammo_Text").GetComponent<Text>();
             }
+            // find game manager
+            game_manager = GameManager.FindObjectOfType<GameManager>();
+
             // Find the bullet hole prefab in Resources in the asset folder
             bulletHole = Resources.Load<GameObject>("GunEffects/ImpactEffect");
             // Find Muzzle Flash
@@ -934,11 +945,11 @@ public class Player_Controller : MonoBehaviour
             // 0 = Defualt 
             // 1 = Explosive
             #region Shoot Mode Controller Checks
-            if (shootModeController == 0)
-                shootingMode = ShootMode.Auto;
-            else if (shootModeController == 1)
+            if (shootModeController == 0 && game_manager.singleFire == true)
                 shootingMode = ShootMode.Semi;
-            else if (shootModeController == 2)
+            else if (shootModeController == 1 && game_manager.fullAuto == true)
+                shootingMode = ShootMode.Auto;
+            else if (shootModeController == 2 && game_manager.burstFire == true)
                 shootingMode = ShootMode.Burst;
 
             if (bulletChange == 0)
@@ -948,7 +959,6 @@ public class Player_Controller : MonoBehaviour
                 Renderer rend = revolverBarrel.GetComponent<Renderer>();
                 rend.material = defaultBulletMat;
             }
-
             else if (bulletChange == 1)
             {
                 CurrentBulletType = BulletType.Explosive;
@@ -958,14 +968,30 @@ public class Player_Controller : MonoBehaviour
             }
             if (Input.GetKeyDown(KeyCode.Q))
             {
-                shootModeController++;
-                if (shootModeController >= 3)
+                if (shootModeController == 0 && game_manager.fullAuto == false && game_manager.burstFire == false)
                     shootModeController = 0;
+                else if (shootModeController == 0 && game_manager.fullAuto == true)
+                    shootModeController++;
+                else if (shootModeController == 1 && game_manager.burstFire == true)
+                    shootModeController++;
+                else if (shootModeController == 0 && game_manager.burstFire == true)
+                {
+                    shootModeController = 2;
+                }
+                else if (shootModeController == 0 && game_manager.fullAuto == true && game_manager.burstFire == false)
+                {
+                    shootModeController = 1;
+                }
+                else if (shootModeController >= 2 && game_manager.burstFire == true)
+                    shootModeController = 0;
+                else if (shootModeController >= 1 && game_manager.burstFire == false)
+                    shootModeController = 0;
+
             }
 
 
             // Key press increases controller value
-            if (Input.GetKeyDown(KeyCode.E))
+            if (Input.GetKeyDown(KeyCode.E) && game_manager.explosiveAmmo == true)
             {
                 bulletChange++;
                 // value met resets the value
@@ -1231,25 +1257,35 @@ public class Player_Controller : MonoBehaviour
                             // shoot a ray at the direction we desire and the laymask we can shoot at
                             if (Physics.Raycast(cam_FirePosition.transform.position, cam_FirePosition.transform.TransformDirection(Vector3.forward), out Hit, gunRange, whatWeCanShoot))
                             {
-                                // when the current ammo in the gun is above 0
                                 if (currentAmmo > 0)
                                 {
-                                    //recoilScript.StartRecoil(0.2f, 10f, 10f);
+                                    // call recoil
+                                    recoilScript.Fire();
                                     gunShootSound.volume = 0.5f;
-                                    // play the shooting sound
                                     gunShootSound.Play();
                                     // Decrease Ammo
                                     currentAmmo--;
-                                    GameObject firePoint = GameObject.Find("Pistol/ironSights/FirePoint"); // Find the spawn position
-                                    GameObject flashMuzzle = Instantiate(muzzleFlash, firePoint.transform.position, Quaternion.identity) as GameObject;
+                                    // Muzzle Flash
+                                    GameObject particle_point = GameObject.Find("Pistol/ironSights/FirePoint"); // Find the spawn position
+                                    GameObject flashMuzzle = Instantiate(muzzleFlash, particle_point.transform.position, Quaternion.identity) as GameObject;
                                     Destroy(flashMuzzle, .5f);
+                                    // Impact Effect
                                     GameObject impactHole = Instantiate(bulletHole, Hit.point, Quaternion.FromToRotation(Vector3.forward, Hit.normal)) as GameObject;
                                     Destroy(impactHole, 5f);
 
+                                    // if we hit any gameObject in the scene
+                                    if (Hit.collider.gameObject)
+                                    {
+                                        // the parent of they object becomes the hit point
+                                        impactHole.gameObject.transform.parent = Hit.transform;
+                                    }
 
                                     // We want to hit the AI Body and Head to take damage (Could be changed later for more damage when hitting head enemyHit.ApplyDamage(damage * 2);)
                                     if (Hit.collider.gameObject.layer == 11 | Hit.collider.gameObject.layer == 14)
                                     {
+                                        GameObject HitMark = Instantiate(hitMarker, Hit.point, Quaternion.FromToRotation(Vector3.forward, Hit.normal)) as GameObject;
+                                        HitMark.transform.parent = Hit.transform;
+                                        Destroy(HitMark, .2f);
                                         if (Hit.collider.name == "Head")
                                         {
                                             enemyHit = Hit.collider.gameObject.GetComponentInParent<AI>();
@@ -1278,6 +1314,17 @@ public class Player_Controller : MonoBehaviour
                                     else
                                         enemyHit = null;
 
+                                    // if we hit the trigger that belongs to the bridge 
+                                    if (Hit.collider.gameObject.layer == 17)
+                                    {
+                                        if (bridge == null)
+                                        {
+                                            bridge = GameObject.Find("Bridge");
+                                        }
+                                        // Play the animation for the bridge to appear
+                                        bridge.GetComponent<Animator>().SetBool("Activate", true);
+                                    }
+
                                     if (CurrentBulletType == BulletType.Explosive)
                                     {
                                         Vector3 explosionPosition = Hit.transform.position;
@@ -1286,13 +1333,13 @@ public class Player_Controller : MonoBehaviour
                                         {
                                             Rigidbody otherObjectPhysics = objectsInRange.GetComponent<Rigidbody>();
                                             if (otherObjectPhysics != null)
-                                                otherObjectPhysics.AddExplosionForce(explosiveForce, explosionPosition, explosionRadius);
+                                                otherObjectPhysics.AddExplosionForce(explosiveForce, explosionPosition, explosionRadius, upforce, ForceMode.Impulse);
                                         }
                                     }
-
-                                    // Removed Later
-                                    Debug.Log("Hit" + Hit.transform.name);
+                                    #region Debugging Shooting
+                                    Debug.Log("Hit" + Hit.transform.name);  // Show on console what we hit
                                     Debug.DrawRay(cam_FirePosition.transform.position, cam_FirePosition.transform.forward * Hit.distance, Color.red);
+                                    #endregion
                                 }
                             }
                         }
