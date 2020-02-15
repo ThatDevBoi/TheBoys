@@ -78,6 +78,7 @@ public class Weapon_Sway : MonoBehaviour
         Vector3 position = transform.localPosition;
         float newY = Mathf.Sin(Time.time * speed);
         transform.localPosition = new Vector3(position.x, newY, position.z) * height;
+        
     }
 
     public void RunningSway()

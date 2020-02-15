@@ -28,7 +28,7 @@ public class LookAt : MonoBehaviour
             {
                 //print("Distance to other: " + distance);
 
-                if (distance < 35f)
+                if (distance < 35f)//IF PLAYER IS CLOSE, JUST ROTATE
                 {
                    // GetComponent<Transform>().rotation = Quaternion.Euler(0, 0, 0);
                     var lookPos = player.transform.position - transform.position;
@@ -46,7 +46,11 @@ public class LookAt : MonoBehaviour
 
                    // transform.LookAt(player.transform.position);
                 }
+            }else
+            {
+                transform.LookAt(player.transform.position);
             }
+                 
         }
     }
 }
