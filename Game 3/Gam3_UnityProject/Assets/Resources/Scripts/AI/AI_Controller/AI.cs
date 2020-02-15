@@ -31,6 +31,8 @@ public class AI : MonoBehaviour
     public float AI_movement_searchingSpeed = 1.5f;
     public float AI_movement_alertSpeed = 2.0f;
     public float AI_Stop_Distance = 7;
+    float speed;
+
     // PRIVATE
     // How fast will the Object Move
     private float AI_movement_Speed;
@@ -73,9 +75,9 @@ public class AI : MonoBehaviour
     [Header("Sound Detection")]
     // PUBLIC
     // Audio Source Running - Attached To Player Gun
-    public AudioSource playerRunning;
+    public AudioSource playerRunning_Audio;
     // Audio Source shooting - Attached To Player
-    public AudioSource playerShooting;
+    public AudioSource playerShooting_Audio;
     // How far can the enemy hear
     public float detectionSoundRaduis = 6;
     // PRIVATE
@@ -115,6 +117,13 @@ public class AI : MonoBehaviour
     public float dormantFOVRadius = 9;
     public float searchingFOVRadius = 11;
     public float alertFOVRadius = 13;
+
+    [Header("Knockback")]
+    public float force = 8;
+    public float knockbackTime = 0.4f;
+    public bool pushback = false;
+    // direction of push back
+    Vector3 direction = Vector3.forward;
 
 
     #region Debugging
@@ -179,13 +188,13 @@ public class AI : MonoBehaviour
 
     // Start is called before the first frame update
     void Start()
-    { 
+    {
         #region Find / Make Components
         // Component Set-Up
         // Find the navmeshagent
         AI_Physics = gameObject.AddComponent<NavMeshAgent>();
         // NavMeshAgent will adopt the spped variable
-        AI_Physics.speed = AI_movement_Speed;
+        AI_Physics.speed = AI_Movement_dormantSpeed;
         // Make a collider
         AI_Collider = gameObject.AddComponent<CapsuleCollider>();
         aiMeshRend = gameObject.GetComponent<MeshRenderer>();
@@ -197,11 +206,11 @@ public class AI : MonoBehaviour
         else
         {
             // This will change later where 1 audio source will be on the Weapon_Holder and will change audio source when player changes weapon (We can find the audio clip via Assets)
-            playerShooting = GameObject.Find("PC/FPS_Cam/Weapon_Holder/Pistol Holder/Pistol").GetComponent<AudioSource>();
+            playerShooting_Audio = GameObject.Find("PC/FPS_Cam/Weapon_Holder/Pistol Holder/Pistol").GetComponent<AudioSource>();
             // Find the component that belongs to player
             playerPosition = GameObject.Find("PC").GetComponent<Transform>();
             // Find the players walking and running Audio Source
-            playerRunning = GameObject.Find("PC").GetComponent<AudioSource>();
+            playerRunning_Audio = GameObject.Find("PC").GetComponent<AudioSource>();
         }
 
         // Find My Head
@@ -266,15 +275,22 @@ public class AI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // Knocback Pushback
+        if(pushback)
+        {
+            // push navmesh back
+            AI_Physics.velocity = -direction * force;
+        }
+
         // this line of code runs when the level manager is setting everything up
-        if(playerPosition == null && playerRunning == null && playerShooting == null)
+        if(playerPosition == null && playerRunning_Audio == null && playerShooting_Audio == null)
         {
             // Find the component that belongs to player
             playerPosition = GameObject.Find("PC").GetComponent<Transform>();
             // Find the players walking and running Audio Source
-            playerRunning = GameObject.Find("PC").GetComponent<AudioSource>();
+            playerRunning_Audio = GameObject.Find("PC").GetComponent<AudioSource>();
             // This will change later where 1 audio source will be on the Weapon_Holder and will change audio source when player changes weapon (We can find the audio clip via Assets)
-            playerShooting = GameObject.Find("PC/FPS_Cam/Weapon_Holder/Pistol Holder/Pistol").GetComponent<AudioSource>();
+            playerShooting_Audio = GameObject.Find("PC/FPS_Cam/Weapon_Holder/Pistol Holder/Pistol").GetComponent<AudioSource>();
         }
 
         // Functions
@@ -289,7 +305,7 @@ public class AI : MonoBehaviour
         else
             AI_Physics.speed = 0;
 
-        if(GameObject.Find("PC").GetComponent<Player_Controller>().playerDead == true)
+        if (GameObject.Find("PC").GetComponent<Player_Controller>().playerDead == true)
         {
             AI_Physics.speed = AI_movement_Speed;
             stoppingDistance = false;
@@ -392,8 +408,6 @@ public class AI : MonoBehaviour
         {
             // Countdown the reset
             howManyHitsReset -= Time.deltaTime;
-            //Debug.Log(howManyHitsReset);
-            //Debug.Log(howmanyHits);
             // if the howmanyHits is less than the required value and the reset has reached 0 or more
             if (howManyHitsReset <= 0)
             {
@@ -421,7 +435,6 @@ public class AI : MonoBehaviour
         // Fire weapon (We can call this wheenever. We use a Switch stateent in the function)
         StartCoroutine("FireWeapon");
         #endregion
-
     }
 
     void enumMonitor()
@@ -435,7 +448,11 @@ public class AI : MonoBehaviour
                 gameObject.transform.GetChild(4).gameObject.SetActive(false);
                 gameObject.transform.GetChild(5).gameObject.SetActive(false);
             }
-            AI_movement_Speed = AI_Movement_dormantSpeed;
+            if(!pushback)
+                AI_movement_Speed = AI_Movement_dormantSpeed;
+            else
+                AI_Physics.SetDestination(direction);
+
             // Find FOV script
             FieldOfView FOVscript = gameObject.GetComponent<FieldOfView>();
             // Change raduis back to normal
@@ -477,7 +494,10 @@ public class AI : MonoBehaviour
             searchMesh.SetActive(true);
             if (states == AI_States.Dormant || states == AI_States.Alert)
                 searchMesh.SetActive(false);
-            AI_movement_Speed = AI_movement_searchingSpeed;
+            if(!pushback)
+                AI_movement_Speed = AI_movement_searchingSpeed;
+            else
+                AI_Physics.SetDestination(direction);
             // Change material for visual feedback
             aiMeshRend.material = searchingMat;
             // find the fov script attached to the gameObject
@@ -509,7 +529,12 @@ public class AI : MonoBehaviour
             searchingGO.SetActive(false);
             GameObject alertMesh = gameObject.transform.GetChild(5).gameObject;
             alertMesh.SetActive(true);
-            AI_movement_Speed = AI_movement_alertSpeed;
+            if(!pushback)
+                AI_movement_Speed = AI_movement_alertSpeed;
+            else
+                AI_Physics.SetDestination(direction);
+
+
             // Change material for visual feedback
             aiMeshRend.material = alertMat;
             // find the script
@@ -554,7 +579,7 @@ public class AI : MonoBehaviour
         if (Vector3.Distance(transform.position, playerPosition.position) < detectionSoundRaduis)
         {
             // If the volume from the audioSources are increased 
-            if (playerRunning.volume > 0.3f || playerShooting.volume > 0.2f)
+            if (playerRunning_Audio.volume > 0.3f || playerShooting_Audio.volume > 0.2f)
             {
                 // Find where the player was
                 playersLastPosition = new Vector3(playerPosition.position.x, transform.position.y, playerPosition.position.z);
@@ -570,8 +595,13 @@ public class AI : MonoBehaviour
         {
             // Look at the Vector
             transform.LookAt(playersLastPosition);
-            // Move with the navmesh
-            AI_Physics.SetDestination(playersLastPosition);
+            if(!pushback)
+            {
+                // Move with the navmesh
+                AI_Physics.SetDestination(playersLastPosition);
+            }
+            else
+                AI_Physics.SetDestination(direction);
             // when the current position of this gameObject is at the noise position
             if (transform.position.x == playersLastPosition.x)
             {
@@ -600,7 +630,7 @@ public class AI : MonoBehaviour
             enumRotation_Changer = new Quaternion(0, 180, 0, 0);
         }
         // spawn text feedback
-        GameObject instanceText = Instantiate(damageText, new Vector3(transform.position.x - 1, transform.position.y + 4, transform.position.z), enumRotation_Changer, transform) as GameObject;
+        GameObject instanceText = Instantiate(damageText, new Vector3(transform.position.x - 1, transform.position.y + 4, transform.position.z), enumRotation_Changer) as GameObject;
         // Set the tag
         instanceText.tag = "AI_UI";
         // print the health
@@ -608,6 +638,7 @@ public class AI : MonoBehaviour
         #endregion
     }
     #endregion
+
 
     #region Shoot Weapon
     public void Shoot()
@@ -651,6 +682,20 @@ public class AI : MonoBehaviour
             }
         }
 
+    }
+    #endregion
+
+    #region Knockback
+    public IEnumerator Knockback()
+    {
+        pushback = true;    // push back happens now
+
+        yield return new WaitForSeconds(knockbackTime);
+
+        pushback = false;
+        AI_Physics.speed = AI_movement_Speed;
+        AI_Physics.angularSpeed = 180;
+        AI_Physics.acceleration = 10;
     }
     #endregion
 
@@ -742,15 +787,23 @@ public class AI : MonoBehaviour
                     patrolArrayScroller = 0;    // reset the scroller int so we can patrol the same manual patrol
                 }
             }
-            // Move to the Vector3 with The NavMeshAgent
-            //AI_Physics.SetDestination(moveDirection);
+            if (!pushback)
+                // Move to the Vector3 with The NavMeshAgent
+                AI_Physics.SetDestination(moveDirection);
+            else
+                AI_Physics.SetDestination(direction);
+
         }
         #endregion
         // Searching for the player
         #region Searching Movement
         if (states == AI_States.Searching)
         {
-            AI_Physics.SetDestination(new_AI_Path);
+            if(!pushback)
+                AI_Physics.SetDestination(new_AI_Path);
+            else
+                AI_Physics.SetDestination(direction);
+
             // if the value between both objects is greater than our search radius we cant go any further
             if (Vector3.Distance(transform.position, playerPosition.position) > searchRadius)    // if the player is outside the search radius turn back
             {
@@ -773,8 +826,12 @@ public class AI : MonoBehaviour
         #region Alert Movement
         if (states == AI_States.Alert)
         {
-            // We only move towards the players position 
-            AI_Physics.SetDestination(playerPosition.position);
+            if(!pushback)
+                // We only move towards the players position 
+                AI_Physics.SetDestination(playerPosition.position);
+            else
+                AI_Physics.SetDestination(direction);
+
             // Stopping Distance
             if (Vector3.Distance(transform.position, playerPosition.position) < AI_Stop_Distance)
             {

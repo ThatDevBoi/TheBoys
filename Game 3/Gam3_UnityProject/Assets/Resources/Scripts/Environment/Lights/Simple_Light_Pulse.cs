@@ -106,9 +106,6 @@ public class Simple_Light_Pulse : MonoBehaviour
     private float maxTimePulseout = 6;
 
 
-
-
-
     #endregion
     // Start is called before the first frame update
     void Start()

@@ -29,7 +29,8 @@ public class Player_Controller : MonoBehaviour
     public bool playerDead=false;
 
     [Header("Health n Damage")]
-    private int maxHealth = 100;
+    [HideInInspector]
+    public int maxHealth = 100;
     public int currentHealth;
     // This array if for the images that are on the Player Healthbar 
     public Image[] sliderArray;
@@ -1171,13 +1172,18 @@ public class Player_Controller : MonoBehaviour
                                             GameObject HitMark = Instantiate(hitMarker, Hit.point, Quaternion.FromToRotation(Vector3.forward, Hit.normal)) as GameObject;
                                             HitMark.transform.parent = Hit.transform;
                                             Destroy(HitMark, .2f);
+
                                             if (Hit.collider.name == "Head")
                                             {
                                                 enemyHit = Hit.collider.gameObject.GetComponentInParent<AI>();
+                                                enemyHit.pushback = true;
+                                                enemyHit.StartCoroutine(enemyHit.Knockback());
                                             }
                                             else
                                             {
                                                 enemyHit = Hit.collider.gameObject.GetComponent<AI>();
+                                                enemyHit.pushback = true;
+                                                enemyHit.StartCoroutine(enemyHit.Knockback());
                                             }
 
                                             if (Hit.collider.gameObject.layer == 14)
@@ -1349,7 +1355,7 @@ public class Player_Controller : MonoBehaviour
                 }
             }
         }
-
+        // Melle attack
         public void Punch()
         {
             // if the player presses the key P then we play the animation and we must be punching
@@ -1371,8 +1377,9 @@ public class Player_Controller : MonoBehaviour
         // Normal Reloading
         IEnumerator Reload()
         {
+            // if we are at max ammo 
             if (currentAmmo >= maxAmmo)
-                yield break;
+                yield break;    // we cant reload
             else
             {
                 audioComponent.clip = reloadSound;
@@ -1380,11 +1387,11 @@ public class Player_Controller : MonoBehaviour
                 isShooting = false;
                 // We are now Reloading 
                 isReloading = true;
-                audioComponent.Play();
-                // Remove later
-                Debug.Log("Reloading. . . .");
                 // Play reload anim
                 gunAnimator.SetBool("isReloading", true);
+                // we need to wait for the sound to kick in so the audio is synced
+                yield return new WaitForSeconds(0.25f);
+                audioComponent.Play();
                 // Wait a few seconds
                 yield return new WaitForSeconds(reloadTime - .25f);
                 // We are no longer animating the gun to reload
