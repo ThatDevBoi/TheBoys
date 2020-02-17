@@ -443,7 +443,7 @@ public class AI : MonoBehaviour
         #region Dormant
         if (states == AI_States.Dormant)
         {
-            if(gameObject.transform.GetChild(4).gameObject.active == true || gameObject.transform.GetChild(5).gameObject.active == true)
+            if(gameObject.transform.GetChild(4).gameObject.activeSelf == true || gameObject.transform.GetChild(5).gameObject.activeSelf == true)
             {
                 gameObject.transform.GetChild(4).gameObject.SetActive(false);
                 gameObject.transform.GetChild(5).gameObject.SetActive(false);
