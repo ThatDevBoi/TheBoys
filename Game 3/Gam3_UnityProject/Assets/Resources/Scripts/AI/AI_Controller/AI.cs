@@ -191,15 +191,20 @@ public class AI : MonoBehaviour
     {
         #region Find / Make Components
         // Component Set-Up
-        // Find the navmeshagent
-        AI_Physics = gameObject.AddComponent<NavMeshAgent>();
+        if (gameObject.GetComponent<NavMeshAgent>() != null)
+            AI_Physics = gameObject.GetComponent<NavMeshAgent>();
+        else
+            // Find the navmeshagent
+            AI_Physics = gameObject.AddComponent<NavMeshAgent>();
         // NavMeshAgent will adopt the spped variable
         AI_Physics.speed = AI_Movement_dormantSpeed;
+
         // Make a collider
-        AI_Collider = gameObject.AddComponent<CapsuleCollider>();
-        aiMeshRend = gameObject.GetComponent<MeshRenderer>();
+        //AI_Collider = gameObject.AddComponent<CapsuleCollider>();
+        AI_Collider = this.gameObject.GetComponent<CapsuleCollider>();
+        //aiMeshRend = gameObject.GetComponent<MeshRenderer>();
         // Finding the Audio Source Attached to the players Gun
-        if(GameObject.Find("PC") == null)
+        if (GameObject.Find("PC") == null)
         {
             Debug.LogWarning("Level Manager Will Find Player and its variables");
         }
@@ -244,7 +249,7 @@ public class AI : MonoBehaviour
         // Health Set-up
         currentHealth = MaxHealth;
         // change start matieral to the dormant material
-        aiMeshRend.material = dormantMat;
+        //aiMeshRend.material = dormantMat;
         // Stop value so console never forgets it / looses it
         stoptime = stoppingTimeLength;
 
@@ -270,20 +275,27 @@ public class AI : MonoBehaviour
         AlertGO_instance.name = "!";
         AlertGO_instance.SetActive(false);
         #endregion
+        AI_Physics.updateUpAxis = false;
     }
 
     // Update is called once per frame
     void Update()
     {
+        AI_Physics.transform.rotation = new Quaternion(-0.7f, 0.0f, 0.0f, 0.7f);
+        AI_Physics.updateRotation = false;
+        Debug.Log(AI_Physics.transform.rotation);
+        gameObject.transform.GetChild(4).gameObject.SetActive(true);
+        //
         // Knocback Pushback
-        if(pushback)
+        if (pushback)
         {
+            AI_Physics.updateUpAxis = false;
             // push navmesh back
             AI_Physics.velocity = -direction * force;
         }
 
         // this line of code runs when the level manager is setting everything up
-        if(playerPosition == null && playerRunning_Audio == null && playerShooting_Audio == null)
+        if (playerPosition == null && playerRunning_Audio == null && playerShooting_Audio == null)
         {
             // Find the component that belongs to player
             playerPosition = GameObject.Find("PC").GetComponent<Transform>();
@@ -353,17 +365,16 @@ public class AI : MonoBehaviour
         #endregion
         #region Debuggng Key Press Logic
         // Pressing R Space Bar And Y all at once shows hidden properties (For QA or testing)
-        if(Input.GetKey(KeyCode.R) && Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.Y))
+        if (Input.GetKey(KeyCode.R) && Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.Y))
         {
             Debugging = true;
         }
         // Pressing D and M at the same time reverts and hides the properites.
-        else if(Input.GetKey(KeyCode.D) && Input.GetKey(KeyCode.M))
+        else if (Input.GetKey(KeyCode.D) && Input.GetKey(KeyCode.M))
         {
             Debugging = false;
         }
         #endregion
-
         #region Death Monitor
         // if the current health is 0 and the headshot bool is false
         if (currentHealth <= 0 && !headShot)
@@ -443,12 +454,12 @@ public class AI : MonoBehaviour
         #region Dormant
         if (states == AI_States.Dormant)
         {
-            if(gameObject.transform.GetChild(4).gameObject.activeSelf == true || gameObject.transform.GetChild(5).gameObject.activeSelf == true)
+            if(gameObject.transform.GetChild(5).gameObject.activeSelf == true || gameObject.transform.GetChild(6).gameObject.activeSelf == true)
             {
-                gameObject.transform.GetChild(4).gameObject.SetActive(false);
                 gameObject.transform.GetChild(5).gameObject.SetActive(false);
+                gameObject.transform.GetChild(6).gameObject.SetActive(false);
             }
-            if(!pushback)
+            if (!pushback)
                 AI_movement_Speed = AI_Movement_dormantSpeed;
             else
                 AI_Physics.SetDestination(direction);
@@ -458,7 +469,7 @@ public class AI : MonoBehaviour
             // Change raduis back to normal
             FOVscript.viewRadius = dormantFOVRadius;
             // Change material
-            aiMeshRend.material = dormantMat;
+            //aiMeshRend.material = dormantMat;
             #region StopDuring Patrol
             if (doesAgentStop)
             {
@@ -490,16 +501,16 @@ public class AI : MonoBehaviour
         {
             gameObject.transform.GetChild(5).gameObject.SetActive(false);
 
-            GameObject searchMesh = gameObject.transform.GetChild(4).gameObject;
+            GameObject searchMesh = gameObject.transform.GetChild(5).gameObject;
             searchMesh.SetActive(true);
             if (states == AI_States.Dormant || states == AI_States.Alert)
                 searchMesh.SetActive(false);
-            if(!pushback)
+            if (!pushback)
                 AI_movement_Speed = AI_movement_searchingSpeed;
             else
                 AI_Physics.SetDestination(direction);
             // Change material for visual feedback
-            aiMeshRend.material = searchingMat;
+            //aiMeshRend.material = searchingMat;
             // find the fov script attached to the gameObject
             FieldOfView FOVscript = gameObject.GetComponent<FieldOfView>();
             // change the radius 
@@ -525,18 +536,18 @@ public class AI : MonoBehaviour
         // if we are alert
         if (states == AI_States.Alert)
         {
-            gameObject.transform.GetChild(4).gameObject.SetActive(false);
+            gameObject.transform.GetChild(5).gameObject.SetActive(false);
             searchingGO.SetActive(false);
-            GameObject alertMesh = gameObject.transform.GetChild(5).gameObject;
+            GameObject alertMesh = gameObject.transform.GetChild(6).gameObject;
             alertMesh.SetActive(true);
-            if(!pushback)
+            if (!pushback)
                 AI_movement_Speed = AI_movement_alertSpeed;
             else
                 AI_Physics.SetDestination(direction);
 
 
             // Change material for visual feedback
-            aiMeshRend.material = alertMat;
+            //aiMeshRend.material = alertMat;
             // find the script
             FieldOfView FOVscript = gameObject.GetComponent<FieldOfView>();
             // change the radius 
@@ -566,14 +577,14 @@ public class AI : MonoBehaviour
     {
         #region Heard Noise
         // If we have not heard a noise
-        if (i_Heard_Something == false)
-        {
-            // Run The relevent code now
-            StartCoroutine(AI_Movement());
-        }
-        // if we have in fact heard a noise
-        else if (i_Heard_Something == true)
-            StopCoroutine(AI_Movement());   // Stop moving we need to move somewhere else now
+        //if (i_Heard_Something == false)
+        //{
+        //    // Run The relevent code now
+        //    StartCoroutine(AI_Movement());
+        //}
+        //// if we have in fact heard a noise
+        //else if (i_Heard_Something == true)
+        //    StopCoroutine(AI_Movement());   // Stop moving we need to move somewhere else now
         // We need to check if the player is in a good distance
         // Without the distance whenever the player fires their gun or runs ALL AI WILL KNOW
         if (Vector3.Distance(transform.position, playerPosition.position) < detectionSoundRaduis)
@@ -595,7 +606,7 @@ public class AI : MonoBehaviour
         {
             // Look at the Vector
             transform.LookAt(playersLastPosition);
-            if(!pushback)
+            if (!pushback)
             {
                 // Move with the navmesh
                 AI_Physics.SetDestination(playersLastPosition);
@@ -787,11 +798,11 @@ public class AI : MonoBehaviour
                     patrolArrayScroller = 0;    // reset the scroller int so we can patrol the same manual patrol
                 }
             }
-            if (!pushback)
-                // Move to the Vector3 with The NavMeshAgent
-                AI_Physics.SetDestination(moveDirection);
-            else
-                AI_Physics.SetDestination(direction);
+            //if (!pushback)
+            //    // Move to the Vector3 with The NavMeshAgent
+            //    AI_Physics.SetDestination(moveDirection);
+            //else
+            //    AI_Physics.SetDestination(direction);
 
         }
         #endregion
@@ -799,10 +810,10 @@ public class AI : MonoBehaviour
         #region Searching Movement
         if (states == AI_States.Searching)
         {
-            if(!pushback)
-                AI_Physics.SetDestination(new_AI_Path);
-            else
-                AI_Physics.SetDestination(direction);
+            //if (!pushback)
+            //    AI_Physics.SetDestination(new_AI_Path);
+            //else
+            //    AI_Physics.SetDestination(direction);
 
             // if the value between both objects is greater than our search radius we cant go any further
             if (Vector3.Distance(transform.position, playerPosition.position) > searchRadius)    // if the player is outside the search radius turn back
@@ -826,11 +837,11 @@ public class AI : MonoBehaviour
         #region Alert Movement
         if (states == AI_States.Alert)
         {
-            if(!pushback)
-                // We only move towards the players position 
-                AI_Physics.SetDestination(playerPosition.position);
-            else
-                AI_Physics.SetDestination(direction);
+            //if(!pushback)
+            //    // We only move towards the players position 
+            //    AI_Physics.SetDestination(playerPosition.position);
+            //else
+            //    AI_Physics.SetDestination(direction);
 
             // Stopping Distance
             if (Vector3.Distance(transform.position, playerPosition.position) < AI_Stop_Distance)
@@ -842,7 +853,7 @@ public class AI : MonoBehaviour
             // Every 5 Seconds
             yield return new WaitForSeconds(5);
             // We look straight at the player
-            transform.LookAt(playerPosition.position);
+            //transform.LookAt(playerPosition.position);
             // We also fire the AI weapon 
             StartCoroutine("FireWeapon");
             
