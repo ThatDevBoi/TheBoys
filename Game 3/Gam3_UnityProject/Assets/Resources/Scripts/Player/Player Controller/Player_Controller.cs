@@ -248,7 +248,6 @@ public class Player_Controller : MonoBehaviour
             playerDead = false;
             respawnCan.enabled = false;
             respawnCan.transform.GetChild(0).gameObject.SetActive(true);
-            Debug.Log(savedPosition);
             // Functions
             FPSMove(speed, dirX, dirZ, movementDirection);
 
@@ -339,7 +338,6 @@ public class Player_Controller : MonoBehaviour
         }
         // move with physics
         playerPhysics.velocity = direction * speed * Time.deltaTime;
-        Debug.Log(Physics.gravity);
         #endregion           
 
 

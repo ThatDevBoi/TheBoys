@@ -159,6 +159,8 @@ public class AI : MonoBehaviour
     // The Sound was detected within this vector
     [Header("$Debugging$ Noise Detection where the player was when they made a sound")]
     [HideAttributes("Debugging", true)]
+    public Quaternion playersLastRotation;
+    [HideAttributes("Debugging", true)]
     public Vector3 playersLastPosition;
     [Header("$Debugging$ How Fast The AI Fires There gun ")]
     [HideAttributes("Debugging", true)]
@@ -166,7 +168,6 @@ public class AI : MonoBehaviour
     [Header("$Debugging$ Boolean to tell the AI that it has stopped and reached the distance between the player and itself where it can stop")]
     [HideAttributes("Debugging", true)]
     public bool stoppingDistance = false;
-
     #region Behaviour Timers
     // Timers which balance the states of play for NPCs
     // This value meets a random generated value which allows for the NPC to look for the player
@@ -275,17 +276,13 @@ public class AI : MonoBehaviour
         AlertGO_instance.name = "!";
         AlertGO_instance.SetActive(false);
         #endregion
-        AI_Physics.updateUpAxis = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        AI_Physics.transform.rotation = new Quaternion(-0.7f, 0.0f, 0.0f, 0.7f);
-        AI_Physics.updateRotation = false;
-        Debug.Log(AI_Physics.transform.rotation);
         gameObject.transform.GetChild(4).gameObject.SetActive(true);
-        //
+
         // Knocback Pushback
         if (pushback)
         {
@@ -577,14 +574,14 @@ public class AI : MonoBehaviour
     {
         #region Heard Noise
         // If we have not heard a noise
-        //if (i_Heard_Something == false)
-        //{
-        //    // Run The relevent code now
-        //    StartCoroutine(AI_Movement());
-        //}
-        //// if we have in fact heard a noise
-        //else if (i_Heard_Something == true)
-        //    StopCoroutine(AI_Movement());   // Stop moving we need to move somewhere else now
+        if (i_Heard_Something == false)
+        {
+            // Run The relevent code now
+            StartCoroutine(AI_Movement());
+        }
+        // if we have in fact heard a noise
+        else if (i_Heard_Something == true)
+            StopCoroutine(AI_Movement());   // Stop moving we need to move somewhere else now
         // We need to check if the player is in a good distance
         // Without the distance whenever the player fires their gun or runs ALL AI WILL KNOW
         if (Vector3.Distance(transform.position, playerPosition.position) < detectionSoundRaduis)
@@ -594,6 +591,8 @@ public class AI : MonoBehaviour
             {
                 // Find where the player was
                 playersLastPosition = new Vector3(playerPosition.position.x, transform.position.y, playerPosition.position.z);
+                // Rotate towards the player data
+                playersLastRotation = Quaternion.LookRotation(new Vector3(playersLastPosition.x, 0, playersLastPosition.z));
                 // tick the boolean
                 i_Heard_Something = true;
                 doesAgentStop = false;
@@ -605,7 +604,7 @@ public class AI : MonoBehaviour
         if (i_Heard_Something)
         {
             // Look at the Vector
-            transform.LookAt(playersLastPosition);
+            transform.rotation = Quaternion.Slerp(transform.rotation, playersLastRotation, Time.deltaTime * 1);
             if (!pushback)
             {
                 // Move with the navmesh
@@ -786,7 +785,7 @@ public class AI : MonoBehaviour
         // Vector3 Storage of direction
         if (states == AI_States.Dormant)
         {
-             // takes into account the Vector3 Array
+            // takes into account the Vector3 Array
             moveDirection = (Patrol[patrolArrayScroller]);
             // if the distance between the AI and movedirection is less than 3
             if (Vector3.Distance(moveDirection, transform.position) < 3)
@@ -798,11 +797,12 @@ public class AI : MonoBehaviour
                     patrolArrayScroller = 0;    // reset the scroller int so we can patrol the same manual patrol
                 }
             }
-            //if (!pushback)
-            //    // Move to the Vector3 with The NavMeshAgent
-            //    AI_Physics.SetDestination(moveDirection);
-            //else
-            //    AI_Physics.SetDestination(direction);
+
+            if (!pushback)
+                // Move to the Vector3 with The NavMeshAgent
+                AI_Physics.SetDestination(moveDirection);
+            else
+                AI_Physics.SetDestination(direction);
 
         }
         #endregion
@@ -810,10 +810,11 @@ public class AI : MonoBehaviour
         #region Searching Movement
         if (states == AI_States.Searching)
         {
-            //if (!pushback)
-            //    AI_Physics.SetDestination(new_AI_Path);
-            //else
-            //    AI_Physics.SetDestination(direction);
+            moveDirection = new_AI_Path;
+            if (!pushback)
+                AI_Physics.SetDestination(moveDirection);
+            else
+                AI_Physics.SetDestination(direction);
 
             // if the value between both objects is greater than our search radius we cant go any further
             if (Vector3.Distance(transform.position, playerPosition.position) > searchRadius)    // if the player is outside the search radius turn back
@@ -837,11 +838,12 @@ public class AI : MonoBehaviour
         #region Alert Movement
         if (states == AI_States.Alert)
         {
-            //if(!pushback)
-            //    // We only move towards the players position 
-            //    AI_Physics.SetDestination(playerPosition.position);
-            //else
-            //    AI_Physics.SetDestination(direction);
+            moveDirection = playerPosition.position;
+            if (!pushback)
+                // We only move towards the players position 
+                AI_Physics.SetDestination(moveDirection);
+            else
+                AI_Physics.SetDestination(direction);
 
             // Stopping Distance
             if (Vector3.Distance(transform.position, playerPosition.position) < AI_Stop_Distance)
@@ -853,10 +855,13 @@ public class AI : MonoBehaviour
             // Every 5 Seconds
             yield return new WaitForSeconds(5);
             // We look straight at the player
+
+            // <<<< ISSUE RIGHT HERE >>>>
             //transform.LookAt(playerPosition.position);
+
             // We also fire the AI weapon 
             StartCoroutine("FireWeapon");
-            
+
         }
         #endregion
         yield break;
