@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEditor;
+using TMPro;
 #if (UNITY_EDITOR) 
 [CustomPropertyDrawer(typeof(HideAttributes))]
 [RequireComponent(typeof(FieldOfView))]
@@ -34,7 +35,7 @@ public class Player_Controller : MonoBehaviour
     public int currentHealth;
     // This array if for the images that are on the Player Healthbar 
     public Image[] sliderArray;
-    public Text healthPercentageText;
+    public TextMeshPro healthPercentageText;
     public Canvas respawnCan;
     public Color[] HealthBar_StageColors;
 
@@ -161,7 +162,7 @@ public class Player_Controller : MonoBehaviour
         // Find UI Component
         DetectWheel = GameObject.Find("HitDetection/DetectionWheel").GetComponent<RectTransform>();
         // Finding Percentage Text
-        healthPercentageText = GameObject.Find("Percentage_Health_Text").GetComponent<Text>();
+        healthPercentageText = GameObject.Find("Percentage_Health_Text").GetComponent<TextMeshPro>();
         if(GameObject.Find("Pause_Canvas") == null)
         {
             return;
@@ -784,8 +785,8 @@ public class Player_Controller : MonoBehaviour
         public Animator punchController;
 
         [Header("UI")]
-        public Text currentAmmoText;
-        public Text backUpAmmoText;
+        public TextMeshPro currentAmmoText;
+        public TextMeshPro backUpAmmoText;
 
         public AI enemyHit;
 
@@ -841,9 +842,9 @@ public class Player_Controller : MonoBehaviour
             else
             {
                 // Find text component for the current ammo variable
-                currentAmmoText = GameObject.Find("Ammo_In_The_Mag_Text").GetComponent<Text>();
+                currentAmmoText = GameObject.Find("Ammo_In_The_Mag_Text").GetComponent<TextMeshPro>();
                 // Find text component for the back up ammo variable
-                backUpAmmoText = GameObject.Find("BackUp_Ammo_Text").GetComponent<Text>();
+                backUpAmmoText = GameObject.Find("BackUp_Ammo_Text").GetComponent<TextMeshPro>();
             }
             // find game manager
             game_manager = GameManager.FindObjectOfType<GameManager>();
@@ -897,9 +898,9 @@ public class Player_Controller : MonoBehaviour
             if (currentAmmoText == null && backUpAmmoText == null)
             {
                 // Find text component for the current ammo variable
-                currentAmmoText = GameObject.Find("Ammo_In_The_Mag_Text").GetComponent<Text>();
+                currentAmmoText = GameObject.Find("Ammo_In_The_Mag_Text").GetComponent<TextMeshPro>();
                 // Find text component for the back up ammo variable
-                backUpAmmoText = GameObject.Find("BackUp_Ammo_Text").GetComponent<Text>();
+                backUpAmmoText = GameObject.Find("BackUp_Ammo_Text").GetComponent<TextMeshPro>();
                 // Set UI For Ammo
                 // Text for current ammo
                 currentAmmoText.text = currentAmmo.ToString();
