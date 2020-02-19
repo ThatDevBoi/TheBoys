@@ -790,6 +790,8 @@ public class Player_Controller : MonoBehaviour
 
         private GameManager game_manager;
 
+        public int acruateShot = 0;
+
         #region Debugging
         [HideInInspector]
         public bool Debugging;
@@ -1064,6 +1066,7 @@ public class Player_Controller : MonoBehaviour
             else
                 isShooting = true;  // Yes we still have bullets 
 
+
             #region Sound Switcher
             if (isReloading && !isShooting && currentAmmo <= 0)
             {
@@ -1078,7 +1081,37 @@ public class Player_Controller : MonoBehaviour
                 audioComponent.clip = shootingSound;
             }
             #endregion
+            // Accuracy
+            if(Input.GetAxis("Fire1") != 0)
+            {
+                acruateShot += 1;
+            }
+            else
+            {
+                acruateShot = 0;
+            }
+
         }
+
+        #region Accuracys
+        Vector3 BulletSpread(Vector3 originVector, int accuracy, bool showDebug = false, Vector3 debugPosition = default(Vector3))
+        {
+            // Set random values for the accuracy
+            float myIntx = (float)Random.Range(-accuracy, accuracy) / 1000;
+            float myInty = (float)Random.Range(-accuracy, accuracy) / 1000;
+            float myIntz = (float)Random.Range(-accuracy, accuracy) / 1000;
+            // New firing vector
+            Vector3 newVector = new Vector3(originVector.x + myIntx, originVector.y + myInty, originVector.z + myIntz);
+
+            if (showDebug)
+            {
+                Debug.DrawRay(debugPosition, originVector * 100f, Color.cyan);
+                Debug.DrawRay(debugPosition, newVector * 100f, Color.red);
+            }
+            return newVector;
+        }
+        #endregion
+
         // player conmtroller script
         Player_Controller PlayerClass;
         public void AimDownSights()
@@ -1140,7 +1173,7 @@ public class Player_Controller : MonoBehaviour
                                                     // Physics Driven
                                 RaycastHit Hit;
                                 // 
-                                if (Physics.Raycast(cam_FirePosition.transform.position, cam_FirePosition.transform.forward, out Hit, gunRange, whatWeCanShoot))
+                                if (Physics.Raycast(cam_FirePosition.transform.position, BulletSpread(cam_FirePosition.transform.forward, acruateShot, true, cam_FirePosition.transform.position), out Hit, gunRange, whatWeCanShoot))
                                 {
                                     if (currentAmmo > 0)
                                     {

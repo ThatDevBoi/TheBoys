@@ -90,7 +90,7 @@ public class Gun_Upgrade : MonoBehaviour
         {
             if (is_This_Explosive_Upgrade)
             {
-                if (need_To_Press_C && nearObject)
+                if (!need_To_Press_C && nearObject)
                 {
                     gameManager.explosiveAmmo = true;
                     Destroy(this.gameObject);
@@ -107,7 +107,7 @@ public class Gun_Upgrade : MonoBehaviour
             }
             else if (is_This_FullAuto_Upgrade)
             {
-                if (need_To_Press_C && nearObject)
+                if (!need_To_Press_C && nearObject)
                 {
                     gameManager.fullAuto = true;
                     Destroy(this.gameObject);
@@ -124,7 +124,7 @@ public class Gun_Upgrade : MonoBehaviour
             }
             else if (is_This_BurstFire_Upgrade)
             {
-                if (need_To_Press_C && nearObject)
+                if (!need_To_Press_C && nearObject)
                 {
                     gameManager.burstFire = true;
                     Destroy(this.gameObject);

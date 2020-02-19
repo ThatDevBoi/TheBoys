@@ -62,8 +62,8 @@ public class AI : MonoBehaviour
     // PRIVATE
     // Value that stores orginal value for editing
     private float stoptime;
-    private int howmanyHits = 0;
-    private float howManyHitsReset = 3f;
+    public int howmanyHits = 0;
+    public float howManyHitsReset = 3f;
     
 
     [Header("Health n Damage")]
@@ -282,14 +282,24 @@ public class AI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        AI_Physics.updateRotation = true;
+        // Find the mesh 
         gameObject.transform.GetChild(4).gameObject.SetActive(true);
 
         // Knocback Pushback
         if (pushback)
         {
-            AI_Physics.updateUpAxis = false;
-            // push navmesh back
-            AI_Physics.velocity = -direction * force;
+            int i = Random.Range(1, 100) - 50;
+            Debug.Log("Pushback Chance" + ":" + i);
+            if (i >= 40)
+            {
+                AI_Physics.updateRotation = false;
+                // push navmesh back
+                AI_Physics.velocity = -direction * force;
+            }
+            else
+                pushback = false;
+
         }
 
         // this line of code runs when the level manager is setting everything up
@@ -399,13 +409,34 @@ public class AI : MonoBehaviour
         }
         #endregion
 
+        #region Behaviour Conditions
         // Fire Rate for gun
         if (FireRateTimer < fireRate)
             FireRateTimer += Time.deltaTime;
-
-        #region Behaviour Conditions
+        // when the hits is 1 we need to search and we need to make sure we are not alert too
+        if (howmanyHits == 1 && states != AI_States.Alert && states != AI_States.Searching)
+        {
+            // We are searching
+            states = AI_States.Searching;
+            Randomizer();
+            howManyHitsReset = 3;
+        }
+        // if we are not searching then we need to make this check
+        else if (states == AI_States.Searching)
+        {
+            // Countdown the reset
+            howManyHitsReset -= Time.deltaTime;
+            // if the howmanyHits is less than the required value and the reset has reached 0 or more
+            if (howManyHitsReset <= 0)
+            {
+                // reset the hit
+                howmanyHits = 0;
+                // reset the cooldown
+                howManyHitsReset = 3;
+            }
+        }
         // Detect how many hits have been received and then change states
-        if (howmanyHits >= 2)
+        if (howmanyHits == 2)
         {
             // change AI state to alert as the AI has been shot more than once
             states = AI_States.Alert;
@@ -426,31 +457,6 @@ public class AI : MonoBehaviour
                 howManyHitsReset = 3;
             }
         }
-        else
-            howmanyHits = 0;
-
-        if (howmanyHits == 1)
-        {
-            states = AI_States.Searching;
-            Randomizer();
-            howManyHitsReset = 3;
-            howmanyHits = 0;
-        }
-        else if (states != AI_States.Searching)
-        {
-            // Countdown the reset
-            howManyHitsReset -= Time.deltaTime;
-            // if the howmanyHits is less than the required value and the reset has reached 0 or more
-            if (howManyHitsReset <= 0)
-            {
-                // reset the hit
-                howmanyHits = 0;
-                // reset the cooldown
-                howManyHitsReset = 3;
-            }
-        }
-        else
-            howmanyHits = 0;
 
         // if we are alert then we never allow the value to increase 
         if (states == AI_States.Alert)
@@ -468,7 +474,7 @@ public class AI : MonoBehaviour
         StartCoroutine("FireWeapon");
         #endregion
     }
-
+    #region Detectors
     void enumMonitor()
     {
         #region Behaviour Change
@@ -605,7 +611,10 @@ public class AI : MonoBehaviour
         }
         // if we have in fact heard a noise
         else if (i_Heard_Something == true)
+        {
+            gameObject.transform.GetChild(5).gameObject.SetActive(true);
             StopCoroutine(AI_Movement());   // Stop moving we need to move somewhere else now
+        }
         // We need to check if the player is in a good distance
         // Without the distance whenever the player fires their gun or runs ALL AI WILL KNOW
         if (Vector3.Distance(transform.position, playerPosition.position) < detectionSoundRaduis)
@@ -646,6 +655,7 @@ public class AI : MonoBehaviour
         }
         #endregion
     }
+    #endregion
 
     #region Damage Function
     public void ApplyDamage(int damage)
@@ -654,17 +664,12 @@ public class AI : MonoBehaviour
         currentHealth -= damage;
         howmanyHits++;
         #region Pop up text spawn
-        Quaternion enumRotation_Changer;
-        if(states == AI_States.Alert)
-        {
-            enumRotation_Changer = new Quaternion(0, -180, 0, 0);
-        }
-        else
-        {
-            enumRotation_Changer = new Quaternion(0, 180, 0, 0);
-        }
+        // rotation to make sure the text GameObject always spawns facing the player 
+        Quaternion enumRotation_Changer = Quaternion.Slerp(transform.rotation, playerPosition.rotation, Time.time);
+
         // spawn text feedback
         GameObject instanceText = Instantiate(damageText, new Vector3(transform.position.x - 1, transform.position.y + 4, transform.position.z), enumRotation_Changer) as GameObject;
+        
         // Set the tag
         instanceText.tag = "AI_UI";
         // print the health
@@ -672,7 +677,6 @@ public class AI : MonoBehaviour
         #endregion
     }
     #endregion
-
 
     #region Shoot Weapon
     public void Shoot()
@@ -876,13 +880,8 @@ public class AI : MonoBehaviour
             }
             else
                 stoppingDistance = false;
-            // Every 5 Seconds
-            yield return new WaitForSeconds(5);
-            // We look straight at the player
-
-            // <<<< ISSUE RIGHT HERE >>>>
-            //transform.LookAt(playerPosition.position);
-
+            // Every 2 Seconds
+            yield return new WaitForSeconds(2);
             // We also fire the AI weapon 
             StartCoroutine("FireWeapon");
 

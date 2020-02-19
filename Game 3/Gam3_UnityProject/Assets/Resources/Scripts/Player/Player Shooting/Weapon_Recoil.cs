@@ -27,12 +27,13 @@ public class Weapon_Recoil : MonoBehaviour
     public Vector3 RecoilKickBack_Aim;
     [Space(10)]
     // current recoil of the gun 
-    Vector3 CurrentRecoil1;
+    [HideInInspector]
+    public Vector3 CurrentRecoil1;
     Vector3 CurrentRecoil2;
     Vector3 CurrentRecoil3;
     Vector3 CurrentRecoil4;
     [Space(10)]
-    Vector3 RotationOutput;
+    public Vector3 RotationOutput;
 
     public bool aim;
     public Shooting_Mechanic playerscript;
