@@ -64,6 +64,7 @@ public class AI : MonoBehaviour
     private float stoptime;
     private int howmanyHits = 0;
     private float howManyHitsReset = 3f;
+    
 
     [Header("Health n Damage")]
     // PUBLIC
@@ -413,6 +414,29 @@ public class AI : MonoBehaviour
             howmanyHits = 0;
         }
         else if (states != AI_States.Alert)
+        {
+            // Countdown the reset
+            howManyHitsReset -= Time.deltaTime;
+            // if the howmanyHits is less than the required value and the reset has reached 0 or more
+            if (howManyHitsReset <= 0)
+            {
+                // reset the hit
+                howmanyHits = 0;
+                // reset the cooldown
+                howManyHitsReset = 3;
+            }
+        }
+        else
+            howmanyHits = 0;
+
+        if (howmanyHits == 1)
+        {
+            states = AI_States.Searching;
+            Randomizer();
+            howManyHitsReset = 3;
+            howmanyHits = 0;
+        }
+        else if (states != AI_States.Searching)
         {
             // Countdown the reset
             howManyHitsReset -= Time.deltaTime;
