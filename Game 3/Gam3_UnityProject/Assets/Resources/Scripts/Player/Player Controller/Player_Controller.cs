@@ -1293,7 +1293,7 @@ public class Player_Controller : MonoBehaviour
                             // Physics Driven
                             RaycastHit Hit;
                             // shoot a ray at the direction we desire and the laymask we can shoot at
-                            if (Physics.Raycast(cam_FirePosition.transform.position, cam_FirePosition.transform.TransformDirection(Vector3.forward), out Hit, gunRange, whatWeCanShoot))
+                            if (Physics.Raycast(cam_FirePosition.transform.position, BulletSpread(cam_FirePosition.transform.forward, acruateShot, true, cam_FirePosition.transform.position), out Hit, gunRange, whatWeCanShoot))
                             {
                                 if (currentAmmo > 0)
                                 {
