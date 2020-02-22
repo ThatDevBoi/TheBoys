@@ -50,7 +50,7 @@ public class Simple_Light_Pulse : MonoBehaviour
     // The Range of the light
     public float StartlightRange = 3;
     // Light Component
-    private Light objectLight;
+    public Light objectLight;
     // Color of the light
     public Color lightColor;
     // Enum for Light Mode
@@ -116,24 +116,33 @@ public class Simple_Light_Pulse : MonoBehaviour
         #region Type Of Light
         if (lightTypes == LightType.SPOT)
         {
-            objectLight.type = UnityEngine.LightType.Spot;
+            var ug = UnityEngine.LightType.Spot;
+            objectLight.type = ug;
             objectLight.spotAngle = spotLightAngle;
         }
 
 
         if (lightTypes == LightType.DIRECTIONAL)
         {
-            objectLight.type = UnityEngine.LightType.Directional;
+            var ug = UnityEngine.LightType.Directional;
+            objectLight.type = ug;
             objectLight.cookieSize = CookieSize;
         }
 
 
         if (lightTypes == LightType.POINT)
-            objectLight.type = UnityEngine.LightType.Point;
+        {
+            var ug = UnityEngine.LightType.Point;
+            objectLight.type = ug;
+        }
 
+
+        /// cannot be edited or found on build 
+        /// 
         //if (lightTypes == LightType.AREA)
         //{
-        //    objectLight.type = UnityEngine.LightType.Area;
+        //    var ug = UnityEngine.LightType.Area;
+        //    objectLight.type = ug;
         //    if (AreaShape == Shape.RECTANGLE)
         //    {
         //        objectLight.type = UnityEngine.LightType.Rectangle;
@@ -145,13 +154,17 @@ public class Simple_Light_Pulse : MonoBehaviour
         //        objectLight.type = UnityEngine.LightType.Disc;
         //        objectLight.areaSize = new Vector2(radius, 0);
         //    }
+        //    else
+        //        return;
 
         //}
 
 
-            #endregion
+        #endregion
         // What mode are we rendering
         #region Mode Lighting
+        /// cannot be edited on build
+        /// 
         //if (LightMode == LightingMode.REALTIME)
         //    objectLight.lightmapBakeType = LightmapBakeType.Realtime;
         //if (LightMode == LightingMode.MIXED)

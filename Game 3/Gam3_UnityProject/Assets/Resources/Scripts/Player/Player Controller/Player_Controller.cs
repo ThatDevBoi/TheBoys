@@ -285,7 +285,7 @@ public class Player_Controller : MonoBehaviour
         // Run Input
         float r = Input.GetAxis("Run");
         // direction we are moving
-        direction = (transform.forward * V + (transform.right * H));
+        direction = (transform.forward * V + (transform.right * H)) * speed * Time.deltaTime;
         // Make the vector to the equal of 1
         direction = direction.normalized * speed;
         if (playerPhysics.velocity.magnitude > 2f && walkingSound.isPlaying == false && running == false)
@@ -337,7 +337,7 @@ public class Player_Controller : MonoBehaviour
             speed = currentSpeed;
         }
         // move with physics
-        playerPhysics.velocity = direction * speed * Time.deltaTime;
+        playerPhysics.velocity = direction;
         #endregion           
 
 
@@ -349,8 +349,8 @@ public class Player_Controller : MonoBehaviour
 
         // Camera Rotation
         // Input for rotation
-        mouseRotX = Input.GetAxis("Mouse X") * sensitivity_x * Time.deltaTime;
-        mouseRotY = Input.GetAxis("Mouse Y") * sensitivity_y * Time.deltaTime;
+        mouseRotX = Input.GetAxis("Mouse X") * cameraRotationRate * Time.deltaTime;
+        mouseRotY = Input.GetAxis("Mouse Y") * cameraRotationRate * Time.deltaTime;
 
         // For clamping (Rotate between these values)
         float minRotX = -60;
@@ -363,7 +363,7 @@ public class Player_Controller : MonoBehaviour
         // Horizontal Rotation up and down
         playersEyes.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
         // Vertical Rotation left and right
-        transform.Rotate(0, cameraRotationRate * Time.deltaTime * mouseRotX, 0);
+        transform.Rotate(Vector3.up * mouseRotX);
         #endregion
     }
     #endregion
