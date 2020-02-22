@@ -17,11 +17,12 @@ public class Font_Manager : MonoBehaviour
     #endregion
     [Space(10)]
     [Header("Text Mesh Pro Text")]
-    #region Font Chnage (Text Mesh Pro)
+    #region Font Change (Text Mesh Pro)
     public TMP_Text[] allTMPTextComp;
     public TMP_FontAsset[] TMP_Fonts;
     private TMP_FontAsset currentTMPFont;
     int TMP_FontTraccker = 0;
+    private static Font_Manager managerIstance;
     #endregion
 
     // Start is called before the first frame update
@@ -33,6 +34,12 @@ public class Font_Manager : MonoBehaviour
         //currentFont = fonts[0];
         currentTMPFont = TMP_Fonts[0];
         // Carry it through scenes
+        if (managerIstance==null)
+        {
+            managerIstance = this;
+           
+        }
+        else Destroy(this.gameObject);
         DontDestroyOnLoad(this.gameObject);
     }
 

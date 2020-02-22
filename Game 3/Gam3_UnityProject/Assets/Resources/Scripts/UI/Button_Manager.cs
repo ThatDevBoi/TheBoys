@@ -6,6 +6,9 @@ public class Button_Manager : MonoBehaviour
     public Camera mainCamera;
     public bool helpNeeded = false;
     public GameObject player;
+    public GameObject mainPanel;
+    public GameObject optionsPanel;
+    public GameObject pausePanel;
 
     // Camera Rotation
     public Vector3 startPositionCam;
@@ -19,12 +22,12 @@ public class Button_Manager : MonoBehaviour
         mainCamera = Camera.main;
 
         startPositionCam = mainCamera.transform.position;
-
+        helpNeeded = false;
         #region Name Check
         if (this.gameObject.name == "Pause_Canvas")
             gameObject.name = "Pause_Canvas";
 
-
+        
 
         #endregion
     }
@@ -40,12 +43,14 @@ public class Button_Manager : MonoBehaviour
         {
             Go_To_Main_Menu();
         }
+        
 
     }
     // starts the game
     public void StartGame(string levelname)
     {
         SceneManager.LoadScene(levelname);
+        
     }
     [HideInInspector]
     public Player_Controller playerLogic;
@@ -66,7 +71,9 @@ public class Button_Manager : MonoBehaviour
     {
         helpNeeded = true;
         // Rotate Camera
-        mainCamera.transform.position = Vector3.RotateTowards(mainCamera.transform.position, Help_cameraPosition.position, 10, rotSpeed);
+        if (this.gameObject.name == "MainMenu")
+        {
+            mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, Help_cameraPosition.position, Time.deltaTime);
         //if (SceneManager.sceneCount != 0)
         //{
         //    return;
@@ -75,13 +82,20 @@ public class Button_Manager : MonoBehaviour
         //{
 
         //}
+        
+            mainPanel.SetActive(false);
+            optionsPanel.SetActive(true);
+        }
+
     }
 
     public void Go_To_Main_Menu()
     {
         helpNeeded = false;
         // rotate camera to new position
-        mainCamera.transform.position = Vector3.RotateTowards(mainCamera.transform.position, mainMenu_Pos.position, 10, rotSpeed);
+        if (this.gameObject.name == "MainMenu")
+        {
+            mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, mainMenu_Pos.position, Time.deltaTime);
         //// if the scene is not the main menu scene
         //if (SceneManager.sceneCount != 0)
         //{
@@ -92,6 +106,10 @@ public class Button_Manager : MonoBehaviour
         //{
 
         //}
+       
+            mainPanel.SetActive(true);
+            optionsPanel.SetActive(false);
+        }
     }
 
     public void resumeGame()
@@ -99,11 +117,17 @@ public class Button_Manager : MonoBehaviour
         Time.timeScale = 1;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        if (this.gameObject.name == "Pause_Canvas")
+        {
+            this.gameObject.SetActive(false);
+        }
     }
 
     public void QuitGame()
     {
         Application.Quit();
     }
+
+   
 
 }
