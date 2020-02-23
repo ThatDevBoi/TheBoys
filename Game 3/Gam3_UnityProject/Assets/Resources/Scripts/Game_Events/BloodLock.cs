@@ -20,9 +20,9 @@ public class BloodLock : MonoBehaviour
     void Start()
     {
         // if we want to activate this when we remove everything in the bloodlock
-        if (activate)
+        if (activate&&!array_or_single)
             single_target.SetActive(false);  // this turns on later so it needs to be off
-        else
+        else if(!activate && !array_or_single)
             single_target.SetActive(true);   // if not true then this needs to be on as it reverts the behaviour
 
         arrayAmount = array_targets.Length;
@@ -84,6 +84,7 @@ public class BloodLock : MonoBehaviour
             {
                 foreach (GameObject goActive in array_targets)
                 {
+                    
                     goActive.SetActive(false);
                 }
             }
