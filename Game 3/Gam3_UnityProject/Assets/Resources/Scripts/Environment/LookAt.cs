@@ -6,6 +6,7 @@ public class LookAt : MonoBehaviour
 {
     private GameObject player;
     public bool chargingPort=true;
+    public float activationDistance=35;
     // Start is called before the first frame update
     void Start()
     {
@@ -28,7 +29,7 @@ public class LookAt : MonoBehaviour
             {
                 //print("Distance to other: " + distance);
 
-                if (distance < 35f)//IF PLAYER IS CLOSE, JUST ROTATE
+                if (distance < activationDistance)//IF PLAYER IS CLOSE, JUST ROTATE dont bend
                 {
                    // GetComponent<Transform>().rotation = Quaternion.Euler(0, 0, 0);
                     var lookPos = player.transform.position - transform.position;
