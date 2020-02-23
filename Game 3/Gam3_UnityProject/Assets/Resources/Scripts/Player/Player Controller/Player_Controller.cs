@@ -736,7 +736,7 @@ public class Player_Controller : MonoBehaviour
 
 
         [SerializeField]
-        private AudioSource audioComponent;
+        private AudioSource audioComponent, npc_audioSource;
         [SerializeField]
         private AudioClip shootingSound;
         [SerializeField]
@@ -1204,18 +1204,23 @@ public class Player_Controller : MonoBehaviour
                                             GameObject HitMark = Instantiate(hitMarker, Hit.point, Quaternion.FromToRotation(Vector3.forward, Hit.normal)) as GameObject;
                                             HitMark.transform.parent = Hit.transform;
                                             Destroy(HitMark, .2f);
+                                            // Find the ai audio source we hit
+                                            npc_audioSource = Hit.collider.gameObject.GetComponent<AudioSource>();
 
                                             if (Hit.collider.name == "Head")
                                             {
+                                                npc_audioSource = null;
                                                 enemyHit = Hit.collider.gameObject.GetComponentInParent<AI>();
                                                 enemyHit.pushback = true;
                                                 enemyHit.StartCoroutine(enemyHit.Knockback());
                                             }
                                             else
                                             {
+                                                npc_audioSource.Play();
                                                 enemyHit = Hit.collider.gameObject.GetComponent<AI>();
                                                 enemyHit.pushback = true;
                                                 enemyHit.StartCoroutine(enemyHit.Knockback());
+                                                //npc_audioSource = null;
                                             }
 
                                             if (Hit.collider.gameObject.layer == 14)

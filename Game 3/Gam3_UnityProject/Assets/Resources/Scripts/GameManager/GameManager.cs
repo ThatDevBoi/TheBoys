@@ -67,6 +67,9 @@ public class GameManager : MonoBehaviour
     // Find GameObjects in assets
     void InitiatGame()
     {
+        // find all the walls
+        FindObjectsWithLayer(16);
+
         #region Player Set Up
         /// Find the Player
         if (GameObject.Find("PC") == null)
@@ -76,7 +79,7 @@ public class GameManager : MonoBehaviour
             // start position
             Vector3 spawnPos = new Vector3(-19.3f, -2.35f, 95);
             // spawn player at start pos
-            PC = Instantiate(Player_Character, spawnPos, Player_Character.transform.rotation)as GameObject;
+            PC = Instantiate(Player_Character, spawnPos, Player_Character.transform.rotation) as GameObject;
             // name the PC
             PC.name = "PC";
             // set the layer
@@ -89,7 +92,7 @@ public class GameManager : MonoBehaviour
         }
         #endregion
         #region Find Player Camera
-        if(PC == null)
+        if (PC == null)
         {
             // Find the player camera
             Transform playercam_Transform;
@@ -108,7 +111,7 @@ public class GameManager : MonoBehaviour
             playerCamera = playerCam.GetComponent<Camera>();
             playerCamera.tag = "MainCamera";
         }
-        
+
         #endregion
         #region Pause and Restart Set Up
         if (GameObject.Find("Pause_Canvas") == null)
@@ -203,10 +206,6 @@ public class GameManager : MonoBehaviour
         {
             obsticles.layer = 12;
         }
-        // find all the walls
-        FindObjectsWithLayer(16);
-
-
     }
 
     // Update is called once per frame
@@ -215,7 +214,7 @@ public class GameManager : MonoBehaviour
         GetClosestWall(wall_tranArray);
         if (nearestWall == null)
             Debug.Log("wall not found");
-        if(Vector3.Distance(nearestWall.position, PC.transform.position) < 4)
+        if (Vector3.Distance(nearestWall.position, PC.transform.position) < 4)
         {
             // make the player hold their gun upward
             Debug.Log("Yield Back Gun");
@@ -251,11 +250,12 @@ public class GameManager : MonoBehaviour
         }
 
         // find all the current objects of text damage
-        foreach(GameObject go in textMesh_AI_UI)
+        foreach (GameObject go in textMesh_AI_UI)
         {
             Destroy(go, 2);
         }
     }
+
     /// <summary>
     /// Finds all objects of a certain layer type
     /// </summary>
@@ -264,7 +264,7 @@ public class GameManager : MonoBehaviour
     GameObject[] FindObjectsWithLayer(int layer)
     {
         wall_goArray = FindObjectsOfType(typeof(GameObject)) as GameObject[];
-        for(int i = 0; i < wall_goArray.Length; i++)
+        for (int i = 0; i < wall_goArray.Length; i++)
         {
             if (wall_goArray[i].layer == layer)
             {
@@ -272,7 +272,7 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        if(goList.Count == 0)
+        if (goList.Count == 0)
         {
             return null;
         }
@@ -288,10 +288,10 @@ public class GameManager : MonoBehaviour
         nearestWall = null;
         float mindist = Mathf.Infinity;
         Vector3 currentPosition = PC.transform.position;
-        foreach(Transform t in walls)
+        foreach (Transform t in walls)
         {
             float dist = Vector3.Distance(t.position, currentPosition);
-            if(dist < mindist)
+            if (dist < mindist)
             {
                 nearestWall = t;
                 mindist = dist;

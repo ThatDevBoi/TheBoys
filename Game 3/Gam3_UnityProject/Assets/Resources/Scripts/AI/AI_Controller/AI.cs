@@ -474,6 +474,7 @@ public class AI : MonoBehaviour
         StartCoroutine("FireWeapon");
         #endregion
     }
+
     #region Detectors
     void enumMonitor()
     {
