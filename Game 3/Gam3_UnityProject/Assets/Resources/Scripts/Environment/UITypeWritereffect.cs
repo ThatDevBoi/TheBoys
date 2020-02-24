@@ -7,6 +7,7 @@ using TMPro;
 public class UITypeWritereffect : MonoBehaviour
 {
     public TextMeshPro text;
+    public GameObject logUI;
     public bool playOnAwake = true;
     public float delayToStart;
     public float delayBetweenChars = 0.125f;
@@ -20,6 +21,7 @@ public class UITypeWritereffect : MonoBehaviour
     private bool lastCharPunctuation = false;
     private char charComma;
     private char charPeriod;
+    
 
     void Awake()
     {
@@ -31,6 +33,10 @@ public class UITypeWritereffect : MonoBehaviour
         charComma = Convert.ToChar(44);
         charPeriod = Convert.ToChar(46);
         player = GameObject.Find("PC");
+        logUI = GameObject.Find("Log");
+        if (logUI == null)
+            print("tex not found");
+        else Debug.Log(logUI.name);
         if (playOnAwake)
         {            
             ChangeText(text.text, delayToStart);
@@ -40,6 +46,7 @@ public class UITypeWritereffect : MonoBehaviour
         
     }
 
+   
     //Update text and start typewriter effect
     public void ChangeText(string textContent, float delayBetweenChars = 0f)
     {
@@ -59,10 +66,12 @@ public class UITypeWritereffect : MonoBehaviour
 
     public IEnumerator PlayText()
     {
+        logUI.GetComponent<LogSystem>().newContent=true;
         
 
         foreach (char c in story)
         {
+            talking = true;
             delayBetweenChars = originDelayBetweenChars;
 
             if (lastCharPunctuation)  //If previous character was a comma/period, pause typing
@@ -80,6 +89,7 @@ public class UITypeWritereffect : MonoBehaviour
            
             yield return new WaitForSeconds(delayBetweenChars);
         }
-        player.GetComponent<Player_Controller>().speed = 20;
+        talking = false;
+        player.GetComponent<Player_Controller>().speed = player.GetComponent<Player_Controller>().currentSpeed;
     }
 }
