@@ -43,7 +43,8 @@ public class Trigger_Dialogue : MonoBehaviour
     // bool which allows timer to start ticking "keyTimer"
     bool keypressed = false;
     string startSring= "Press C";
-
+    public bool StoryEvent = false;
+    bool DoOnce = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -54,9 +55,9 @@ public class Trigger_Dialogue : MonoBehaviour
         #endregion
 
         #region Build Collider
-        BoxCollider box = gameObject.AddComponent<BoxCollider>();
-        box.isTrigger = true;
-        box.size = boxCollider_Size;
+        //BoxCollider box = gameObject.AddComponent<BoxCollider>();
+        //box.isTrigger = true;
+        //box.size = boxCollider_Size;
         #endregion
     }
 
@@ -80,6 +81,8 @@ public class Trigger_Dialogue : MonoBehaviour
                 keypressed = false;
             }
         }
+    
+        
         #region Conversation Logic
         // if the conversation is over
         if (conversationScroller >= objectConversation.Length)
@@ -108,9 +111,8 @@ public class Trigger_Dialogue : MonoBehaviour
              
             }
             // when boolean is true 
-            if (isTalking)
+            if (isTalking && !StoryEvent)
             {
-                
                 if (!keypressed)
                 {
                     startSring = "";
@@ -128,7 +130,7 @@ public class Trigger_Dialogue : MonoBehaviour
                             // increase array scroller by 1
                             conversationScroller++;
                             // call function to type write
-                            typeWriterScript.ChangeText(Conversation, 0);
+                            typeWriterScript.ChangeText(Conversation, 0.5f);
                             player.GetComponent<Player_Controller>().speed = 0;
                         }
                     }
@@ -145,6 +147,9 @@ public class Trigger_Dialogue : MonoBehaviour
             }
         }
         #endregion
+
+        
+
     }
     #region Multiple Object Controller
     // Because we are using multiple objects We need a boolean to address which object we are at
@@ -155,6 +160,14 @@ public class Trigger_Dialogue : MonoBehaviour
             GameObject.Find("PlayerUIController/Panel").GetComponent<Panel_Fade>().dialouge = true;//this will tell the fade script to be deactivated DM
 
            playerApprrachedMe = true;
+            // When story event is true (On Trigger Allows code to run 1 time)
+            if (StoryEvent)
+            {
+                startSring = "";    // Make sure the start string is nothing
+                Conversation = objectConversation[conversationScroller];    // Set up what the conversation involves
+                typeWriterScript.ChangeText(Conversation, 2);   // Run The Conversation at hand 
+                player.GetComponent<Player_Controller>().speed = 0; // Turn off the players current speed so players are influenced to read text
+            }
         }
     }
     // We end the conversation with the object

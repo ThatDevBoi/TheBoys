@@ -90,6 +90,7 @@ public class UITypeWritereffect : MonoBehaviour
             yield return new WaitForSeconds(delayBetweenChars);
         }
         talking = false;
+        
         player.GetComponent<Player_Controller>().speed = player.GetComponent<Player_Controller>().currentSpeed;
     }
 }
