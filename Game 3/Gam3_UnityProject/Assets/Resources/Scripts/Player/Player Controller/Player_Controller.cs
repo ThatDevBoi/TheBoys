@@ -856,7 +856,7 @@ public class Player_Controller : MonoBehaviour
 
             // Pistol color change revolver barrel
             defaultBulletMat = Resources.Load<Material>("Player/Gun/Materials/Pistol/DefaultBulletMat");
-            explosiveBulletMat = Resources.Load<Material>("Player/Gun/Materials/Pistol/ExplosiveBulletMat");
+            explosiveBulletMat = Resources.Load<Material>("Shader/Materials/Shader Graphs_GridShader");
             hitMarker = Resources.Load<GameObject>("Player/Gun/Prefabs/Hitmarker");
 
             // Find sounds
