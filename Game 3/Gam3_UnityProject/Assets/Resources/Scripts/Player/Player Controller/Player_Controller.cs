@@ -227,14 +227,14 @@ public class Player_Controller : MonoBehaviour
 
         if (Input.GetKey(pauseGamekey))
         {
+            // Pause the entire scene
+            Time.timeScale = 0;
             // turn on the canvas
             pauseCan.SetActive(true);
             // unlock the cursor
             Cursor.lockState = CursorLockMode.None;
             // make the cursor visable
             Cursor.visible = true;
-            // Pause the entire scene
-            Time.timeScale = 0;
         }
 
         // if the player has died   currentHealth >= 0
@@ -433,7 +433,7 @@ public class Player_Controller : MonoBehaviour
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
-        else
+        else if(pauseCan.activeSelf == false && currentHealth >= 0)
         {
             playerDead = false;
             respawnCan.enabled = false;
@@ -856,7 +856,7 @@ public class Player_Controller : MonoBehaviour
 
             // Pistol color change revolver barrel
             defaultBulletMat = Resources.Load<Material>("Player/Gun/Materials/Pistol/DefaultBulletMat");
-            explosiveBulletMat = Resources.Load<Material>("Shader/Materials/Shader Graphs_GridShader");
+            explosiveBulletMat = Resources.Load<Material>("Player/Gun/Materials/Pistol/ExplosiveBulletMat");
             hitMarker = Resources.Load<GameObject>("Player/Gun/Prefabs/Hitmarker");
 
             // Find sounds
@@ -1220,7 +1220,6 @@ public class Player_Controller : MonoBehaviour
                                                 enemyHit = Hit.collider.gameObject.GetComponent<AI>();
                                                 enemyHit.pushback = true;
                                                 enemyHit.StartCoroutine(enemyHit.Knockback());
-                                                //npc_audioSource = null;
                                             }
 
                                             if (Hit.collider.gameObject.layer == 14)
@@ -1235,8 +1234,16 @@ public class Player_Controller : MonoBehaviour
                                             // Hurt the AI we hit
                                             if (enemyHit != null)
                                             {
-                                                impactHole.transform.parent = Hit.transform;
-                                                enemyHit.ApplyDamage(damage);
+                                                if(Hit.collider.name == "Head")
+                                                {
+                                                    impactHole.transform.parent = Hit.transform;
+                                                    enemyHit.ApplyDamage(damage * 2);
+                                                }
+                                                else
+                                                {
+                                                    impactHole.transform.parent = Hit.transform;
+                                                    enemyHit.ApplyDamage(damage);
+                                                }
                                             }
                                         }
                                         else
@@ -1350,8 +1357,16 @@ public class Player_Controller : MonoBehaviour
                                         // Hurt the AI we hit
                                         if (enemyHit != null)
                                         {
-                                            impactHole.transform.parent = Hit.transform;
-                                            enemyHit.ApplyDamage(damage);
+                                            if (Hit.collider.name == "Head")
+                                            {
+                                                impactHole.transform.parent = Hit.transform;
+                                                enemyHit.ApplyDamage(damage * 2);
+                                            }
+                                            else
+                                            {
+                                                impactHole.transform.parent = Hit.transform;
+                                                enemyHit.ApplyDamage(damage);
+                                            }
                                         }
                                     }
                                     else
