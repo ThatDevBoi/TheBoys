@@ -56,7 +56,6 @@ public class Button_Manager : MonoBehaviour
     public Player_Controller playerLogic;
     public void Respawn()
     {
-        //Time.timeScale = 1;
         #region Set up player values again
         GameObject.Find("PC").GetComponent<Player_Controller>().currentHealth = 100;
         GameObject.Find("PC").GetComponent<Player_Controller>().playerDead = false;
@@ -73,18 +72,15 @@ public class Button_Manager : MonoBehaviour
         // Rotate Camera
         if (this.gameObject.name == "MainMenu")
         {
-            mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, Help_cameraPosition.position, Time.deltaTime);
-        //if (SceneManager.sceneCount != 0)
-        //{
-        //    return;
-        //}
-        //else
-        //{
+            if (SceneManager.GetSceneByName("StartMenu") != null)
+            {
+                mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, Help_cameraPosition.position, Time.deltaTime);
 
-        //}
-        
-            mainPanel.SetActive(false);
-            optionsPanel.SetActive(true);
+                mainPanel.SetActive(false);
+                optionsPanel.SetActive(true);
+            }
+            else
+                return;
         }
 
     }
@@ -125,7 +121,11 @@ public class Button_Manager : MonoBehaviour
 
     public void QuitGame()
     {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
         Application.Quit();
+#endif
     }
 
    
