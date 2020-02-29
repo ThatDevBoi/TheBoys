@@ -211,6 +211,11 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // call this to balance the games frames
+        balanceGame();
+        // find the texts
+        timercooldown -= Time.deltaTime;
+
         GetClosestWall(wall_tranArray);
         if (nearestWall == null)
             Debug.Log("wall not found");
@@ -226,32 +231,27 @@ public class GameManager : MonoBehaviour
             Debug.Log("Normal Gun Hold");
             gunOverride = false;
         }
-        // call this to balance the games frames
-        balanceGame();
     }
 
 
     void balanceGame()
     {
-        // find the texts
-        timercooldown -= Time.deltaTime;
+        // if value is 0 or more
         if (timercooldown <= 0)
         {
-            if (GameObject.FindGameObjectsWithTag("AI_UI") == null)
+            // if there is an object with the relevent tag in the scene
+            if (GameObject.FindGameObjectWithTag("AI_UI") != null)
             {
-                timercooldown = 1;
-                return;
-            }
-            else
-            {
+                // add to array
                 textMesh_AI_UI = GameObject.FindGameObjectsWithTag("AI_UI");
-                timercooldown = 1;
+                timercooldown = 1;  // reset timer
             }
         }
 
         // find all the current objects of text damage
         foreach (GameObject go in textMesh_AI_UI)
         {
+            // destroy text object
             Destroy(go, 2);
         }
     }

@@ -14,6 +14,7 @@ public class UI_Manager : MonoBehaviour
         // The Drop Down Menu that handles the fonts
         public TMP_Dropdown fontMenu;
         Canvas Options_Can; // The Canvas that holds the font Menu
+        Slider SensertivitySlider;  // Slider that controls the player mouse rotation
         #endregion
         #region Font change (Normal Text)
         [Header("Normal Unity Text")]
@@ -46,6 +47,11 @@ public class UI_Manager : MonoBehaviour
         private AudioMixer currentMixer;    // the current Mixer we have selected from the drop down menu
         private TMP_Dropdown typeOfMixer;   // The dropdown menu for the mixers 
         int mixertype;  // what drop down value we have selected
+    #endregion
+
+        #region Player Alteration Through UI
+        Player_Controller playerScript;
+        public static float playersSensertivity;
         #endregion
 
     #endregion
@@ -53,12 +59,15 @@ public class UI_Manager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        #region Find Components
         // Find the Canvas
         Options_Can = GameObject.Find("Options_Canvas").GetComponent<Canvas>();
         Options_Can.enabled = false;    // Make sure the Canvas Component is off
         fontMenu = Options_Can.transform.GetChild(2).GetComponent<TMP_Dropdown>();  // Find the Drop Down Menu
         typeOfMixer = Options_Can.transform.GetChild(4).GetComponent<TMP_Dropdown>(); // Changes the mixer we edit
         volumeChange = Options_Can.transform.GetChild(3).GetComponent<Slider>();    // Find the slider in the canvas 
+        SensertivitySlider = Options_Can.transform.GetChild(5).GetComponent<Slider>();  // Slider for the change in player rotation
+        #endregion
         currentTMPFont = TMP_Fonts[0];  // Current Font is the first font in the array
         // Find all the text
         //allTextComp = FindObjectsOfType<Text>();
@@ -71,6 +80,7 @@ public class UI_Manager : MonoBehaviour
         Mixers[0].SetFloat("Volume", volumeChange.value);   // Change start value of this mixer in the array
         Mixers[1] = Resources.Load<AudioMixer>("Audio/Master Mixers/Environment/Environment_Master");
         #endregion
+        #region Singleton
         // Carry it through scenes
         if (managerIstance == null) // if we dont have the first instace of the Font Manager
         {
@@ -79,6 +89,7 @@ public class UI_Manager : MonoBehaviour
         }
         else if (managerIstance != this)    // if we have the font manager
             Destroy(gameObject);    // Destroy any other Font Manager but the very first one
+        #endregion
     }
 
     // Update is called once per frame
@@ -86,6 +97,10 @@ public class UI_Manager : MonoBehaviour
     {
         // Functions 
         TextMonitor();          // Change each TMP font 
+        if(playerScript != null)
+        {
+            ChangePlayerSettings();
+        }
         // Find all the text
         //allTextComp = FindObjectsOfType<Text>();
         allTMPTextComp = FindObjectsOfType<TMP_Text>();
@@ -101,6 +116,7 @@ public class UI_Manager : MonoBehaviour
         // If we are in the main level
         if (SceneManager.GetSceneByBuildIndex(1).buildIndex == 1)
         {
+            playerScript = GameObject.Find("PC").GetComponent<Player_Controller>(); // find player script
             changeScene = 1;    // increase a value so we can gather data if we go back to the main menu
         }
         else if (SceneManager.GetSceneByName("MainMenu") != null)   // if we are in the mian menu
@@ -118,6 +134,10 @@ public class UI_Manager : MonoBehaviour
                 changeScene = 0;    // reset
             }
         }
+        #endregion
+        #region Player Changes
+        playersSensertivity = SensertivitySlider.value;
+        Debug.Log(playersSensertivity);
         #endregion
     }
     #endregion
@@ -178,6 +198,12 @@ public class UI_Manager : MonoBehaviour
     {
         // Alter Audio for Player or NPC 
         volumeChange.onValueChanged.AddListener(BalanceAudio);
+    }
+
+    void ChangePlayerSettings()
+    {
+        // player rotation changes with slider value
+        playerScript.cameraRotationRate = playersSensertivity;
     }
     #endregion
 }

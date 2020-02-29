@@ -13,35 +13,31 @@ public class Player_Controller : MonoBehaviour
     #region Variablles
     [Header("Movement")]
     // PUBLIC
-    public float runSpeed = 30;
+    public float runSpeed = 30; // Speed we can run at
     // are we holding shift
-    public bool running = false;
-    public float dragRB = 5;
-    public float gravityModifier = 120f;
-    public float currentSpeed = 20;
-    public float cameraRotationRate = 45;   // Rate we rotate at
-    public AudioSource walkingSound;
-    public LayerMask slopCheck;
-    private float runTime = 1;
-    public float sensitivity_x;
-    public float sensitivity_y;
-
-    public static Vector3 savedPosition;
-    public bool playerDead=false;
-
+    public bool running = false;    // if we are running
+    public float dragRB = 5;    // the drag of the rigidbody
+    public float gravityModifier = 120f;    // the gravity we are pushed down at
+    public float currentSpeed = 20;     // Current walking speed 
+    [Range(45, 90)]
+    public float cameraRotationRate;    // Camera rotation rate
+    public AudioSource walkingSound;    // Sound in which is made when the player walks around. This is the Audio source for that
+    private float runTime = 1;  // The time that declines of how long the player has been running
+    public static Vector3 savedPosition;    // Player respawn points
+    public bool playerDead=false;   // is the player dead currentHealth >= 0
     [Header("Health n Damage")]
     [HideInInspector]
-    public int maxHealth = 100;
-    public int currentHealth;
+    public int maxHealth = 100;     // The max health the player is clamped at 
+    public int currentHealth;   // the current health the player has 
     // This array if for the images that are on the Player Healthbar 
     public Image[] sliderArray;
-    public TextMeshPro healthPercentageText;
-    public Canvas respawnCan;
-    public Color[] HealthBar_StageColors;
+    public TextMeshPro healthPercentageText;    // Health text that is shown from the currentHealth
+    public Canvas respawnCan;   // The Canvas that appears when the player dies 
+    [LabelArray(new string[] { "High Health", "Medium Health", "Low Health"})]
+    public Color[] HealthBar_StageColors;   // The array of colors that gets called when the healthbar is altered (Taking damage)
 
     [Header("Health Bar")]
     public Slider healthBar;
-
     [Header("Steps")]
     // The max height of the step that player can step up on
     public float maxStepHeight = 0.4f;
@@ -51,7 +47,6 @@ public class Player_Controller : MonoBehaviour
     private List<ContactPoint> allCPs = new List<ContactPoint>();
     // The Velocity of the last step
     public Vector3 lastVelocity;
-
     [Header("Events")]
     public KeyCode pauseGamekey;
 
@@ -104,7 +99,6 @@ public class Player_Controller : MonoBehaviour
     Shooting_Mechanic gunScript;
 
     #endregion
-
     #endregion
 
     #region Start & Update
@@ -116,9 +110,6 @@ public class Player_Controller : MonoBehaviour
             Debug.LogWarning("The PC needs to be named -PC- try not to change it");
             gameObject.name = "PC";
         }
-
-        sensitivity_x = 20;
-        sensitivity_y = 20;
 
         // when the player spawns it saves that spawn position as a saved place when death occurs
         savedPosition = gameObject.transform.position;
