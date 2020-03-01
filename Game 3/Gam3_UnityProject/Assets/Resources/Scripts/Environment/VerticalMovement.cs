@@ -28,7 +28,7 @@ public class VerticalMovement : MonoBehaviour
         if (peak)
         {
         transform.position = Vector3.MoveTowards(transform.position, startPosition, Time.deltaTime* speed);
-            Debug.Log(startPosition);
+            //Debug.Log(startPosition);
             
         }
 

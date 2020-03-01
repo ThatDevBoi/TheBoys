@@ -24,7 +24,7 @@ public class Player_Controller : MonoBehaviour
     public AudioSource walkingSound;    // Sound in which is made when the player walks around. This is the Audio source for that
     private float runTime = 1;  // The time that declines of how long the player has been running
     public static Vector3 savedPosition;    // Player respawn points
-    public bool playerDead=false;   // is the player dead currentHealth >= 0
+    public bool playerDead = false;   // is the player dead currentHealth >= 0
     [Header("Health n Damage")]
     [HideInInspector]
     public int maxHealth = 100;     // The max health the player is clamped at 
@@ -33,7 +33,7 @@ public class Player_Controller : MonoBehaviour
     public Image[] sliderArray;
     public TextMeshPro healthPercentageText;    // Health text that is shown from the currentHealth
     public Canvas respawnCan;   // The Canvas that appears when the player dies 
-    [LabelArray(new string[] { "High Health", "Medium Health", "Low Health"})]
+    [LabelArray(new string[] { "High Health", "Medium Health", "Low Health" })]
     public Color[] HealthBar_StageColors;   // The array of colors that gets called when the healthbar is altered (Taking damage)
 
     [Header("Health Bar")]
@@ -48,7 +48,8 @@ public class Player_Controller : MonoBehaviour
     // The Velocity of the last step
     public Vector3 lastVelocity;
     [Header("Events")]
-    public KeyCode pauseGamekey;
+    [LabelArray(new string[] { "Shoot", "Aim", "Reload", "Pause", "Interaction", "Change Ammo", "Change Fire Type", "Ultimate",  "Add a new name for this array"})]
+    public KeyCode[] Player_Key_Binds;
 
     #region Debugging
     [HideInInspector]
@@ -216,7 +217,7 @@ public class Player_Controller : MonoBehaviour
         #endregion
 
 
-        if (Input.GetKey(pauseGamekey))
+        if (Input.GetKey(Player_Key_Binds[3]))
         {
             // Pause the entire scene
             Time.timeScale = 0;
@@ -275,6 +276,7 @@ public class Player_Controller : MonoBehaviour
 
         // Run Input
         float r = Input.GetAxis("Run");
+
         // direction we are moving
         direction = (transform.forward * V + (transform.right * H)) * speed * Time.deltaTime;
         // Make the vector to the equal of 1
@@ -424,7 +426,7 @@ public class Player_Controller : MonoBehaviour
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
-        else if(pauseCan.activeSelf == false && currentHealth >= 0)
+        else if (pauseCan.activeSelf == false && currentHealth >= 0 && GameManager.ult_initiated == false)
         {
             playerDead = false;
             respawnCan.enabled = false;
@@ -778,9 +780,7 @@ public class Player_Controller : MonoBehaviour
         public TextMeshPro backUpAmmoText;
 
         public AI enemyHit;
-
         private GameManager game_manager;
-
         public int acruateShot = 0;
 
         #region Debugging
@@ -959,7 +959,7 @@ public class Player_Controller : MonoBehaviour
                 Renderer rend = revolverBarrel.GetComponent<Renderer>();
                 rend.material = explosiveBulletMat;
             }
-            if (Input.GetKeyDown(KeyCode.Q))
+            if (Input.GetKeyDown(PlayerClass.Player_Key_Binds[6]))
             {
                 if (shootModeController == 0 && game_manager.fullAuto == false && game_manager.burstFire == false)
                     shootModeController = 0;
@@ -984,7 +984,7 @@ public class Player_Controller : MonoBehaviour
 
 
             // Key press increases controller value
-            if (Input.GetKeyDown(KeyCode.E) && game_manager.explosiveAmmo == true)
+            if (Input.GetKeyDown(PlayerClass.Player_Key_Binds[5]) && game_manager.explosiveAmmo == true)
             {
                 bulletChange++;
                 // value met resets the value
@@ -1046,7 +1046,7 @@ public class Player_Controller : MonoBehaviour
             if (isReloading)
                 return;
 
-            if(Input.GetKeyDown(KeyCode.R) && !isReloading && backUpAmmo > 0)
+            if(Input.GetKeyDown(PlayerClass.Player_Key_Binds[2]) && !isReloading && backUpAmmo > 0)
             {
                 StartCoroutine(Reload());
             }
@@ -1081,6 +1081,13 @@ public class Player_Controller : MonoBehaviour
             {
                 acruateShot = 0;
             }
+            Debug.Log(GameManager.ult_initiated);
+            // Ultimate
+            if (Input.GetKey(PlayerClass.Player_Key_Binds[7]) && game_manager.ultReady == true)
+            {
+                GameManager.ult_initiated = true;
+                //PlayerClass.cameraRotationRate += 30;
+            }
 
         }
 
@@ -1113,7 +1120,7 @@ public class Player_Controller : MonoBehaviour
                 if (PlayerClass.running == false)
                 {
                     // if we press the right mouse button and we are not reloading
-                    if (Input.GetButton("Fire2") && !isReloading)
+                    if (Input.GetKey(PlayerClass.Player_Key_Binds[1]) && !isReloading)
                     {
                         imAiming = true;
                         // Lerp the weapon to the aim position we set up outside the script 
@@ -1263,7 +1270,7 @@ public class Player_Controller : MonoBehaviour
                                             }
                                         }
                                         #region Debugging Shooting
-                                        Debug.Log("Hit" + Hit.transform.name);  // Show on console what we hit
+                                        //Debug.Log("Hit" + Hit.transform.name);  // Show on console what we hit
                                         Debug.DrawRay(cam_FirePosition.transform.position, cam_FirePosition.transform.forward * Hit.distance, Color.red);
                                         #endregion
                                     }
@@ -1439,8 +1446,6 @@ public class Player_Controller : MonoBehaviour
                 yield return new WaitForSeconds(reloadTime - .25f);
                 // We are no longer animating the gun to reload
                 gunAnimator.SetBool("isReloading", false);
-                // Wait more 
-                yield return new WaitForSeconds(.25f);
                 // We are no longer reloading
                 isReloading = false;
                 // var shot is a variable in which takes into considering the max ammo and current 

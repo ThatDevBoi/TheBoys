@@ -56,6 +56,17 @@ public class GameManager : MonoBehaviour
 
     public bool singleFire = true;
     #endregion
+
+    #region Ultamate Control
+    public int Points_until_Ult;    // need 10 points to achieve ultimate
+    public float ult_Lifetime = 5f;
+    public float ult_cooldown = 10f;    // plays after ultimate is used so its not spammed
+    public static bool ult_initiated = false;
+    private bool coolDownUlt = false;
+    public bool ultReady = false;
+    // Add UI later
+
+    #endregion
     private void Awake()
     {
         // Start game correctly
@@ -215,22 +226,62 @@ public class GameManager : MonoBehaviour
         balanceGame();
         // find the texts
         timercooldown -= Time.deltaTime;
-
         GetClosestWall(wall_tranArray);
         if (nearestWall == null)
             Debug.Log("wall not found");
         if (Vector3.Distance(nearestWall.position, PC.transform.position) < 4)
         {
-            // make the player hold their gun upward
-            Debug.Log("Yield Back Gun");
+            //// make the player hold their gun upward
+            //Debug.Log("Yield Back Gun");
             gunOverride = true;
         }
         else
         {
-            // make the player hold their gun normal
-            Debug.Log("Normal Gun Hold");
+            //// make the player hold their gun normal
+            //Debug.Log("Normal Gun Hold");
             gunOverride = false;
         }
+
+        #region Ultimate Control
+        if (Points_until_Ult == 10)
+        {
+            Debug.Log("Alt Ready");
+            ultReady = true;
+        }
+
+        // when we can ult
+        if(ultReady)
+        {
+            // when ult is pressed
+            if (ult_initiated && !coolDownUlt)
+            {
+                Time.timeScale = 0.4f;
+                Debug.Log("Alt Time");
+                // reduce timer how long we are allowed to ult
+                ult_Lifetime -= Time.deltaTime;
+                if (ult_Lifetime <= 0)
+                {
+                    Time.timeScale = 1;
+                    ult_initiated = false;
+                    ultReady = false;
+                    coolDownUlt = true;
+                    ult_Lifetime = 5;
+                    Points_until_Ult = 0;
+                }
+            }
+        }
+
+        if (coolDownUlt && !ult_initiated)
+        {
+            ult_cooldown -= Time.deltaTime;
+            if (ult_cooldown <= 0)
+            {
+                coolDownUlt = false;
+                ult_cooldown = 10;
+            }
+        }
+
+        #endregion
     }
 
 

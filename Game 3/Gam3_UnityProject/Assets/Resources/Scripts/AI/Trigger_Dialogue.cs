@@ -13,7 +13,7 @@ public class Trigger_Dialogue : MonoBehaviour
     public string[] objectConversation;
     // Keycode can be changed in the inspector
     // The key is used to talk
-    public KeyCode KeyPressToTalk;
+    //public KeyCode KeyPressToTalk;
     // value which can change and monitor how far the player needs to be until talk can be exacuted
     public float distanceToTalk = 3;
     public Vector3 boxCollider_Size = new Vector3(5, 1, 5);
@@ -121,7 +121,7 @@ public class Trigger_Dialogue : MonoBehaviour
                     if (keyTimer >= 0)
                     {
                         // when key is pressed 
-                        if (Input.GetKeyDown(KeyPressToTalk))
+                        if (Input.GetKeyDown(player.GetComponent<Player_Controller>().Player_Key_Binds[4]))
                         {
                             keypressed = true;
                             if (conversationScroller == 1)

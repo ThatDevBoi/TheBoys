@@ -126,6 +126,8 @@ public class AI : MonoBehaviour
     // direction of push back
     Vector3 direction = Vector3.forward;
 
+    public static int ult_Counter = 1;
+
 
     #region Debugging
     [HideInInspector]
@@ -386,7 +388,11 @@ public class AI : MonoBehaviour
         #region Death Monitor
         // if the current health is 0 and the headshot bool is false
         if (currentHealth <= 0 && !headShot)
+        {
+            GameManager script = GameObject.Find("Level Manager").GetComponent<GameManager>();
+            script.Points_until_Ult += ult_Counter;
             Destroy(gameObject);    // we just remove the object
+        }
         else if (headShot && currentHealth <= 0)    // however if we have no health but the bool is true
         {
             // Make sure we make a seperate GameObject so we dont delete a reference Variable
@@ -403,6 +409,8 @@ public class AI : MonoBehaviour
             headRB.useGravity = true;
             //// Knock the head object back
             headRB.AddForce(-transform.forward * 500);
+            GameManager script = GameObject.Find("Level Manager").GetComponent<GameManager>();
+            script.Points_until_Ult += ult_Counter;
             //// Destroy the head after 10 seconds 
             Destroy(GO_Head, 10f);
 
