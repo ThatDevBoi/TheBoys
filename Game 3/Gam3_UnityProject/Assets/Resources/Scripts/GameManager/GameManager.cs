@@ -255,7 +255,9 @@ public class GameManager : MonoBehaviour
             // when ult is pressed
             if (ult_initiated && !coolDownUlt)
             {
-                Time.timeScale = 0.4f;
+                Time.timeScale = .2f;
+                PC.GetComponent<Player_Controller>().speed = 90;
+                PC.GetComponent<Player_Controller>().cameraRotationRate += 10;
                 Debug.Log("Alt Time");
                 // reduce timer how long we are allowed to ult
                 ult_Lifetime -= Time.deltaTime;

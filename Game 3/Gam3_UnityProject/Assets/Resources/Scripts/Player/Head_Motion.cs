@@ -9,6 +9,7 @@ public class Head_Motion : MonoBehaviour
     public float bobbingSpeed = 0.18f;
     public float bobbingAmount = 0.2f;
     public float midpoint = 0.3f;
+    Vector3 head_Bobbing;
 
     //  Update is called once per frame
     void Update()

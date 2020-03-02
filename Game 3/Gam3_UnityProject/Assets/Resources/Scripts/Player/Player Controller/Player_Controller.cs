@@ -283,8 +283,8 @@ public class Player_Controller : MonoBehaviour
         direction = direction.normalized * speed;
         if (playerPhysics.velocity.magnitude > 2f && walkingSound.isPlaying == false && running == false)
         {
-            walkingSound.volume = Random.Range(0.4f, 0.6f);
-            walkingSound.pitch = Random.Range(0.4f, 0.6f);
+            //walkingSound.volume = Random.Range(0.4f, 0.6f);
+            //walkingSound.pitch = Random.Range(0.4f, 0.6f);
             walkingSound.Play();
         }
         #endregion
@@ -1086,7 +1086,7 @@ public class Player_Controller : MonoBehaviour
             if (Input.GetKey(PlayerClass.Player_Key_Binds[7]) && game_manager.ultReady == true)
             {
                 GameManager.ult_initiated = true;
-                //PlayerClass.cameraRotationRate += 30;
+                
             }
 
         }
