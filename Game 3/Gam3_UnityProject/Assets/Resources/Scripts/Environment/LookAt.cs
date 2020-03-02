@@ -43,13 +43,16 @@ public class LookAt : MonoBehaviour
                     var lookPos = player.transform.position - transform.position;
                     //lookPos.y = 0;
                     var rotation = Quaternion.LookRotation(lookPos);
-                    transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.deltaTime);
+                    transform.localRotation = Quaternion.Lerp(transform.rotation, rotation, Time.deltaTime);
 
                    // transform.LookAt(player.transform.position);
                 }
             }else
             {
-                transform.LookAt(player.transform.position);
+                var lookPos = player.transform.position - transform.position;
+                lookPos.y = 0;
+                var rotation = Quaternion.LookRotation(lookPos);
+                transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.deltaTime);
             }
                  
         }
