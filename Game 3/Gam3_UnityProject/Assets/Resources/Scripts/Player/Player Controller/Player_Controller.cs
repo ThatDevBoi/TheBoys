@@ -938,12 +938,17 @@ public class Player_Controller : MonoBehaviour
             // 0 = Defualt 
             // 1 = Explosive
             #region Shoot Mode Controller Checks
-            if (shootModeController == 0 && game_manager.singleFire == true)
-                shootingMode = ShootMode.Semi;
-            else if (shootModeController == 1 && game_manager.fullAuto == true)
+            if (GameManager.ult_initiated == false)
+            {
+                if (shootModeController == 0 && game_manager.singleFire == true)
+                    shootingMode = ShootMode.Semi;
+                else if (shootModeController == 1 && game_manager.fullAuto == true)
+                    shootingMode = ShootMode.Auto;
+                else if (shootModeController == 2 && game_manager.burstFire == true)
+                    shootingMode = ShootMode.Burst;
+            }
+            else
                 shootingMode = ShootMode.Auto;
-            else if (shootModeController == 2 && game_manager.burstFire == true)
-                shootingMode = ShootMode.Burst;
 
             if (bulletChange == 0)
             {

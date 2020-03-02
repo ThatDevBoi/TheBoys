@@ -255,7 +255,7 @@ public class GameManager : MonoBehaviour
             // when ult is pressed
             if (ult_initiated && !coolDownUlt)
             {
-                Time.timeScale = .2f;
+                Time.timeScale = .4f;
                 PC.GetComponent<Player_Controller>().speed = 90;
                 PC.GetComponent<Player_Controller>().cameraRotationRate += 10;
                 Debug.Log("Alt Time");
@@ -275,6 +275,8 @@ public class GameManager : MonoBehaviour
 
         if (coolDownUlt && !ult_initiated)
         {
+            PC.GetComponent<Player_Controller>().speed = PC.GetComponent<Player_Controller>().currentSpeed;
+            PC.GetComponent<Player_Controller>().cameraRotationRate = UI_Manager.playersSensertivity;
             ult_cooldown -= Time.deltaTime;
             if (ult_cooldown <= 0)
             {
