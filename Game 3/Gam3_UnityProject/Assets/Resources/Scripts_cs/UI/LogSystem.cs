@@ -13,10 +13,8 @@ public class LogSystem : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-       PCUI = GameObject.Find("Exposition_Text");
-       // textLog = GameObject.Find("Pause_Canvas/ScrollArea/TextContainer/Text (TMP)").GetComponent<TextMeshProUGUI>();
-       if(textLog == null)
-            textLog = GameObject.Find("Pause_Canvas/ScrollArea/TextContainer/Text (TMP)").GetComponent<TextMeshProUGUI>();
+        PCUI = GameObject.Find("Exposition_Text");
+        // textLog = GameObject.Find("Pause_Canvas/ScrollArea/TextContainer/Text (TMP)").GetComponent<TextMeshProUGUI>();
 
     }
 

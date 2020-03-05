@@ -840,16 +840,16 @@ public class Player_Controller : MonoBehaviour
             // find game manager
             game_manager = GameManager.FindObjectOfType<GameManager>();
             // Find the bullet hole prefab in Resources in the asset folder
-            bulletHole = Resources.Load<GameObject>("Prefabs_prefs/Player/Feedback/Pistol/ImpactEffect");
+            bulletHole = Resources.Load<GameObject>("Prefabs_prefs/Player_PCpref/Feedback/Pistol/ImpactEffect");
             // Find Muzzle Flash
-            muzzleFlash = Resources.Load<GameObject>("Prefabs_prefs/Player/Feedback/Pistol/MuzzleFlash");
+            muzzleFlash = Resources.Load<GameObject>("Prefabs_prefs/Player_PCpref/Feedback/Pistol/MuzzleFlash");
             // Pistol color change revolver barrel
-            defaultBulletMat = Resources.Load<Material>("Materials_mat/Player/Weapon/Pistol/DefaultBulletMat");
+            defaultBulletMat = Resources.Load<Material>("Materials_mat/Player_pcmt/Weapon/Pistol/DefaultBulletMat");
             explosiveBulletMat = Resources.Load<Material>("Shader_sg/Materials_sgM/Shader Graphs_GridShader");
-            hitMarker = Resources.Load<GameObject>("Prefabs_prefs/Player/Feedback/Pistol/Hitmarker");
+            hitMarker = Resources.Load<GameObject>("Prefabs_prefs/Player_PCpref/Feedback/Pistol/Hitmarker");
             // Find sounds
-            shootingSound = Resources.Load<AudioClip>("Audio/Player/Guns/laser-gun-19sf");
-            reloadSound = Resources.Load<AudioClip>("Audio/Player/Guns/laser reload");
+            shootingSound = Resources.Load<AudioClip>("Audio/Player_AC_pc/Guns/laser-gun-19sf");
+            reloadSound = Resources.Load<AudioClip>("Audio/Player_AC_pc/Guns/laser reload");
             #endregion
 
             #region Value Set-Up

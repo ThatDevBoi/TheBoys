@@ -59,11 +59,16 @@ public class GameManager : MonoBehaviour
 
     #region Ultamate Control
     public int Points_until_Ult;    // need 10 points to achieve ultimate
-    public float ult_Lifetime = 5f;
-    public float ult_cooldown = 10f;    // plays after ultimate is used so its not spammed
+    [SerializeField]
+    private float ult_Lifetime;
+    [SerializeField]
+    private float ult_cooldown = 0;    // plays after ultimate is used so its not spammed
+    public float ult_Lifetime_Time;
+    public float time_between_cooldown;
     public static bool ult_initiated = false;
     private bool coolDownUlt = false;
     public bool ultReady = false;
+    public Slider ultraSlider;
     // Add UI later
 
     #endregion
@@ -80,13 +85,17 @@ public class GameManager : MonoBehaviour
     {
         // find all the walls
         FindObjectsWithLayer(16);
+        #region Set Values
+        ult_Lifetime = ult_Lifetime_Time;
+        ult_cooldown = 0;
+        #endregion
 
         #region Player Set Up
         /// Find the Player
         if (GameObject.Find("PC") == null)
         {
             // Find the player character
-            Player_Character = Resources.Load<GameObject>("Prefabs_prefs/Player/Player_Character/PC");
+            Player_Character = Resources.Load<GameObject>("Prefabs_prefs/Player_PCpref/Player_Character/PC");
             // start position
             Vector3 spawnPos = new Vector3(-19.3f, -2.35f, 95);
             // spawn player at start pos
@@ -131,7 +140,7 @@ public class GameManager : MonoBehaviour
             Button_Manager variableAccess;
             #region Create Pause
             // find the canvas in the assets
-            PauseUI = Resources.Load<GameObject>("Prefabs_prefs/UI/RuntimeUI/Pause_Canvas");
+            PauseUI = Resources.Load<GameObject>("Prefabs_prefs/UI_uipref/RuntimeUI/Pause_Canvas");
             // make an object instace for pause 
             GameObject pauseUIinstance;
             // all the data from the instance becomes what we spawned from assets
@@ -151,7 +160,7 @@ public class GameManager : MonoBehaviour
         if (GameObject.Find("RestartCanvas") == null)
         {
             // find the canvas in the assets
-            restartUI = Resources.Load<GameObject>("Prefabs_prefs/UI/RuntimeUI/RestartCanvas");
+            restartUI = Resources.Load<GameObject>("Prefabs_prefs/UI_uipref/RuntimeUI/RestartCanvas");
             // make instace for the prefab to spawn 
             GameObject restartUIinstance;
             // prefab spawn passes through to the instace we made
@@ -173,7 +182,7 @@ public class GameManager : MonoBehaviour
         if (GameObject.Find("PlayerUIController") == null)
         {
             // Find the UI for the player in the assets
-            PCUI_Controller = Resources.Load<GameObject>("Prefabs_prefs/UI/RuntimeUI/PlayerUIController");
+            PCUI_Controller = Resources.Load<GameObject>("Prefabs_prefs/UI_uipref/RuntimeUI/PlayerUIController");
             // make instance
             GameObject playerUI_instance;
             // make canvas instance so we can access GameObject Canvas
@@ -187,6 +196,14 @@ public class GameManager : MonoBehaviour
             // allow the UI to have access to the Camera attached to the player
             // if not the canvas wont display correctly
             playerUIcan_instance.worldCamera = PC.transform.GetChild(0).GetComponent<Camera>();
+            // We find the UI in here as its the only time we can access the UI being spawned as a local
+            // Find UI Slider For Ultra
+            // Find holder
+            GameObject ultraSliderHolder = playerUI_instance.transform.GetChild(8).gameObject;
+            // slider of that parent
+            ultraSlider = ultraSliderHolder.transform.GetChild(0).GetComponent<Slider>();
+            ultraSlider.maxValue = ult_Lifetime;
+            ultraSlider.value = ultraSlider.maxValue;
         }
         else
         {
@@ -242,7 +259,7 @@ public class GameManager : MonoBehaviour
             gunOverride = false;
         }
 
-        #region Ultimate Control
+        #region Ultimate Controller
         if (Points_until_Ult == 10)
         {
             Debug.Log("Alt Ready");
@@ -252,6 +269,7 @@ public class GameManager : MonoBehaviour
         // when we can ult
         if(ultReady)
         {
+            ultraSlider.value = ult_Lifetime;
             // when ult is pressed
             if (ult_initiated && !coolDownUlt)
             {
@@ -276,12 +294,16 @@ public class GameManager : MonoBehaviour
         if (coolDownUlt && !ult_initiated)
         {
             PC.GetComponent<Player_Controller>().speed = PC.GetComponent<Player_Controller>().currentSpeed;
-            PC.GetComponent<Player_Controller>().cameraRotationRate = UI_Manager.playersSensertivity;
-            ult_cooldown -= Time.deltaTime;
-            if (ult_cooldown <= 0)
+            PC.GetComponent<Player_Controller>().cameraRotationRate = 45; //UI_Manager.playersSensertivity;
+            ultraSlider.value = ult_cooldown;
+            ultraSlider.maxValue = time_between_cooldown;
+            ult_cooldown += Time.deltaTime;
+            if (ult_cooldown >= time_between_cooldown)
             {
                 coolDownUlt = false;
-                ult_cooldown = 10;
+                ult_cooldown = 0;
+                ultraSlider.maxValue = ult_Lifetime;
+                ultraSlider.value = ultraSlider.maxValue;
             }
         }
 
