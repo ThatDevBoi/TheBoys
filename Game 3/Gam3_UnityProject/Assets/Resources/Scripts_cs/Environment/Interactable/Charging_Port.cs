@@ -6,6 +6,7 @@ using TMPro;
 public class Charging_Port : MonoBehaviour
 {
     private GameObject player;
+    public GameObject effect;
     public Player_Controller playerClass;
     public Shooting_Mechanic PlayerShootingClass;
     // Start is called before the first frame update
@@ -39,7 +40,15 @@ public class Charging_Port : MonoBehaviour
             {
                 playerClass.speed = playerClass.currentSpeed;
             }
+            effect.GetComponent<MeshRenderer>().enabled=true;
         }
     }
     #endregion
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.name == "PC")
+        
+            effect.GetComponent<MeshRenderer>().enabled = false;
+    }
 }
