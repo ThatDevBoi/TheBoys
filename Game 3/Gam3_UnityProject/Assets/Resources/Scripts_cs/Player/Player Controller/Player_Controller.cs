@@ -478,7 +478,7 @@ public class Player_Controller : MonoBehaviour
         // find the object we want to spawn in the assets
         if (bloodSplash == null)
         {
-            bloodSplash = Resources.Load<GameObject>("Prefabs/Player/Feedback/Damage_Indicator");
+            bloodSplash = Resources.Load<GameObject>("Prefabs_prefs/Player_PCpref/Feedback/Pistol/Damage_Indicator");
         }
         // spawn object into the scene to indicate where the player got hit from
         Instantiate(bloodSplash, pointer.position, directionOfHit * Quaternion.Euler(northDirection), pointer.transform);

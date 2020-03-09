@@ -231,9 +231,9 @@ public class AI : MonoBehaviour
         searchingMat = Resources.Load<Material>("Material/Searching");
         alertMat = Resources.Load<Material>("Material/Alert");
 
-        damageText = Resources.Load<GameObject>("Prefabs/AI/Feedback/FloatingText");
-        searchingGO = Resources.Load<GameObject>("Prefabs/AI/Feedback/QuestionMark");
-        AlertGO = Resources.Load<GameObject>("Prefabs/AI/Feedback/!");
+        damageText = Resources.Load<GameObject>("Prefabs_prefs/AI_Aipref/Feedback/FloatingText");
+        searchingGO = Resources.Load<GameObject>("Prefabs_prefs/AI_Aipref/Feedback/QuestionMark");
+        AlertGO = Resources.Load<GameObject>("Prefabs_prefs/AI_Aipref/Feedback/!");
         #endregion
         // Placeholder //
         // Find Materials
@@ -673,16 +673,19 @@ public class AI : MonoBehaviour
         currentHealth -= damage;
         howmanyHits++;
         #region Pop up text spawn
-        // rotation to make sure the text GameObject always spawns facing the player 
-        Quaternion enumRotation_Changer = Quaternion.Slerp(transform.rotation, playerPosition.rotation, Time.time);
+        if(currentHealth > 1)
+        {
+            // rotation to make sure the text GameObject always spawns facing the player 
+            Quaternion enumRotation_Changer = Quaternion.Slerp(transform.rotation, playerPosition.rotation, Time.time);
 
-        // spawn text feedback
-        GameObject instanceText = Instantiate(damageText, new Vector3(transform.position.x - 1, transform.position.y + 4, transform.position.z), enumRotation_Changer) as GameObject;
-        
-        // Set the tag
-        instanceText.tag = "AI_UI";
-        // print the health
-        instanceText.GetComponent<TextMesh>().text = currentHealth.ToString();
+            // spawn text feedback
+            GameObject instanceText = Instantiate(damageText, new Vector3(transform.position.x - 1, transform.position.y + 4, transform.position.z), enumRotation_Changer) as GameObject;
+
+            // Set the tag
+            instanceText.tag = "AI_UI";
+            // print the health
+            instanceText.GetComponent<TextMesh>().text = currentHealth.ToString();
+        }
         #endregion
     }
     #endregion
