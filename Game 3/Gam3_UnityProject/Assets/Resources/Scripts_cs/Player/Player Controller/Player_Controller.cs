@@ -848,8 +848,8 @@ public class Player_Controller : MonoBehaviour
             explosiveBulletMat = Resources.Load<Material>("Shader_sg/Materials_sgM/Shader Graphs_GridShader");
             hitMarker = Resources.Load<GameObject>("Prefabs_prefs/Player_PCpref/Feedback/Pistol/Hitmarker");
             // Find sounds
-            shootingSound = Resources.Load<AudioClip>("Audio/Player_AC_pc/Guns/laser-gun-19sf");
-            reloadSound = Resources.Load<AudioClip>("Audio/Player_AC_pc/Guns/laser reload");
+            shootingSound = Resources.Load<AudioClip>("Audio_AS/Player_AC_pc/Guns/laser-gun-19sf");
+            reloadSound = Resources.Load<AudioClip>("Audio_AS/Player_AC_pc/Guns/laser reload");
             #endregion
 
             #region Value Set-Up
