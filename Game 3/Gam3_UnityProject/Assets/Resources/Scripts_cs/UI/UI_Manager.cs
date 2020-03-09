@@ -76,9 +76,9 @@ public class UI_Manager : MonoBehaviour
         //currentFont = fonts[0];
         #region Find The Mixers
         // Find the Mixer in the resources
-        Mixers[0] = Resources.Load<AudioMixer>("Audio/Master Mixers/PC_n_NPC/Player_NPC_Master");
+        Mixers[0] = Resources.Load<AudioMixer>("Audio_AS/Master Mixers_AS_mix/PC_n_NPC/Player_NPC_Master");
         Mixers[0].SetFloat("Volume", volumeChange.value);   // Change start value of this mixer in the array
-        Mixers[1] = Resources.Load<AudioMixer>("Audio/Master Mixers/Environment/Environment_Master");
+        Mixers[1] = Resources.Load<AudioMixer>("Audio_AS/Master Mixers_AS_mix/Environment/Environment_Master");
         #endregion
         #region Singleton
         // Carry it through scenes
