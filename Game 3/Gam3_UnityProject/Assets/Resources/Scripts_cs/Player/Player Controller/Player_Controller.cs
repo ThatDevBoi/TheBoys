@@ -234,6 +234,7 @@ public class Player_Controller : MonoBehaviour
         {
             // respawn at the old checkpoint
             transform.position = savedPosition;
+            transform.rotation = Quaternion.Euler(0, 90, 0);
         }
         else
         {
