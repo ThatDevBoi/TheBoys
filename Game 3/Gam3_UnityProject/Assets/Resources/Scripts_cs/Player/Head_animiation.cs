@@ -16,7 +16,7 @@ public class Head_animiation : MonoBehaviour
         if (GetComponentInParent<Player_Controller>().playerPhysics.velocity != Vector3.zero)
         {
             GetComponent<Animator>().SetTrigger("Walk");
-           if(GetComponentInParent<Player_Controller>().running!=true)
+           if(GetComponentInParent<Player_Controller>().running != true)
             GameObject.Find("Pistol").GetComponent<Animator>().SetTrigger("Walking");
            else
                 GameObject.Find("Pistol").GetComponent<Animator>().ResetTrigger("Walking");

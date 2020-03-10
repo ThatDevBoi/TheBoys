@@ -22,6 +22,8 @@ public class Player_Controller : MonoBehaviour
     [Range(45, 90)]
     public float cameraRotationRate;    // Camera rotation rate
     public AudioSource walkingSound;    // Sound in which is made when the player walks around. This is the Audio source for that
+    [HideInInspector]
+    public AudioClip footstep;  // The Sound we make when we walk
     private float runTime = 1;  // The time that declines of how long the player has been running
     public static Vector3 savedPosition;    // Player respawn points
     public bool playerDead = false;   // is the player dead currentHealth >= 0
@@ -50,6 +52,8 @@ public class Player_Controller : MonoBehaviour
     [Header("Events")]
     [LabelArray(new string[] { "Shoot", "Aim", "Reload", "Pause", "Interaction", "Change Ammo", "Change Fire Type", "Ultimate",  "Add a new name for this array"})]
     public KeyCode[] Player_Key_Binds;
+
+    private Animator walkingAnimatorController;
 
     #region Debugging
     [HideInInspector]
@@ -111,6 +115,9 @@ public class Player_Controller : MonoBehaviour
             Debug.LogWarning("The PC needs to be named -PC- try not to change it");
             gameObject.name = "PC";
         }
+        // Find Animator for walking
+        walkingAnimatorController = gameObject.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.transform
+            .GetChild(0).GetComponent<Animator>();
 
         // when the player spawns it saves that spawn position as a saved place when death occurs
         savedPosition = gameObject.transform.position;
@@ -147,6 +154,7 @@ public class Player_Controller : MonoBehaviour
         // Find the Main Camera
         playersEyes = Camera.main.GetComponent<Transform>();
         walkingSound = GetComponent<AudioSource>();
+        footstep = walkingSound.clip;
         // Find Health Bar Slider
         healthBar = GameObject.Find("PlayerUIController/PC_HealthBar").GetComponent<Slider>();
         // Finds the DetectWheel 
@@ -216,7 +224,6 @@ public class Player_Controller : MonoBehaviour
         }
         #endregion
 
-
         if (Input.GetKey(Player_Key_Binds[3]))
         {
             // Pause the entire scene
@@ -270,71 +277,79 @@ public class Player_Controller : MonoBehaviour
     #region FPS Movement Function
     public void FPSMove(float speed, float V, float H, Vector3 direction)
     {
-        #region Core Movement
         // Input
         V = Input.GetAxis("Vertical");
         H = Input.GetAxis("Horizontal");
 
-        // Run Input
-        float r = Input.GetAxis("Run");
-
-        // direction we are moving
-        direction = (transform.forward * V + (transform.right * H)) * speed * Time.deltaTime;
-        // Make the vector to the equal of 1
-        direction = direction.normalized * speed;
-        if (playerPhysics.velocity.magnitude > 2f && walkingSound.isPlaying == false && running == false)
+        #region Core Movement
+        if (V != 0 | H != 0)
         {
-            //walkingSound.volume = Random.Range(0.4f, 0.6f);
-            //walkingSound.pitch = Random.Range(0.4f, 0.6f);
-            walkingSound.Play();
-        }
-        #endregion
+            // Run Input
+            float r = Input.GetAxis("Run");
+            walkingAnimatorController.SetBool("Walking", true);
+            // direction we are moving
+            direction = (transform.forward * V + (transform.right * H)) * speed * Time.deltaTime;
+            // Make the vector to the equal of 1
+            direction = direction.normalized * speed;
 
-        #region Running
-        // if there is input that says te player is holding shift and w or S or arrow keys 
-        if (r != 0 && Input.GetAxis("Vertical") != 0)
-        {
-            // we are running
-            running = true;
-            #region Footsteps
-            // Footsteps
-            if (playerPhysics.velocity.magnitude > 2f && walkingSound.isPlaying == false)
-            {
-                walkingSound.volume = Random.Range(0.8f, 1f);
-                walkingSound.pitch = Random.Range(0.8f, 1f);
-                walkingSound.Play();
-            }
+            //if (playerPhysics.velocity.magnitude > 2f && walkingSound.isPlaying == false && running == false)
+            //{
+            //    //walkingSound.volume = Random.Range(0.4f, 0.6f);
+            //    //walkingSound.pitch = Random.Range(0.4f, 0.6f);
+            //    walkingSound.Play();
+            //}
             #endregion
-            // cooldown for not being detected on key press straight away by the NPC
-            runTime -= Time.deltaTime;
-            // when value is 0 or more
-            if(runTime <= 0)
+
+            #region Running
+            // if there is input that says te player is holding shift and w or S or arrow keys 
+            if (r != 0 && Input.GetAxis("Vertical") != 0)
             {
-                // change value of audio volume
-                walkingSound.volume = 0.6f;
-                // reset runtime
-                runTime = 1;
+                // we are running
+                running = true;
+                //#region Footsteps
+                ////// Footsteps
+                ////if (playerPhysics.velocity.magnitude > 2f && walkingSound.isPlaying == false)
+                ////{
+                ////    walkingSound.volume = Random.Range(0.8f, 1f);
+                ////    walkingSound.pitch = Random.Range(0.8f, 1f);
+                ////    walkingSound.Play();
+                ////}
+                //#endregion
+                // cooldown for not being detected on key press straight away by the NPC
+                runTime -= Time.deltaTime;
+                // when value is 0 or more
+                if (runTime <= 0)
+                {
+                    // change value of audio volume
+                    walkingSound.volume = 0.6f;
+                    // reset runtime
+                    runTime = 1;
+                }
+                // speed value becomes runspeed
+                speed = runSpeed;
             }
-            // speed value becomes runspeed
-            speed = runSpeed;
+            else
+            {
+                // no longer running
+                running = false;
+                // reset timer
+                runTime = 1;
+                // change audio trigger
+                walkingSound.volume = 0.3f;
+
+                // change speed back to the current speed we walk at
+                speed = currentSpeed;
+            }
+            // move with physics
+            playerPhysics.velocity = direction;
+            #endregion
         }
         else
         {
-            // no longer running
-            running = false;
-            // reset timer
-            runTime = 1;
-            // change audio trigger
-            walkingSound.volume = 0.3f;
-
-            // change speed back to the current speed we walk at
-            speed = currentSpeed;
+            walkingAnimatorController.SetBool("Walking", false);
+            playerPhysics.velocity = Vector3.zero;
+            playerPhysics.angularVelocity = Vector3.zero;
         }
-        // move with physics
-        playerPhysics.velocity = direction;
-        #endregion           
-
-
         // Camera Rotation Logic
         #region Fixed Camera Rotation
         // Input storage floats
@@ -794,7 +809,7 @@ public class Player_Controller : MonoBehaviour
         public float fireTimer;
         [Header("$Debugging$ The Time It takes To Reload")]
         [HideAttributes("Debugging", true)]
-        public float reloadTime = 1f;
+        public float reloadTime = 0.5f;
         [Header("$Debugging$ The orginal position of the players gun")]
         [HideAttributes("Debugging", true)]
         // The orginal position of the gun at the hip
@@ -1442,15 +1457,13 @@ public class Player_Controller : MonoBehaviour
                 isReloading = true;
                 // Play reload anim
                 gunAnimator.SetBool("isReloading", true);
-                // we need to wait for the sound to kick in so the audio is synced
-                yield return new WaitForSeconds(0.25f);
-                audioComponent.Play();
-                // Wait a few seconds
-                yield return new WaitForSeconds(reloadTime - .25f);
+                yield return new WaitForSeconds(.5f);
                 // We are no longer animating the gun to reload
                 gunAnimator.SetBool("isReloading", false);
                 // We are no longer reloading
                 isReloading = false;
+
+
                 // var shot is a variable in which takes into considering the max ammo and current 
                 // this will be to make sure we are relevant ammo in the magazin or how much we do have in the magazine
                 var shot = maxAmmo - currentAmmo;
@@ -1470,6 +1483,17 @@ public class Player_Controller : MonoBehaviour
                 backUpAmmoText.text = backUpAmmo.ToString();
             }
 
+        }
+
+        public void PlayWalkingSound()
+        {
+            PlayerClass.walkingSound.PlayOneShot(PlayerClass.footstep);
+        }
+
+
+        public void PlayReloadSound()
+        {
+            audioComponent.PlayOneShot(reloadSound);
         }
     }
     #endregion
