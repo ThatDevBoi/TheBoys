@@ -19,6 +19,7 @@ public class Button_Manager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        optionsPanel = GameObject.Find("Options_Canvas");
         mainCamera = Camera.main;
 
         startPositionCam = mainCamera.transform.position;
