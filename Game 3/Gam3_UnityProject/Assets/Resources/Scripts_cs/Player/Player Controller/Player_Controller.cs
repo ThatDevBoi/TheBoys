@@ -732,6 +732,7 @@ public class Player_Controller : MonoBehaviour
         // Changes revolver color On Pistol
         private Material defaultBulletMat;
         private Material explosiveBulletMat;
+        public Animator Bridge;
 
         [Header("Reloadiing")]
         // are we reloading the gun?
@@ -812,13 +813,23 @@ public class Player_Controller : MonoBehaviour
         [Header("$Debugging$ The Value which overrides enum BulletType")]
         [HideAttributes("Debugging", true)]
         public int bulletChange;
+        [Header("$Debugging$ The Sprites That Will Change With Bullet Types")]
+        [HideAttributes("Debugging", true)]
+        public Sprite normalBullet, ExplosiveBullet;
+        // Use Later when we have visual representation
+        [Header("$Debugging$ The Sprites That Will Change When We Change Fireing Types")]
+        [HideAttributes("Debugging", true)]
+        public GameObject singleFire, BurstFire, FullAuto;
 
+
+
+        // Delete when we have images to show single fore - full auto etc
+        private Color[] FireMethodColor = new Color[3];
 
 
 
         #endregion
         #endregion
-        public Animator Bridge;
         public virtual void Awake()
         {
             #region Find Components
@@ -833,8 +844,6 @@ public class Player_Controller : MonoBehaviour
             punchController = GameObject.Find("Fist").GetComponent<Animator>();
             // Find the weapon holder
             weaponHolder = GameObject.Find("Weapon_Holder").GetComponent<Transform>();
-            // find recoil script
-            GameObject gunHolder = GameObject.Find("Pistol Holder");
             // find the recoil script
             recoilScript = GetComponent<Weapon_Recoil>();
             if(GameObject.Find("Ammo_In_The_Mag_Text") == null && GameObject.Find("BackUp_Ammo_Text") == null)
@@ -861,6 +870,11 @@ public class Player_Controller : MonoBehaviour
             // Find sounds
             shootingSound = Resources.Load<AudioClip>("Audio_AS/Player_AC_pc/Guns/laser-gun-19sf");
             reloadSound = Resources.Load<AudioClip>("Audio_AS/Player_AC_pc/Guns/laser reload");
+            // Find UI Bullet Type Sprites
+            normalBullet = Resources.Load<Sprite>("Sprites_spri/UI/Bullet Type/Normal Bullet");
+            ExplosiveBullet = Resources.Load<Sprite>("Sprites_spri/UI/Bullet Type/Explosive Bullet");
+            // Find UI Fire Type
+
             #endregion
 
             #region Value Set-Up
@@ -888,6 +902,15 @@ public class Player_Controller : MonoBehaviour
             audioComponent = gameObject.GetComponent<AudioSource>();
             audioComponent.clip = shootingSound;
             #endregion
+            // Remove when we have Fire type images
+            FireMethodColor[0] = Color.yellow;
+            FireMethodColor[0].a = 255;
+
+            FireMethodColor[1] = Color.blue;
+            FireMethodColor[1].a = 255;
+
+            FireMethodColor[2] = Color.red;
+            FireMethodColor[2].a = 255;
         }
 
         public virtual void Update()
@@ -949,17 +972,35 @@ public class Player_Controller : MonoBehaviour
             if (GameManager.ult_initiated == false)
             {
                 if (shootModeController == 0 && game_manager.singleFire == true)
+                {
+                    GameObject UICanvas = GameObject.Find("PlayerUIController");
+                    Image UIImage = UICanvas.transform.GetChild(10).transform.GetChild(0).GetComponent<Image>();
+                    UIImage.color = FireMethodColor[0];
                     shootingMode = ShootMode.Semi;
+                }
                 else if (shootModeController == 1 && game_manager.fullAuto == true)
+                {
+                    GameObject UICanvas = GameObject.Find("PlayerUIController");
+                    Image UIImage = UICanvas.transform.GetChild(10).transform.GetChild(0).GetComponent<Image>();
+                    UIImage.color = FireMethodColor[1];
                     shootingMode = ShootMode.Auto;
+                }
                 else if (shootModeController == 2 && game_manager.burstFire == true)
+                {
+                    GameObject UICanvas = GameObject.Find("PlayerUIController");
+                    Image UIImage = UICanvas.transform.GetChild(10).transform.GetChild(0).GetComponent<Image>();
+                    UIImage.color = FireMethodColor[2];
                     shootingMode = ShootMode.Burst;
+                }
             }
             else
                 shootingMode = ShootMode.Auto;
 
             if (bulletChange == 0)
             {
+                GameObject UICanvas = GameObject.Find("PlayerUIController");
+                Image UIImage = UICanvas.transform.GetChild(9).transform.GetChild(0).GetComponent<Image>();
+                UIImage.sprite = normalBullet;
                 CurrentBulletType = BulletType.Default;
                 GameObject revolverBarrel = GameObject.Find("Pistol/RevolverBarrel");
                 Renderer rend = revolverBarrel.GetComponent<Renderer>();
@@ -967,6 +1008,9 @@ public class Player_Controller : MonoBehaviour
             }
             else if (bulletChange == 1)
             {
+                GameObject UICanvas = GameObject.Find("PlayerUIController");
+                Image UIImage = UICanvas.transform.GetChild(9).transform.GetChild(0).GetComponent<Image>();
+                UIImage.sprite = ExplosiveBullet;
                 CurrentBulletType = BulletType.Explosive;
                 GameObject revolverBarrel = GameObject.Find("Pistol/RevolverBarrel");
                 Renderer rend = revolverBarrel.GetComponent<Renderer>();
