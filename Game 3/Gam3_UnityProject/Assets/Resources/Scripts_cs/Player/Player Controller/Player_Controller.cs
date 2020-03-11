@@ -328,7 +328,7 @@ public class Player_Controller : MonoBehaviour
                 // Change Movement Speed
                 speed = currentSpeed;
                 // Make sure the current speed is clamped and cannot reach another velocity but the current
-                if (playerPhysics.velocity.magnitude > speed)
+                if (playerPhysics.velocity.magnitude > speed && GameManager.ult_initiated == false)
                     playerPhysics.velocity = Vector3.ClampMagnitude(playerPhysics.velocity, speed);
             }
             // move with physics
@@ -765,6 +765,10 @@ public class Player_Controller : MonoBehaviour
         public Transform weaponHolder;
         // "Aim Down Sight" Speed
         public float adsSpeed = 8f;
+        // Duration of the aim that zooms in
+        public float aimDuration = 1;
+        // The value was pass as time
+        float lerp = 0;
 
         [Header("Firing Type")]
         public ShootMode shootingMode;
@@ -792,7 +796,8 @@ public class Player_Controller : MonoBehaviour
         public TextMeshPro backUpAmmoText;
 
         public AI enemyHit;
-        private GameManager game_manager;
+        [HideInInspector]
+        public GameManager game_manager;
         public int acruateShot = 0;
 
         #region Debugging
@@ -902,6 +907,7 @@ public class Player_Controller : MonoBehaviour
             audioComponent = gameObject.GetComponent<AudioSource>();
             audioComponent.clip = shootingSound;
             #endregion
+
             // Remove when we have Fire type images
             FireMethodColor[0] = Color.yellow;
             FireMethodColor[0].a = 255;
@@ -973,23 +979,26 @@ public class Player_Controller : MonoBehaviour
             {
                 if (shootModeController == 0 && game_manager.singleFire == true)
                 {
+                    // Find Canvas and Image Component
                     GameObject UICanvas = GameObject.Find("PlayerUIController");
                     Image UIImage = UICanvas.transform.GetChild(10).transform.GetChild(0).GetComponent<Image>();
-                    UIImage.color = FireMethodColor[0];
+                    UIImage.color = FireMethodColor[0]; // Change Color
                     shootingMode = ShootMode.Semi;
                 }
                 else if (shootModeController == 1 && game_manager.fullAuto == true)
                 {
+                    // Find Canvas and Image Component
                     GameObject UICanvas = GameObject.Find("PlayerUIController");
                     Image UIImage = UICanvas.transform.GetChild(10).transform.GetChild(0).GetComponent<Image>();
-                    UIImage.color = FireMethodColor[1];
+                    UIImage.color = FireMethodColor[1]; // Change Color
                     shootingMode = ShootMode.Auto;
                 }
                 else if (shootModeController == 2 && game_manager.burstFire == true)
                 {
+                    // Find Canvas and Image Component
                     GameObject UICanvas = GameObject.Find("PlayerUIController");
                     Image UIImage = UICanvas.transform.GetChild(10).transform.GetChild(0).GetComponent<Image>();
-                    UIImage.color = FireMethodColor[2];
+                    UIImage.color = FireMethodColor[2]; // Change Color
                     shootingMode = ShootMode.Burst;
                 }
             }
@@ -1138,7 +1147,6 @@ public class Player_Controller : MonoBehaviour
             {
                 acruateShot = 0;
             }
-            Debug.Log(GameManager.ult_initiated);
             // Ultimate
             if (Input.GetKey(PlayerClass.Player_Key_Binds[7]) && game_manager.ultReady == true)
             {
@@ -1182,16 +1190,19 @@ public class Player_Controller : MonoBehaviour
                         imAiming = true;
                         // Lerp the weapon to the aim position we set up outside the script 
                         weaponHolder.localPosition = Vector3.Lerp(weaponHolder.localPosition, aimPosition, Time.deltaTime * adsSpeed);
-                        // Chnage the FOV on the camera
-                        cam_FirePosition.fieldOfView = aimFOV;
+                        // Duration of the smooth aim
+                        lerp += Time.deltaTime / aimDuration;
+                        // Change the FOV on the camera (Zoom In)
+                        cam_FirePosition.fieldOfView = Mathf.Lerp(cam_FirePosition.fieldOfView, aimFOV, lerp);
                     }
                     else   // if we are not aiming or the reloading bool is true
                     {
                         imAiming = false;
                         // make the gun go back to its hip position
                         weaponHolder.localPosition = Vector3.Lerp(weaponHolder.localPosition, originalPosition, Time.deltaTime * adsSpeed);
-                        // change the camera FOV to be what it starts as
-                        cam_FirePosition.fieldOfView = currentFieldOfView;
+                        // change the camera FOV to be what it starts as (Zoom Out)
+                        cam_FirePosition.fieldOfView = Mathf.Lerp(cam_FirePosition.fieldOfView, currentFieldOfView, Time.deltaTime / aimDuration);
+                        lerp = 0;
                     }
                 }
                 else

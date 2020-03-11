@@ -5,38 +5,27 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     #region Level Manager Variables
-    /// <summary>
-    /// GameObjects that need to be gathered/found
-    /// </summary>
+    [Header("Player and AI")]
     public GameObject[] Obsticles;  // the environment of the scene
     public GameObject[] AI;     // The AI in the current scene
     public GameObject Player_Character; // The player character that needs to spawn or be found
-    /// <summary>
-    /// UI Variables
-    /// </summary>
+
+    [Header("User Interface")]
     public GameObject PauseUI;  // UI element for pausing the game
     public GameObject restartUI;    // Restart UI spawns on player death
     public GameObject PCUI_Controller;  // The UI the player gets visual feedback from
-    /// <summary>
-    /// Find Objects of layer
-    /// </summary>
-    [HideInInspector]
-    // all the walls in the scene
-    private GameObject[] wall_goArray;
+    public GameObject[] textMesh_AI_UI;     // Find damage Text value
+    private float timercooldown = 1f;   // Value that helps textMesh_AI_UI to be found during runtime
+
+    [Header("Finding Walls")]
     // All the Transform walls (applied manually)   --// Find solution for this later \\--
     public Transform[] wall_tranArray;
+    // all the walls in the scene
+    private GameObject[] wall_goArray;
     // List in which holds all the GameObjects that are walls
     public List<GameObject> goList = new List<GameObject>();
-    [HideInInspector]
     // the wall that is nearest to the player
     private Transform nearestWall;
-    /// <summary>
-    ///  Static bools ints float passed into scripts for balance or functionality reasons
-    /// </summary>
-    /// 
-    // Balcne Game Variables
-    public GameObject[] textMesh_AI_UI;
-    public float timercooldown = 1f;
 
     // Overrides the guns position and stops anything to do with the gun
     // This involves shooting, recoil, aiming and sway
@@ -44,31 +33,39 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region Gun Upgrade Control
+    [Header("Gun Upgrade Controller")]
     // bools to maintain gun
     public bool explosiveAmmo = false;
+    [HideInInspector]
     public string explosiveUpgradeName = "";
-
     public bool fullAuto = false;
+    [HideInInspector]
     public string fullAutoUpgradeName = "";
-
     public bool burstFire = false;
+    [HideInInspector]
     public string burstFireUpgradeName = "";
-
     public bool singleFire = true;
     #endregion
 
+
+
     #region Ultamate Control
+    [Header("Ultimate Control Values")]
     public int Points_until_Ult;    // need 10 points to achieve ultimate
-    [SerializeField]
-    private float ult_Lifetime;
-    [SerializeField]
-    private float ult_cooldown = 0;    // plays after ultimate is used so its not spammed
     public float ult_Lifetime_Time;
     public float time_between_cooldown;
+    [Range(90, 120)]
+    public float ult_CameraRotation;
+    [Space(20)]
+    [Range(800, 1000)]
+    public float ult_Speed;
+    private float ult_Lifetime;
+    private float ult_cooldown = 0;    // plays after ultimate is used so its not spammed
     public static bool ult_initiated = false;
     private bool coolDownUlt = false;
+    [HideInInspector]
     public bool ultReady = false;
-    public Slider ultraSlider;
+    private Slider ultraSlider;
     // Add UI later
 
     #endregion
@@ -136,8 +133,6 @@ public class GameManager : MonoBehaviour
         #region Pause and Restart Set Up
         if (GameObject.Find("Pause_Canvas") == null)
         {
-            // we need access to the button manager so the manager can find the Player being spawned into runtime
-            Button_Manager variableAccess;
             #region Create Pause
             // find the canvas in the assets
             PauseUI = Resources.Load<GameObject>("Prefabs_prefs/UI_uipref/RuntimeUI/Pause_Canvas");
@@ -274,8 +269,10 @@ public class GameManager : MonoBehaviour
             if (ult_initiated && !coolDownUlt)
             {
                 Time.timeScale = .4f;
-                PC.GetComponent<Player_Controller>().speed = 90;
-                PC.GetComponent<Player_Controller>().cameraRotationRate += 10;
+                // Value which smooths timeScale
+                Time.fixedDeltaTime = 0.02f * Time.timeScale;
+                PC.GetComponent<Player_Controller>().speed = ult_Speed * Time.time * 300;
+                PC.GetComponent<Player_Controller>().cameraRotationRate = ult_CameraRotation;
                 Debug.Log("Alt Time");
                 // reduce timer how long we are allowed to ult
                 ult_Lifetime -= Time.deltaTime;
