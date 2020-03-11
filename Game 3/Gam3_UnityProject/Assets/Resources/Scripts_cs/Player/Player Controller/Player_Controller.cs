@@ -249,8 +249,6 @@ public class Player_Controller : MonoBehaviour
             respawnCan.enabled = false;
             respawnCan.transform.GetChild(0).gameObject.SetActive(true);
             // Functions
-            FPSMove(speed, dirX, dirZ, movementDirection);
-
             HealthBar();
             // Never go over max health
             if (currentHealth > maxHealth)
@@ -273,31 +271,31 @@ public class Player_Controller : MonoBehaviour
         }
     }
     #endregion
+
+    void FixedUpdate()
+    {
+        // Move Player Character
+        FPSMove();
+        Slope_Outcome();
+    }
+
     // This function moves the FPS character and covers all its logic
     #region FPS Movement Function
-    public void FPSMove(float speed, float V, float H, Vector3 direction)
+    public void FPSMove()
     {
         // Input
-        V = Input.GetAxis("Vertical");
-        H = Input.GetAxis("Horizontal");
-
+        dirX = Input.GetAxis("Vertical");
+        dirZ = Input.GetAxis("Horizontal");
+        // Run Input
+        float r = Input.GetAxis("Run");
         #region Core Movement
-        if (V != 0 | H != 0)
+        if (dirX != 0 | dirZ != 0)    // If the Keys are pressed and value does not rest at 0
         {
-            // Run Input
-            float r = Input.GetAxis("Run");
             walkingAnimatorController.SetBool("Walking", true);
             // direction we are moving
-            direction = (transform.forward * V + (transform.right * H)) * speed * Time.deltaTime;
+            movementDirection = (transform.forward * dirX + (transform.right * dirZ)) * speed * Time.deltaTime;
             // Make the vector to the equal of 1
-            direction = direction.normalized * speed;
-
-            //if (playerPhysics.velocity.magnitude > 2f && walkingSound.isPlaying == false && running == false)
-            //{
-            //    //walkingSound.volume = Random.Range(0.4f, 0.6f);
-            //    //walkingSound.pitch = Random.Range(0.4f, 0.6f);
-            //    walkingSound.Play();
-            //}
+            movementDirection = movementDirection.normalized * speed;
             #endregion
 
             #region Running
@@ -306,15 +304,6 @@ public class Player_Controller : MonoBehaviour
             {
                 // we are running
                 running = true;
-                //#region Footsteps
-                ////// Footsteps
-                ////if (playerPhysics.velocity.magnitude > 2f && walkingSound.isPlaying == false)
-                ////{
-                ////    walkingSound.volume = Random.Range(0.8f, 1f);
-                ////    walkingSound.pitch = Random.Range(0.8f, 1f);
-                ////    walkingSound.Play();
-                ////}
-                //#endregion
                 // cooldown for not being detected on key press straight away by the NPC
                 runTime -= Time.deltaTime;
                 // when value is 0 or more
@@ -325,7 +314,7 @@ public class Player_Controller : MonoBehaviour
                     // reset runtime
                     runTime = 1;
                 }
-                // speed value becomes runspeed
+                // Make speed the run speed as we are running
                 speed = runSpeed;
             }
             else
@@ -336,12 +325,18 @@ public class Player_Controller : MonoBehaviour
                 runTime = 1;
                 // change audio trigger
                 walkingSound.volume = 0.3f;
-
-                // change speed back to the current speed we walk at
+                // Change Movement Speed
                 speed = currentSpeed;
+                // Make sure the current speed is clamped and cannot reach another velocity but the current
+                if (playerPhysics.velocity.magnitude > speed)
+                    playerPhysics.velocity = Vector3.ClampMagnitude(playerPhysics.velocity, speed);
             }
             // move with physics
-            playerPhysics.velocity = direction;
+            playerPhysics.velocity = movementDirection;
+            // Clamp velcoity
+            if (playerPhysics.velocity.magnitude > speed)
+                playerPhysics.velocity = Vector3.ClampMagnitude(playerPhysics.velocity, speed);
+
             #endregion
         }
         else
@@ -505,7 +500,7 @@ public class Player_Controller : MonoBehaviour
     #region Slop & Stair Detection
     // Used to keep the orginal gravity settings in Project Settings
     public static float globalGravity = -9.81f;
-    void FixedUpdate()
+    private void Slope_Outcome()
     {
         playerPhysics.useGravity = false;
         // get the rigibody velocity
@@ -524,7 +519,7 @@ public class Player_Controller : MonoBehaviour
             // make boolean the logic of the Find step boolean function
             stepUp = FindStep(out stepUpOffset, allCPs, groundCP, velocity);
             // check if the velocity on the Characters Y is less than 0
-            if(this.GetComponent<Rigidbody>().velocity.y <= 0 && Input.GetKeyDown(KeyCode.LeftShift) == null)
+            if (this.GetComponent<Rigidbody>().velocity.y <= 0 && Input.GetKeyDown(KeyCode.LeftShift) == null)
             {
                 // have normal gravity if we are on the ground
                 Physics.gravity = new Vector3(0, -9.81f, 0);
@@ -1484,7 +1479,9 @@ public class Player_Controller : MonoBehaviour
             }
 
         }
-
+        /// <summary>
+        /// Audio Functions that are called in Animation Events
+        /// </summary>
         public void PlayWalkingSound()
         {
             PlayerClass.walkingSound.PlayOneShot(PlayerClass.footstep);
