@@ -42,11 +42,10 @@ public class UI_Manager : MonoBehaviour
     #region Game State Monitor Variables 
     int changeScene = 0;    // Data int that tells the script when we need to find Variables again
     #endregion
-
     #region Audio Managment
     [Header("Audio Manager")]
     // NEW
-    [LabelArray(new string[] { "Player", "AI", "Background"})]
+    [LabelArray(new string[] { "Player", "AI", "Background", "Menu", "Voice Acting", "SFX", "Ambient"})]
     public Slider[] volumeChangers;
     private AudioMixer mastermix;
     #endregion
@@ -242,14 +241,33 @@ public class UI_Manager : MonoBehaviour
     public void AIAudio(float volume)
     {
         volume = volumeChangers[1].value;
-        mastermix.SetFloat("AI_volume", volume);
+        mastermix.SetFloat("AI_Volume", volume);
     }
 
-    public void BackgroundAudio(float volume)
+    public void Menu_Audio(float volume)
     {
         volume = volumeChangers[2].value;
-        mastermix.SetFloat("BackgroundVol", volume);
+        mastermix.SetFloat("Menu_Volume", volume);
     }
+
+    public void VoiceAct_Audio(float volume)
+    {
+        volume = volumeChangers[3].value;
+        mastermix.SetFloat("VoiceAct_Volume", volume);
+    }
+
+    public void SFXAudio(float volume)
+    {
+        volume = volumeChangers[4].value;
+        mastermix.SetFloat("SFX_Volume", volume);
+    }
+
+    public void AmbientAudio(float volume)
+    {
+        volume = volumeChangers[5].value;
+        mastermix.SetFloat("Ambient_Volume", volume);
+    }
+
     #endregion
 
     #region Sub Menu Changes
@@ -266,6 +284,11 @@ public class UI_Manager : MonoBehaviour
             SubMenuButtons[1].image.color = ButtonClickChange[1];
             SubMenuButtons[2].image.color = ButtonClickChange[1];
             SubMenuButtons[3].image.color = ButtonClickChange[1];
+            // Turn off Interaction
+            SubMenuButtons[0].interactable = false;
+            SubMenuButtons[1].interactable = true;
+            SubMenuButtons[2].interactable = true;
+            SubMenuButtons[3].interactable = true;
         }
         else if(colorMonitor == 1)
         {
@@ -273,6 +296,12 @@ public class UI_Manager : MonoBehaviour
             SubMenuButtons[1].image.color = ButtonClickChange[0];
             SubMenuButtons[2].image.color = ButtonClickChange[1];
             SubMenuButtons[3].image.color = ButtonClickChange[1];
+
+            // Turn off Interaction
+            SubMenuButtons[0].interactable = true;
+            SubMenuButtons[1].interactable = false;
+            SubMenuButtons[2].interactable = true;
+            SubMenuButtons[3].interactable = true;
         }
         else if(colorMonitor == 2)
         {
@@ -280,6 +309,12 @@ public class UI_Manager : MonoBehaviour
             SubMenuButtons[1].image.color = ButtonClickChange[1];
             SubMenuButtons[2].image.color = ButtonClickChange[0];
             SubMenuButtons[3].image.color = ButtonClickChange[1];
+
+            // Turn off Interaction
+            SubMenuButtons[0].interactable = true;
+            SubMenuButtons[1].interactable = true;
+            SubMenuButtons[2].interactable = false;
+            SubMenuButtons[3].interactable = true;
         }
         else
         {
@@ -287,6 +322,12 @@ public class UI_Manager : MonoBehaviour
             SubMenuButtons[1].image.color = ButtonClickChange[1];
             SubMenuButtons[2].image.color = ButtonClickChange[1];
             SubMenuButtons[3].image.color = ButtonClickChange[0];
+
+            // Turn off Interaction
+            SubMenuButtons[0].interactable = true;
+            SubMenuButtons[1].interactable = true;
+            SubMenuButtons[2].interactable = true;
+            SubMenuButtons[3].interactable = false;
         }
     }
     #endregion

@@ -98,6 +98,8 @@ public class AI : MonoBehaviour
     // What the AI can shoot
     public LayerMask AI_Detections;
     public Transform firePoint;
+    public int SearchingAccuracy;
+    public int AlertAccuracy;
     // PRIVATE
 
     // Hit logic for the array itself
@@ -535,12 +537,9 @@ public class AI : MonoBehaviour
         // if the gameObject is Searching for the player
         if (states == AI_States.Searching)
         {
-            gameObject.transform.GetChild(5).gameObject.SetActive(false);
+            gameObject.transform.GetChild(6).gameObject.SetActive(false);
 
-            GameObject searchMesh = gameObject.transform.GetChild(5).gameObject;
-            searchMesh.SetActive(true);
-            if (states == AI_States.Dormant || states == AI_States.Alert)
-                searchMesh.SetActive(false);
+            gameObject.transform.GetChild(5).gameObject.SetActive(true);
             if (!pushback)
                 AI_movement_Speed = AI_movement_searchingSpeed;
             else
@@ -573,9 +572,7 @@ public class AI : MonoBehaviour
         if (states == AI_States.Alert)
         {
             gameObject.transform.GetChild(5).gameObject.SetActive(false);
-            searchingGO.SetActive(false);
-            GameObject alertMesh = gameObject.transform.GetChild(6).gameObject;
-            alertMesh.SetActive(true);
+            gameObject.transform.GetChild(6).gameObject.SetActive(true);
             if (!pushback)
                 AI_movement_Speed = AI_movement_alertSpeed;
             else
@@ -912,12 +909,12 @@ public class AI : MonoBehaviour
                 yield break;
 
             case AI_States.Searching:
-                firingAccuracy = 100;
+                firingAccuracy = SearchingAccuracy;
                 Shoot();
                 break;
 
             case AI_States.Alert:
-                firingAccuracy = 30;
+                firingAccuracy = AlertAccuracy;
                 Shoot();
                 // Shoot PC with more accuracy
 
