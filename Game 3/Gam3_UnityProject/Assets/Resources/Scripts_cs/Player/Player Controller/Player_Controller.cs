@@ -293,7 +293,7 @@ public class Player_Controller : MonoBehaviour
         {
             walkingAnimatorController.SetBool("Walking", true);
             // direction we are moving
-            movementDirection = (transform.forward * dirX + (transform.right * dirZ)) * speed * Time.deltaTime;
+            movementDirection = (transform.forward * dirX + (transform.right * dirZ)) * speed * Time.fixedDeltaTime;
             // Make the vector to the equal of 1
             movementDirection = movementDirection.normalized * speed;
             #endregion
@@ -331,13 +331,14 @@ public class Player_Controller : MonoBehaviour
                 if (playerPhysics.velocity.magnitude > speed && GameManager.ult_initiated == false)
                     playerPhysics.velocity = Vector3.ClampMagnitude(playerPhysics.velocity, speed);
             }
-            // move with physics
-            playerPhysics.velocity = movementDirection;
             // Clamp velcoity
             if (playerPhysics.velocity.magnitude > speed)
                 playerPhysics.velocity = Vector3.ClampMagnitude(playerPhysics.velocity, speed);
 
             #endregion
+
+            // move with physics
+            playerPhysics.velocity = movementDirection; 
         }
         else
         {
