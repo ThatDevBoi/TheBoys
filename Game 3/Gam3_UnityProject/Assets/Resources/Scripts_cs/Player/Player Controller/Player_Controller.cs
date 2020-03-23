@@ -725,6 +725,7 @@ public class Player_Controller : MonoBehaviour
         public GameObject bridge;
         // weapon script for recoil
         public Weapon_Recoil recoilScript;
+        public GameObject bullet;
 
         // Effects
         private GameObject bulletHole;
@@ -880,6 +881,9 @@ public class Player_Controller : MonoBehaviour
             normalBullet = Resources.Load<Sprite>("Sprites_spri/UI/Bullet Type/Normal Bullet");
             ExplosiveBullet = Resources.Load<Sprite>("Sprites_spri/UI/Bullet Type/Explosive Bullet");
             // Find UI Fire Type
+
+
+            bullet = Resources.Load<GameObject>("Prefabs_prefs/Player_PCpref/Feedback/Bullet/Bullet");
 
             #endregion
 
@@ -1253,6 +1257,8 @@ public class Player_Controller : MonoBehaviour
                                         // Muzzle Flash
                                         GameObject particle_point = GameObject.Find("Pistol/ironSights/FirePoint"); // Find the spawn position
                                         GameObject flashMuzzle = Instantiate(muzzleFlash, particle_point.transform.position, Quaternion.identity) as GameObject;
+                                        // Instaniate 
+                                        GameObject bulletClone = Instantiate(bullet, particle_point.transform.position, Quaternion.identity) as GameObject;
                                         Destroy(flashMuzzle, .5f);
                                         // Impact Effect
                                         GameObject impactHole = Instantiate(bulletHole, Hit.point, Quaternion.FromToRotation(Vector3.forward, Hit.normal)) as GameObject;
