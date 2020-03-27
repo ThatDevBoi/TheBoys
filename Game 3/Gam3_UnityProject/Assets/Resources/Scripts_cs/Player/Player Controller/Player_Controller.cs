@@ -11,48 +11,68 @@ using TMPro;
 public class Player_Controller : MonoBehaviour
 {
     #region Variablles
+
+    #region Movement
     [Header("Movement")]
     // PUBLIC
-    public float runSpeed = 30; // Speed we can run at
+    public float currentSpeed = 20.0f;     // Current walking speed 
+    public float runSpeed = 30;           // Speed we can run at
+    [HideInInspector]
     // are we holding shift
     public bool running = false;    // if we are running
-    public float dragRB = 5;    // the drag of the rigidbody
-    public float gravityModifier = 120f;    // the gravity we are pushed down at
-    public float currentSpeed = 20;     // Current walking speed 
+    [HideInInspector]
+    public float gravityModifier = 35.0f;    // the gravity we are pushed down at
     [Range(45, 90)]
     public float cameraRotationRate;    // Camera rotation rate
+    [HideInInspector]
     public AudioSource walkingSound;    // Sound in which is made when the player walks around. This is the Audio source for that
     [HideInInspector]
     public AudioClip footstep;  // The Sound we make when we walk
     private float runTime = 1;  // The time that declines of how long the player has been running
     public static Vector3 savedPosition;    // Player respawn points
-    public bool playerDead = false;   // is the player dead currentHealth >= 0
+    #endregion
+    #region Jumping Variables
+    [Header("Jumping")]
+    public float fallspeed = 12.0f; // how fast the PC falls when jump is over
+    public float jumpspeed = 7.0f; // how fast the player jumps
+    public float maxJumpHeight = 3; // how high can the player jump
+    Vector3 groundPos;  // current or last ground position
+    float groundHeight;
+    bool inputJump = false;     
+    bool jumpGrounded = true;   // controls when we jump
+    #endregion
+    #region Health
     [Header("Health n Damage")]
-    [HideInInspector]
     public int maxHealth = 100;     // The max health the player is clamped at 
     public int currentHealth;   // the current health the player has 
     // This array if for the images that are on the Player Healthbar 
     public Image[] sliderArray;
-    public TextMeshPro healthPercentageText;    // Health text that is shown from the currentHealth
-    public Canvas respawnCan;   // The Canvas that appears when the player dies 
     [LabelArray(new string[] { "High Health", "Medium Health", "Low Health" })]
     public Color[] HealthBar_StageColors;   // The array of colors that gets called when the healthbar is altered (Taking damage)
-
-    [Header("Health Bar")]
+    private TextMeshPro healthPercentageText;    // Health text that is shown from the currentHealth
+    private Canvas respawnCan;   // The Canvas that appears when the player dies 
+    [HideInInspector]
     public Slider healthBar;
+    private GameObject bloodSplash;
+    #endregion
+    #region Slop
     [Header("Steps")]
     // The max height of the step that player can step up on
     public float maxStepHeight = 0.4f;
     // how much overshoot does the direction of a potential step in units prevents stepping on low steps
     public float stepSearchOvershoot = 0.01f;
-    // the liost of points the player collds with
-    private List<ContactPoint> allCPs = new List<ContactPoint>();
     // The Velocity of the last step
     public Vector3 lastVelocity;
+    // the liost of points the player collds with
+    private List<ContactPoint> allCPs = new List<ContactPoint>();
+    #endregion
+    #region Player Events
     [Header("Events")]
-    [LabelArray(new string[] { "Shoot", "Aim", "Reload", "Pause", "Interaction", "Change Ammo", "Change Fire Type", "Ultimate",  "Add a new name for this array"})]
+    [LabelArray(new string[] { "Shoot", "Aim", "Reload", "Pause", "Interaction", "Change Ammo", "Change Fire Type", "Ultimate", "Jump",  "Add a new name for this array"})]
     public KeyCode[] Player_Key_Binds;
-
+    [HideInInspector]
+    public bool playerDead = false;   // is the player dead currentHealth >= 0
+    #endregion
     private Animator walkingAnimatorController;
 
     #region Debugging
@@ -110,21 +130,11 @@ public class Player_Controller : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if(gameObject.name != "PC")
+        if (gameObject.name != "PC")
         {
             Debug.LogWarning("The PC needs to be named -PC- try not to change it");
             gameObject.name = "PC";
         }
-        // Find Animator for walking
-        walkingAnimatorController = gameObject.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.transform
-            .GetChild(0).GetComponent<Animator>();
-
-        // when the player spawns it saves that spawn position as a saved place when death occurs
-        savedPosition = gameObject.transform.position;
-        // States on start that need changing
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-
         // Find Components / Set them up
         #region Find Compoents / Assets
         if (gameObject.GetComponent<Rigidbody>() == null)
@@ -137,8 +147,7 @@ public class Player_Controller : MonoBehaviour
             Debug.LogWarning("Note the script makes the rigidbody for you, so you dont need to add it if you dont want to");
             playerPhysics = gameObject.GetComponent<Rigidbody>();
         }
-        // alter the drag of the players Rigidbody drag value
-        playerPhysics.drag = dragRB;
+
         if(gameObject.GetComponent<BoxCollider>() == null)
         {
             // Add Collision to this gameObject
@@ -149,6 +158,10 @@ public class Player_Controller : MonoBehaviour
             // Find the collision already attached
             playerCollision = gameObject.GetComponent<BoxCollider>();
         }
+
+        // Find Animator for walking
+        walkingAnimatorController = gameObject.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.transform
+            .GetChild(0).GetComponent<Animator>();
         // Find the derived class
         gunScript = transform.Find("FPS_Cam/Weapon_Holder/Pistol Holder/Pistol").GetComponent<Shooting_Mechanic>();
         // Find the Main Camera
@@ -176,13 +189,14 @@ public class Player_Controller : MonoBehaviour
         respawnCan = GameObject.Find("RestartCanvas").GetComponent<Canvas>();
         // Find all the images in the slider
         sliderArray = healthBar.transform.GetComponentsInChildren<Image>();
-
-        #region Finding variables from assets
-
-            #endregion
         #endregion
 
         #region Edit Values / Variables and Properties
+        // States on start that need changing
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        // when the player spawns it saves that spawn position as a saved place when death occurs
+        savedPosition = gameObject.transform.position;
         // Set up components
         // Freeze rotation for now so no falling down
         playerPhysics.constraints = RigidbodyConstraints.FreezeRotation;
@@ -198,6 +212,13 @@ public class Player_Controller : MonoBehaviour
         // set up audio volume
         walkingSound.volume = 0.3f;
         DetectWheel.rotation = new Quaternion(0, 0, 180, 0);
+
+        // Fixed ground position
+        groundPos = transform.position;
+        // Height of ground 
+        groundHeight = transform.position.y;
+        // how far up we can jump
+        maxJumpHeight = transform.position.y + maxJumpHeight;
         #endregion
 
         #region Debug Components
@@ -223,7 +244,6 @@ public class Player_Controller : MonoBehaviour
             pauseCan.SetActive(false);
         }
         #endregion
-
         if (Input.GetKey(Player_Key_Binds[3]))
         {
             // Pause the entire scene
@@ -257,7 +277,6 @@ public class Player_Controller : MonoBehaviour
             }
             // Show on screen Health bar percentage with this text
             healthPercentageText.text = currentHealth + "%";
-
             #region Debuggng Key Press Logic
             if (Input.GetKey(KeyCode.R) && Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.Y))
             {
@@ -268,16 +287,63 @@ public class Player_Controller : MonoBehaviour
                 Debugging = false;
             }
             #endregion
+
+
+            // Jumping 
+            if(Input.GetKeyDown(Player_Key_Binds[8]))
+            {
+                if(jumpGrounded)
+                {
+                    inputJump = true;
+                    StartCoroutine("Jump");
+                }
+            }
+            // Update overtime so we dont go back to the orginal jump position
+            groundPos = transform.position;
+            // when the player is on ground
+            if (transform.position == groundPos)
+                jumpGrounded = true;    // we can jump
+            else
+                jumpGrounded = false;   // we cant jump
+
         }
     }
-    #endregion
-
     void FixedUpdate()
     {
         // Move Player Character
         FPSMove();
         Slope_Outcome();
     }
+    #endregion
+
+    #region Jump
+    IEnumerator Jump()
+    {
+        while(true) // Looped statement when true
+        {
+            // We dont want to repeat a jump 
+            jumpGrounded = false;
+            // when the current objects transform Y axis is greater than the max height to jump
+            if (transform.position.y >= maxJumpHeight)
+                inputJump = false;  // Jump is finished
+            if (inputJump)  // however when the jump is true
+                transform.Translate(Vector3.up * jumpspeed * Time.smoothDeltaTime); // we acend smoothly until we reach the max height
+            else if(!inputJump) // if not true 
+            {
+                transform.Translate(Vector3.down * fallspeed * Time.smoothDeltaTime);   // we decend down smoothly 
+                // when the current position on y is less than the ground position
+                if (transform.position.y < groundPos.y)
+                {
+                    transform.position = groundPos; // we land where ground is
+                    jumpGrounded = true;    // reset the jump
+                    StopCoroutine("Jump");    // Stop Running this
+                }
+
+            }
+            yield return new WaitForEndOfFrame();
+        }
+    }
+    #endregion
 
     // This function moves the FPS character and covers all its logic
     #region FPS Movement Function
@@ -453,7 +519,6 @@ public class Player_Controller : MonoBehaviour
     #region Players Hit Detection
     // This Function gets called in the AI shooting logic. Whenever the AI shoots us we need its Transform Component to find its position
     // I did it this wasy as there will be multiple Enemies and we dont want to monitor each one individually
-    public GameObject bloodSplash;
     public void HitDetection(Transform targetThatShotUs)
     {
         // THE UI WE ARE USING IS IN A CERTAIN PARENT CHILD RELATIONSHIP
@@ -533,8 +598,9 @@ public class Player_Controller : MonoBehaviour
 
                 // New Logic
                 // Needs to be called when the player rigidbody velocity is not 0 as it means we are moving
+                gravityModifier = 35;
                 Vector3 gravity = globalGravity * gravityModifier * Vector3.up;
-                playerPhysics.AddForce(gravity, ForceMode.Acceleration);
+                playerPhysics.AddForce(gravity * Time.smoothDeltaTime, ForceMode.Acceleration);
             }
         }
         else
@@ -544,8 +610,12 @@ public class Player_Controller : MonoBehaviour
 
             // New Logic
             // if we are not on the ground then we need to go down 
-            Vector3 gravity = globalGravity * gravityModifier * Vector3.up;
-            playerPhysics.AddForce(gravity, ForceMode.Acceleration);
+            if(jumpGrounded)
+            {
+                gravityModifier = 60;
+                Vector3 gravity = globalGravity * gravityModifier * Vector3.up;
+                playerPhysics.AddForce(gravity, ForceMode.Acceleration);
+            }
 
         }
 
@@ -702,53 +772,63 @@ public class Player_Controller : MonoBehaviour
     public class GunMechanic : MonoBehaviour
     {
         #region Variables
+        #region Shooting Variables
         [Header("Shooting")]
-        // the objects with relevent layers to shoot
-        public LayerMask whatWeCanShoot;
+        #region Private Variables
+        // Components
+        [HideInInspector]
         // audio source we use to shoot
         public AudioSource gunShootSound;
+        [HideInInspector]
         // the players FPS camera
         public Camera cam_FirePosition;
-        // the view of the camera when not aiming
-        public float currentFieldOfView = 30;
-        // the FOV when we are aimig down sights
-        public float aimFOV = 18;
-        // boolean which tells us if we are aiming
-        public bool imAiming = false;
-        // range of hor far we can shoot
-        public int gunRange = 30;
-        // the rate of fire
-        public float fireRate = 0.25f;
-        // the damage we deal to enemies
-        public int damage;
-        // bridge that should be triggered
-        public GameObject bridge;
+        [HideInInspector]
         // weapon script for recoil
         public Weapon_Recoil recoilScript;
-        public GameObject bullet;
+
+        // GOs
+
+        // bridge that should be triggered
+        private GameObject bridge;
+        private GameObject bullet;
 
         // Effects
         private GameObject bulletHole;
         private GameObject muzzleFlash;
         private GameObject hitMarker;
-        // Changes revolver color On Pistol
-        private Material defaultBulletMat;
-        private Material explosiveBulletMat;
-        public Animator Bridge;
 
+        // Materials
+        // Changes revolver color On Pistol
+        private Material defaultBulletMat;  // Normal Ammo
+        private Material explosiveBulletMat;    // Explosive ammo
+
+        #endregion
+        // the damage we deal to enemies
+        public int damage;
+        // the rate of fire
+        public float fireRate = 0.25f;
+        // range of hor far we can shoot
+        public int fireRange = 30;
+        // The accuracy of the weapon when shooting
+        public int acruateShot = 0;
+        // the objects with relevent layers to shoot
+        public LayerMask whatWeCanShoot;
+        #endregion
+        #region Reload Variables
         [Header("Reloadiing")]
+        #region Private Variables
+        // Components
+        // audio source for the gun when playing the reload/shoot sound & NPC audio source fetch
+        private AudioSource gunAudioSource, npc_audioSource;
+        private AudioClip shootingSound;    // clip to make shooting noise
+        private AudioClip reloadSound;  // clip to make reload sound
+        #endregion
+        [HideInInspector]
         // are we reloading the gun?
         public bool isReloading = false;
         public Animator gunAnimator;
-
-
-        [SerializeField]
-        private AudioSource audioComponent, npc_audioSource;
-        [SerializeField]
-        private AudioClip shootingSound;
-        [SerializeField]
-        private AudioClip reloadSound;
-
+        #endregion
+        #region Ammo Variables
         [Header("Ammo")]  
         // Max ammo in 1 magazine
         public int maxAmmo = 12;
@@ -757,12 +837,23 @@ public class Player_Controller : MonoBehaviour
         // the ammo the player has spare
         public int backUpAmmo;
         public int maxBackupAmmo = 90;
+        [HideInInspector]
         // are we shooting the gun?
         public bool isShooting = true;
-
+        #endregion
+        #region Aiming
         [Header("Aim Down Sites")]
+        [HideInInspector]
+        // boolean which tells us if we are aiming
+        public bool imAiming = false;
+        // the view of the camera when not aiming
+        public float currentFieldOfView = 30;
+        // the FOV when we are aimig down sights
+        public float aimFOV = 18;
+        [HideInInspector]
         // Where the object will be when aiming
         public Vector3 aimPosition;
+        [HideInInspector]
         // Changes position for aiming
         public Transform weaponHolder;
         // "Aim Down Sight" Speed
@@ -771,16 +862,18 @@ public class Player_Controller : MonoBehaviour
         public float aimDuration = 1;
         // The value was pass as time
         float lerp = 0;
-
+        #endregion
+        #region Firing Types
         [Header("Firing Type")]
         public ShootMode shootingMode;
         public bool shootInput;
         public enum ShootMode {Auto, Semi, Burst}
         // Controls the different shooting states 
         public int shootModeController = 0;
-        // Fly Shot
-        public int numShots = 3;
-
+        // Fly Shot (For Burst Fire)
+        private int numShots = 3;
+        #endregion
+        #region Bullet Types
         [Header("Bullet Type")]
         public BulletType CurrentBulletType = BulletType.Default;
         public enum BulletType { Default, Explosive}
@@ -788,19 +881,22 @@ public class Player_Controller : MonoBehaviour
         public float explosionRadius = 5.0f;
         public float explosiveForce = 20.0f;
         public float upforce = 1;
-
+        #endregion
+        #region Melee Punch
         [Header("Melee Attack")]
         public bool isPunching = false;
-        public Animator punchController;
-
+        private Animator punchController;
+        #endregion
+        #region UI For Weapon
         [Header("UI")]
         public TextMeshPro currentAmmoText;
         public TextMeshPro backUpAmmoText;
-
-        public AI enemyHit;
+        #endregion
+        #region Events
+        private AI enemyHit;
         [HideInInspector]
         public GameManager game_manager;
-        public int acruateShot = 0;
+        #endregion
 
         #region Debugging
         [HideInInspector]
@@ -909,8 +1005,8 @@ public class Player_Controller : MonoBehaviour
             // Start FOV for the FPS Cam
             cam_FirePosition.fieldOfView = currentFieldOfView;
 
-            audioComponent = gameObject.GetComponent<AudioSource>();
-            audioComponent.clip = shootingSound;
+            gunAudioSource = gameObject.GetComponent<AudioSource>();
+            gunAudioSource.clip = shootingSound;
             #endregion
 
             // Remove when we have Fire type images
@@ -1132,15 +1228,15 @@ public class Player_Controller : MonoBehaviour
             #region Sound Switcher
             if (isReloading && !isShooting && currentAmmo <= 0)
             {
-                audioComponent.clip = reloadSound;
+                gunAudioSource.clip = reloadSound;
             }
             else if(isReloading && !isShooting && currentAmmo > 0 && Input.GetKeyDown(KeyCode.R))
             {
-                audioComponent.clip = reloadSound;
+                gunAudioSource.clip = reloadSound;
             }
             else if(!isReloading && isShooting && currentAmmo > 0)
             {
-                audioComponent.clip = shootingSound;
+                gunAudioSource.clip = shootingSound;
             }
             #endregion
             // Accuracy
@@ -1244,7 +1340,7 @@ public class Player_Controller : MonoBehaviour
                                                     // Physics Driven
                                 RaycastHit Hit;
                                 // 
-                                if (Physics.Raycast(cam_FirePosition.transform.position, BulletSpread(cam_FirePosition.transform.forward, acruateShot, true, cam_FirePosition.transform.position), out Hit, gunRange, whatWeCanShoot))
+                                if (Physics.Raycast(cam_FirePosition.transform.position, BulletSpread(cam_FirePosition.transform.forward, acruateShot, true, cam_FirePosition.transform.position), out Hit, fireRange, whatWeCanShoot))
                                 {
                                     if (currentAmmo > 0)
                                     {
@@ -1378,7 +1474,7 @@ public class Player_Controller : MonoBehaviour
                             // Physics Driven
                             RaycastHit Hit;
                             // shoot a ray at the direction we desire and the laymask we can shoot at
-                            if (Physics.Raycast(cam_FirePosition.transform.position, BulletSpread(cam_FirePosition.transform.forward, acruateShot, true, cam_FirePosition.transform.position), out Hit, gunRange, whatWeCanShoot))
+                            if (Physics.Raycast(cam_FirePosition.transform.position, BulletSpread(cam_FirePosition.transform.forward, acruateShot, true, cam_FirePosition.transform.position), out Hit, fireRange, whatWeCanShoot))
                             {
                                 if (currentAmmo > 0)
                                 {
@@ -1507,7 +1603,7 @@ public class Player_Controller : MonoBehaviour
                 yield break;    // we cant reload
             else
             {
-                audioComponent.clip = reloadSound;
+                gunAudioSource.clip = reloadSound;
                 // cant shoot if we are reloading 
                 isShooting = false;
                 // We are now Reloading 
@@ -1552,7 +1648,7 @@ public class Player_Controller : MonoBehaviour
 
         public void PlayReloadSound()
         {
-            audioComponent.PlayOneShot(reloadSound);
+            gunAudioSource.PlayOneShot(reloadSound);
         }
     }
     #endregion
