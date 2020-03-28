@@ -21,7 +21,7 @@ public class LogSystem : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (newContent || Input.GetKeyDown(KeyCode.Pause) && textLog == null)
+        if (newContent && Input.GetKeyDown(KeyCode.Pause) && textLog == null)
         {
             textLog = GameObject.Find("Pause_Canvas/ScrollArea/TextContainer/Text (TMP)").GetComponent<TextMeshProUGUI>();
             UpdateLog();
