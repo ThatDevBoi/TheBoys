@@ -897,7 +897,8 @@ public class Player_Controller : MonoBehaviour
         [HideInInspector]
         public GameManager game_manager;
         #endregion
-
+        private GameObject hitEffect;
+        private GameObject sparks;
         #region Debugging
         [HideInInspector]
         public bool Debugging;
@@ -981,11 +982,12 @@ public class Player_Controller : MonoBehaviour
 
             bullet = Resources.Load<GameObject>("Prefabs_prefs/Player_PCpref/Feedback/Bullet/Bullet");
 
+            // Particles feedback
+            hitEffect = Resources.Load<GameObject>("Prefabs_prefs/Particles_VFXpref/Hit Effects/Particles/Hit_VFX(Small)");
+            sparks = Resources.Load<GameObject>("Prefabs_prefs/Particles_VFXpref/Hit Effects/Particles/SparksVFX");
             #endregion
 
             #region Value Set-Up
-            // Start Range for gun
-           // gunRange = 30;//this prevents the variable to be changed in ide DM
             // Start ammo in mag
             currentAmmo = maxAmmo;
             // start backup ammo
@@ -1373,6 +1375,10 @@ public class Player_Controller : MonoBehaviour
                                             GameObject HitMark = Instantiate(hitMarker, Hit.point, Quaternion.FromToRotation(Vector3.forward, Hit.normal)) as GameObject;
                                             HitMark.transform.parent = Hit.transform;
                                             Destroy(HitMark, .2f);
+
+                                            GameObject GO_hitEffect = Instantiate(hitEffect, Hit.point, Quaternion.FromToRotation(Vector3.forward, Hit.normal)) as GameObject;
+
+                                            Destroy(GO_hitEffect, 1f);
                                             // Find the ai audio source we hit
                                             npc_audioSource = Hit.collider.gameObject.GetComponent<AudioSource>();
 
