@@ -36,7 +36,7 @@ public class UITypeWritereffect : MonoBehaviour
         logUI = GameObject.Find("Log");
         if (logUI == null)
             print("tex not found");
-        else Debug.Log(logUI.name);
+        //else Debug.Log(logUI.name);
         if (playOnAwake)
         {            
             ChangeText(text.text, delayToStart);
@@ -50,7 +50,7 @@ public class UITypeWritereffect : MonoBehaviour
     //Update text and start typewriter effect
     public void ChangeText(string textContent, float delayBetweenChars = 0f)
     {
-        
+
         
         StopCoroutine(PlayText()); //stop Coroutime if exist
         story = textContent;
@@ -73,6 +73,7 @@ public class UITypeWritereffect : MonoBehaviour
         {
             talking = true;
             delayBetweenChars = originDelayBetweenChars;
+            
 
             if (lastCharPunctuation)  //If previous character was a comma/period, pause typing
             {
@@ -88,9 +89,10 @@ public class UITypeWritereffect : MonoBehaviour
             text.text += c;
            
             yield return new WaitForSeconds(delayBetweenChars);
+            player.GetComponent<Player_Controller>().speed = 0;//stop player from moving while text is beign written
         }
         talking = false;
         
-        player.GetComponent<Player_Controller>().speed = player.GetComponent<Player_Controller>().currentSpeed;
+        player.GetComponent<Player_Controller>().speed = player.GetComponent<Player_Controller>().currentSpeed;//restore player speed
     }
 }

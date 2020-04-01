@@ -42,16 +42,19 @@ public class Trigger_Dialogue : MonoBehaviour
     private GameObject player;
     // bool which allows timer to start ticking "keyTimer"
     bool keypressed = false;
-    string startSring= "Press C";
+    string startSring= "Press E";
     public bool StoryEvent = false;
     bool DoOnce = false;
+    bool read = false;
+    private GameObject Log;
     // Start is called before the first frame update
     void Start()
     {
         #region Find Variables Loop
         StartCoroutine(loopFind());
-
+        Log=GameObject.Find("Log");
         player = GameObject.Find("PC");
+        read = true;
         #endregion
 
         #region Build Collider
@@ -139,7 +142,7 @@ public class Trigger_Dialogue : MonoBehaviour
                 }
                 else
                 {
-                    startSring = "Press C";
+                    startSring = "Press E";
                     return;
                 }
                 
@@ -160,6 +163,11 @@ public class Trigger_Dialogue : MonoBehaviour
             GameObject.Find("PlayerUIController/Panel").GetComponent<Panel_Fade>().dialouge = true;//this will tell the fade script to be deactivated DM
 
            playerApprrachedMe = true;
+            if (read)
+            {
+                Log.GetComponent<LogSystem>().textLog.text += objectConversation;
+                read = false;
+            }
             // When story event is true (On Trigger Allows code to run 1 time)
             if (StoryEvent)
             {
@@ -176,7 +184,7 @@ public class Trigger_Dialogue : MonoBehaviour
         if (other.gameObject.name == "PC")
         {
             GameObject.Find("PlayerUIController/Panel").GetComponent<Panel_Fade>().dialouge = false;//this will tell the fade script to be activated DM
-            startSring = "Press C";
+            startSring = "Press E";
             playerApprrachedMe = false;
             // set the conversation to be shown as over
             //Conversation = "Conversation Over";

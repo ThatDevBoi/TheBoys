@@ -9,7 +9,7 @@ public class LogSystem : MonoBehaviour
     public GameObject PCUI;
     public TextMeshProUGUI textLog;
     public bool newContent;
-    public bool pause;
+    //public bool pause;
     // Start is called before the first frame update
     void Start()
     {
@@ -19,15 +19,7 @@ public class LogSystem : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
-    {
-        if (newContent && Input.GetKeyDown(KeyCode.Pause) && textLog == null)
-        {
-            textLog = GameObject.Find("Pause_Canvas/ScrollArea/TextContainer/Text (TMP)").GetComponent<TextMeshProUGUI>();
-            UpdateLog();
 
-        }
-    }
 
 
     void UpdateLog()
