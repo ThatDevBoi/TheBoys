@@ -726,6 +726,12 @@ public class AI : MonoBehaviour
                 applyDamage.HitDetection(gameObject.GetComponent<Transform>());
                 //applyDamage.HitDetection(gameObject.GetComponent<Transform>(), false);
                 applyDamage.ApplyDamage(damage);    // apply damage to the player
+                Player_Flinch flinch;
+                flinch = applyDamage.gameObject.transform.GetChild(0).GetComponent<Player_Flinch>();
+                if(flinch.ShouldShake != true)
+                {
+                    flinch.ShouldShake = true;
+                }
             }
         }
 
