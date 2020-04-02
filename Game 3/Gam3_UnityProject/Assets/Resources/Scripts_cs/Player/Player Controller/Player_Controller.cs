@@ -1370,7 +1370,7 @@ public class Player_Controller : MonoBehaviour
                                         }
 
                                         // We want to hit the AI Body and Head to take damage (Could be changed later for more damage when hitting head enemyHit.ApplyDamage(damage * 2);)
-                                        if (Hit.collider.gameObject.layer == 11 | Hit.collider.gameObject.layer == 14)
+                                        if (Hit.collider.gameObject.layer == 11 | Hit.collider.gameObject.layer == 14 || Hit.collider.gameObject.layer == 20)
                                         {
                                             GameObject HitMark = Instantiate(hitMarker, Hit.point, Quaternion.FromToRotation(Vector3.forward, Hit.normal)) as GameObject;
                                             HitMark.transform.parent = Hit.transform;
@@ -1493,10 +1493,13 @@ public class Player_Controller : MonoBehaviour
                                     // Muzzle Flash
                                     GameObject particle_point = GameObject.Find("Pistol/ironSights/FirePoint"); // Find the spawn position
                                     GameObject flashMuzzle = Instantiate(muzzleFlash, particle_point.transform.position, Quaternion.identity) as GameObject;
+                                    // Instaniate 
+                                    GameObject bulletClone = Instantiate(bullet, particle_point.transform.position, Quaternion.identity) as GameObject;
                                     Destroy(flashMuzzle, .5f);
                                     // Impact Effect
                                     GameObject impactHole = Instantiate(bulletHole, Hit.point, Quaternion.FromToRotation(Vector3.forward, Hit.normal)) as GameObject;
                                     Destroy(impactHole, 5f);
+
 
                                     // if we hit any gameObject in the scene
                                     if (Hit.collider.gameObject)
@@ -1506,18 +1509,31 @@ public class Player_Controller : MonoBehaviour
                                     }
 
                                     // We want to hit the AI Body and Head to take damage (Could be changed later for more damage when hitting head enemyHit.ApplyDamage(damage * 2);)
-                                    if (Hit.collider.gameObject.layer == 11 | Hit.collider.gameObject.layer == 14)
+                                    if (Hit.collider.gameObject.layer == 11 | Hit.collider.gameObject.layer == 14 || Hit.collider.gameObject.layer == 20)
                                     {
                                         GameObject HitMark = Instantiate(hitMarker, Hit.point, Quaternion.FromToRotation(Vector3.forward, Hit.normal)) as GameObject;
                                         HitMark.transform.parent = Hit.transform;
                                         Destroy(HitMark, .2f);
+
+                                        GameObject GO_hitEffect = Instantiate(hitEffect, Hit.point, Quaternion.FromToRotation(Vector3.forward, Hit.normal)) as GameObject;
+
+                                        Destroy(GO_hitEffect, 1f);
+                                        // Find the ai audio source we hit
+                                        npc_audioSource = Hit.collider.gameObject.GetComponent<AudioSource>();
+
                                         if (Hit.collider.name == "Head")
                                         {
+                                            npc_audioSource = null;
                                             enemyHit = Hit.collider.gameObject.GetComponentInParent<AI>();
+                                            enemyHit.pushback = true;
+                                            enemyHit.StartCoroutine(enemyHit.Knockback());
                                         }
                                         else
                                         {
+                                            npc_audioSource.Play();
                                             enemyHit = Hit.collider.gameObject.GetComponent<AI>();
+                                            enemyHit.pushback = true;
+                                            enemyHit.StartCoroutine(enemyHit.Knockback());
                                         }
 
                                         if (Hit.collider.gameObject.layer == 14)

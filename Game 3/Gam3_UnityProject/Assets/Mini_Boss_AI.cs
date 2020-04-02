@@ -4,31 +4,46 @@ using UnityEngine;
 
 public class Mini_Boss_AI : MonoBehaviour
 {
-    [LabelArray(new string[] { "Dipo", "Katie", "Nadeem"})]
+    [LabelArray(new string[] { "Dipo", "Nadeem"})]
     public bool[] whatBoss_;
+    #region Engineer Mini boss
+    // Current state of Mini Boss Engineer
+    public engineerStates states = engineerStates.DORMANT;
+    // Types of states Mini Boss Can Have
+    public enum engineerStates {DORMANT, CHASING, FAZING};
+    #endregion
 
     [Header("Variables Dipo")]
-    public float speed;
     public int damage;
     public int currentHealth;
     private int maxHealth = 100;
 
-    private Vector3 moveDirection;
-    private Quaternion currentRotation;
+    private Vector3 startPosition;
+
     // Shooting
     public float ammo;
     public LayerMask whatToShoot;
     public float weaponRange;
     public float fireRate;
     public float fireRateTimer;
-    [SerializeField]
     private Transform target;
     private RaycastHit hit;
 
+    // Chasing
+    public float speed;
+    public bool inRange = false;
+    public float chasingDistance = 12;
 
+    // Fazing 
+    public Transform[] FazePositions;   // list of possible faze positions
+    public float MaxTimerFaze = 3;  // Max amount of time to wait until Faze decide stops
+    public int ifFaze = 0;     // int that decides if we faze
+    public float nextFazeMove;
+    public float nextTimeToFaze = 30f;
 
-
-    //[Header("Katie")]
+    private int currentFazeArray;   // the array value that got chose to faze to
+    private Transform currentPosition;  // the current position the object has fazed to
+    private float decideTimer = 0;
 
 
     //[Header("Nadeem")]
@@ -40,56 +55,119 @@ public class Mini_Boss_AI : MonoBehaviour
         // Set the health
         currentHealth = maxHealth;
         //
-        
+        states = engineerStates.DORMANT;
         //
-
+        startPosition = transform.position;
         //
+        currentHealth = maxHealth;
 
     }
 
     // Update is called once per frame
     void Update()
     {
-        // Fire Rate for gun
-        if (fireRateTimer < fireRate)
-            fireRateTimer += Time.deltaTime;
+        //// Fire Rate for gun
+        //if (fireRateTimer < fireRate)
+        //    fireRateTimer += Time.deltaTime;
 
         if (whatBoss_[0] == true)
         {
             // Functions
+            EnumMonitor();
             movement();
             Shoot();
         }
+
+        // Death
+        if (currentHealth <= 0)
+            Destroy(gameObject);
     }
 
     void movement()
     {
-        if(Vector3.Distance(transform.position, target.position) >= 18)
+        // Chasing the player
+        if (states == engineerStates.CHASING)
         {
             speed = 2;
             transform.position = Vector3.MoveTowards(transform.position, target.position, speed * Time.deltaTime);
         }
-        else if(Vector3.Distance(transform.position, target.position) <= 3)
+        else if(states == engineerStates.FAZING && states != engineerStates.DORMANT)    // but if the AI wants to faze in and out of positions
         {
-            speed = 0;
+            nextFazeMove -= Time.deltaTime;
+            if(nextFazeMove <= 0)
+            {
+                int i = Random.Range(0, 10);
+                Debug.Log(i);
+                if(i <= 8)
+                {
+                    // reset timer
+                    nextFazeMove = nextTimeToFaze;
+                    currentFazeArray = Random.Range(0, 3);
+                    currentPosition = FazePositions[currentFazeArray];
+                    transform.position = new Vector3(currentPosition.position.x, currentPosition.position.y + 3, currentPosition.position.z);
+                }
+                else
+                {
+                    ifFaze = 0;
+                    i = 0;
+                    nextFazeMove = nextTimeToFaze;
+                    transform.position = startPosition;
+                    states = engineerStates.DORMANT;
+                }
+
+            }
         }
     }
 
     void Shoot()
     {
-        if (fireRateTimer < fireRate) return;
-        fireRateTimer = 0;
-        if (Physics.Raycast(transform.position, transform.TransformDirection(transform.forward), out hit, weaponRange, whatToShoot))
-        {
-            Player_Controller hitDamage = target.gameObject.GetComponent<Player_Controller>();
-            hitDamage.HitDetection(gameObject.GetComponent<Transform>());
-            hitDamage.ApplyDamage(damage);
-            Debug.DrawRay(transform.position, transform.forward * hit.distance, Color.blue);
-        }
+        //if (fireRateTimer < fireRate) return;
+        //fireRateTimer = 0;
+        //if (Physics.Raycast(transform.position, transform.TransformDirection(transform.forward), out hit, weaponRange, whatToShoot))
+        //{
+        //    Player_Controller hitDamage = target.gameObject.GetComponent<Player_Controller>();
+        //    hitDamage.HitDetection(gameObject.GetComponent<Transform>());
+        //    hitDamage.ApplyDamage(damage);
+        //    Debug.DrawRay(transform.position, transform.forward * hit.distance, Color.blue);
+        //}
     }
-
-    void Health()
+    /// <summary>
+    /// Controls what is going on 
+    /// </summary>
+    public void EnumMonitor()
     {
+        // When we are dormant 
+        if(states == engineerStates.DORMANT && transform.position == startPosition)
+        {
+            speed = 0;  // we dont move
+        }
+        
+        if(states == engineerStates.DORMANT && inRange)
+        {
+            states = engineerStates.CHASING;
+        }
+        else if(states == engineerStates.CHASING && states != engineerStates.FAZING)
+        {
+            // increase value
+            decideTimer += Time.deltaTime;
+            if (decideTimer >= MaxTimerFaze && ifFaze < 35)
+            {
+                ifFaze = Random.Range(10, 50);
+                decideTimer = 0;
+            }
 
+            if (ifFaze > 35)
+                states = engineerStates.FAZING;
+        }
+
+        // Chasing state change
+        if(Vector3.Distance(transform.position, target.position) <= chasingDistance)
+        {
+            inRange = true;
+        }
+        else
+        {
+            inRange = false;
+        }
     }
 }
