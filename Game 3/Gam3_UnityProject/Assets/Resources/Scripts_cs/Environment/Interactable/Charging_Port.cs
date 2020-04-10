@@ -40,7 +40,7 @@ public class Charging_Port : MonoBehaviour
             {
                 playerClass.speed = playerClass.currentSpeed;
             }
-            effect.GetComponent<MeshRenderer>().enabled=true;
+            effect.GetComponent<SkinnedMeshRenderer>().enabled=true;
         }
     }
     #endregion
@@ -49,6 +49,6 @@ public class Charging_Port : MonoBehaviour
     {
         if (other.gameObject.name == "PC")
         
-            effect.GetComponent<MeshRenderer>().enabled = false;
+            effect.GetComponent<SkinnedMeshRenderer>().enabled = false;
     }
 }
