@@ -1382,6 +1382,13 @@ public class Player_Controller : MonoBehaviour
                                             // Find the ai audio source we hit
                                             npc_audioSource = Hit.collider.gameObject.GetComponent<AudioSource>();
 
+                                            if (Hit.collider.gameObject.layer == 20)
+                                            {
+                                                Mini_Boss_AI miniBoss = Hit.transform.gameObject.GetComponentInParent<Mini_Boss_AI>();
+                                                miniBoss.HealthMonitor(miniBoss.damage);
+
+                                            }
+
                                             if (Hit.collider.name == "Head")
                                             {
                                                 npc_audioSource = null;

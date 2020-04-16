@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Mini_Boss_AI : MonoBehaviour
 {
-    [LabelArray(new string[] { "Dipo", "Nadeem"})]
+    [LabelArray(new string[] { "Dipo"})]
     public bool[] whatBoss_;
     #region Engineer Mini boss
     // Current state of Mini Boss Engineer
@@ -21,13 +21,13 @@ public class Mini_Boss_AI : MonoBehaviour
     private Vector3 startPosition;
 
     // Shooting
-    public float ammo;
     public LayerMask whatToShoot;
     public float weaponRange;
     public float fireRate;
     public float fireRateTimer;
-    private Transform target;
+    public Transform target;
     private RaycastHit hit;
+    public GameObject shootingPoint;
 
     // Chasing
     public float speed;
@@ -52,6 +52,7 @@ public class Mini_Boss_AI : MonoBehaviour
     void Start()
     {
         target = GameObject.Find("PC").GetComponent<Transform>();
+        shootingPoint = gameObject.transform.GetChild(0).gameObject;
         // Set the health
         currentHealth = maxHealth;
         //
@@ -66,21 +67,22 @@ public class Mini_Boss_AI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //// Fire Rate for gun
-        //if (fireRateTimer < fireRate)
-        //    fireRateTimer += Time.deltaTime;
-
         if (whatBoss_[0] == true)
         {
             // Functions
             EnumMonitor();
             movement();
             Shoot();
+            if (fireRateTimer < fireRate)
+                fireRateTimer += Time.deltaTime;
         }
 
         // Death
         if (currentHealth <= 0)
             Destroy(gameObject);
+        // Make sure there is a balanced combat 
+        if (inRange)
+            states = engineerStates.CHASING;
     }
 
     void movement()
@@ -121,19 +123,35 @@ public class Mini_Boss_AI : MonoBehaviour
 
     void Shoot()
     {
-        //if (fireRateTimer < fireRate) return;
-        //fireRateTimer = 0;
-        //if (Physics.Raycast(transform.position, transform.TransformDirection(transform.forward), out hit, weaponRange, whatToShoot))
-        //{
-        //    Player_Controller hitDamage = target.gameObject.GetComponent<Player_Controller>();
-        //    hitDamage.HitDetection(gameObject.GetComponent<Transform>());
-        //    hitDamage.ApplyDamage(damage);
-        //    Debug.DrawRay(transform.position, transform.forward * hit.distance, Color.blue);
-        //}
+        if (fireRateTimer < fireRate) return;
+        fireRateTimer = 0;  // reset next time to shoot
+        if (Physics.Raycast(shootingPoint.transform.position, (target.position - shootingPoint.transform.position), out hit, weaponRange, whatToShoot))
+        {
+            // are we shooting the player?
+            if(hit.transform.gameObject.layer == 10)
+            {
+                Debug.Log("Hit player" + hit.transform.gameObject.name);
+                Player_Controller hitDamage = target.gameObject.GetComponent<Player_Controller>();
+                hitDamage.HitDetection(gameObject.GetComponent<Transform>());
+                hitDamage.ApplyDamage(damage);
+                Debug.DrawRay(transform.position, transform.forward * hit.distance, Color.red);
+            }
+            Debug.DrawRay(transform.position, (target.position - shootingPoint.transform.position) * hit.distance, Color.blue);
+        }
+    }
+
+    /// <summary>
+    /// Subtract value from current health
+    /// </summary>
+    public void HealthMonitor(int damage)
+    {
+        currentHealth -= damage;
     }
     /// <summary>
     /// Controls what is going on 
     /// </summary>
+    
+
     public void EnumMonitor()
     {
         // When we are dormant 
@@ -146,7 +164,7 @@ public class Mini_Boss_AI : MonoBehaviour
         {
             states = engineerStates.CHASING;
         }
-        else if(states == engineerStates.CHASING && states != engineerStates.FAZING)
+        else if(states == engineerStates.CHASING && states != engineerStates.FAZING && !inRange)
         {
             // increase value
             decideTimer += Time.deltaTime;
@@ -156,7 +174,7 @@ public class Mini_Boss_AI : MonoBehaviour
                 decideTimer = 0;
             }
 
-            if (ifFaze > 35)
+            if (ifFaze > 35 && !inRange)
                 states = engineerStates.FAZING;
         }
 
