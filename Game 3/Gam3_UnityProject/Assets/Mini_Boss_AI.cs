@@ -25,9 +25,9 @@ public class Mini_Boss_AI : MonoBehaviour
     public float weaponRange;
     public float fireRate;
     public float fireRateTimer;
-    public Transform target;
+    private Transform target;
     private RaycastHit hit;
-    public GameObject shootingPoint;
+    private GameObject shootingPoint;
 
     // Chasing
     public float speed;
@@ -123,6 +123,7 @@ public class Mini_Boss_AI : MonoBehaviour
 
     void Shoot()
     {
+        // count down to shoot
         if (fireRateTimer < fireRate) return;
         fireRateTimer = 0;  // reset next time to shoot
         if (Physics.Raycast(shootingPoint.transform.position, (target.position - shootingPoint.transform.position), out hit, weaponRange, whatToShoot))
