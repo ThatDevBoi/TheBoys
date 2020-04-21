@@ -66,6 +66,10 @@ public class GameManager : MonoBehaviour
     [HideInInspector]
     public bool ultReady = false;
     private Slider ultraSlider;
+
+
+
+    public static bool disableInputs = false;
     // Add UI later
 
     #endregion
@@ -321,6 +325,15 @@ public class GameManager : MonoBehaviour
                 timercooldown = 1;  // reset timer
             }
         }
+
+
+        // Disable Input call
+        if (Time.timeScale <= 0)
+            disableInputs = true;
+        else
+            disableInputs = false;
+
+
 
         // find all the current objects of text damage
         foreach (GameObject go in textMesh_AI_UI)

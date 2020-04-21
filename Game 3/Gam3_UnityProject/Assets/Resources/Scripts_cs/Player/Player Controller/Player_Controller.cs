@@ -1186,12 +1186,17 @@ public class Player_Controller : MonoBehaviour
             // Depending on the inptut and fire mode we can shoot
             if (shootInput)
             {
-                if (currentAmmo > 0)
+                if (GameManager.disableInputs == false)
                 {
-                    // Fire Functions
-                    Fire();
-                    BurstShot();
+                    if (currentAmmo > 0)
+                    {
+                        // Fire Functions
+                        Fire();
+                        BurstShot();
+                    }
                 }
+                else
+                    return;
             }
             else
             {
@@ -1254,7 +1259,7 @@ public class Player_Controller : MonoBehaviour
             if (Input.GetKey(PlayerClass.Player_Key_Binds[7]) && game_manager.ultReady == true)
             {
                 GameManager.ult_initiated = true;
-                
+
             }
 
         }
@@ -1384,12 +1389,13 @@ public class Player_Controller : MonoBehaviour
 
                                             if (Hit.collider.gameObject.layer == 20)
                                             {
+                                                enemyHit = null;
                                                 Mini_Boss_AI miniBoss = Hit.transform.gameObject.GetComponentInParent<Mini_Boss_AI>();
                                                 miniBoss.HealthMonitor(miniBoss.damage);
 
                                             }
 
-                                            if (Hit.collider.name == "Head")
+                                            if (Hit.collider.name == "Head" && Hit.collider.gameObject.layer != 20)
                                             {
                                                 npc_audioSource = null;
                                                 enemyHit = Hit.collider.gameObject.GetComponentInParent<AI>();
@@ -1671,7 +1677,14 @@ public class Player_Controller : MonoBehaviour
         /// </summary>
         public void PlayWalkingSound()
         {
-            PlayerClass.walkingSound.PlayOneShot(PlayerClass.footstep);
+            if (Input.GetKeyUp(KeyCode.W) | Input.GetKeyUp(KeyCode.A) | Input.GetKeyUp(KeyCode.S) | Input.GetKeyUp(KeyCode.D))
+            {
+                PlayerClass.walkingSound.Stop();
+            }
+            else
+            {
+                PlayerClass.walkingSound.PlayOneShot(PlayerClass.footstep);
+            }
         }
 
 

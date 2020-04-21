@@ -72,7 +72,11 @@ public class Mini_Boss_AI : MonoBehaviour
             // Functions
             EnumMonitor();
             movement();
-            Shoot();
+            // when ai boss knows Player is are around
+            if(states == engineerStates.CHASING || states == engineerStates.FAZING)
+            {
+                Shoot();    // shoot
+            }
             if (fireRateTimer < fireRate)
                 fireRateTimer += Time.deltaTime;
         }
