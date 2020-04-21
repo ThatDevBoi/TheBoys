@@ -4,14 +4,17 @@ using System.Linq;
 /// <summary>
 /// Edits the IDE to make the names appear 
 /// </summary>
+#if UNITY_EDITOR
 [CustomPropertyDrawer(typeof(LabelArray))]
+#endif
+#if UNITY_EDITOR
 public class LableArrayDrawer : PropertyDrawer
 {
+#if UNITY_EDITOR
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
         return EditorGUI.GetPropertyHeight(property, true);
     }
-
     public override void OnGUI(Rect rect, SerializedProperty property, GUIContent label)
     {
         EditorGUI.BeginProperty(rect, label, property);
@@ -27,4 +30,7 @@ public class LableArrayDrawer : PropertyDrawer
         }
         EditorGUI.EndProperty();
     }
+#endif
+
 }
+#endif

@@ -47,7 +47,9 @@ public class Player_Controller : MonoBehaviour
     public int currentHealth;   // the current health the player has 
     // This array if for the images that are on the Player Healthbar 
     public Image[] sliderArray;
+#if UNITY_EDITOR
     [LabelArray(new string[] { "High Health", "Medium Health", "Low Health" })]
+#endif
     public Color[] HealthBar_StageColors;   // The array of colors that gets called when the healthbar is altered (Taking damage)
     private TextMeshPro healthPercentageText;    // Health text that is shown from the currentHealth
     private Canvas respawnCan;   // The Canvas that appears when the player dies 
@@ -68,7 +70,9 @@ public class Player_Controller : MonoBehaviour
     #endregion
     #region Player Events
     [Header("Events")]
+#if UNITY_EDITOR
     [LabelArray(new string[] { "Shoot", "Aim", "Reload", "Pause", "Interaction", "Change Ammo", "Change Fire Type", "Ultimate", "Jump",  "Add a new name for this array"})]
+#endif
     public KeyCode[] Player_Key_Binds;
     [HideInInspector]
     public bool playerDead = false;   // is the player dead currentHealth >= 0

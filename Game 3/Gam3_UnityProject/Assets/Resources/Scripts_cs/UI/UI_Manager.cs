@@ -31,7 +31,9 @@ public class UI_Manager : MonoBehaviour
     public TMP_Text[] allTMPTextComp;   // All the Text Mesh Pro Components
     // This needs to be set manually
     // Write the strings for each Array element. It allows us to keep arrays in the correct order
+    #if UNITY_EDITOR
     [LabelArray(new string[] { "NextFont", "JetBrainsMono", "Digitalism", "RogueHero", "Liberation" })]
+#endif
     public TMP_FontAsset[] TMP_Fonts;   // All the TextMeshPro Font Types
     // The Current Font We are using
     private TMP_FontAsset currentTMPFont;   // The Current Font We Have Selected
@@ -45,16 +47,22 @@ public class UI_Manager : MonoBehaviour
     #region Audio Managment
     [Header("Audio Manager")]
     // NEW
+#if UNITY_EDITOR
     [LabelArray(new string[] { "Player", "AI", "Background", "Menu", "Voice Acting", "SFX", "Ambient"})]
+#endif
     public Slider[] volumeChangers;
     private AudioMixer mastermix;
     #endregion
 
     #region Sub Menu Options
     [SerializeField]
+#if UNITY_EDITOR
     [LabelArray(new string[] { "Options Button", "Audio Button", "Gameplay Button", "Visuals Button" })]
+#endif
     private Button[] SubMenuButtons = new Button[4];    // Set length of array
+#if UNITY_EDITOR
     [LabelArray(new string[] { "Current", "Next Button"})]
+#endif
     public Color[] ButtonClickChange;
     private int colorMonitor;
     #endregion

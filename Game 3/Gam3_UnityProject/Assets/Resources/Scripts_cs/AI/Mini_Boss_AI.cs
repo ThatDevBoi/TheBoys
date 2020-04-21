@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class Mini_Boss_AI : MonoBehaviour
 {
+#if UNITY_EDITOR
     [LabelArray(new string[] { "Dipo"})]
+#endif
     public bool[] whatBoss_;
     #region Engineer Mini boss
     // Current state of Mini Boss Engineer

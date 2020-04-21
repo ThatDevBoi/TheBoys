@@ -2,38 +2,37 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-//#if (UNITY_EDITOR)
-//[CustomPropertyDrawer(typeof(HideAttributes))]
-//#endif
+#if (UNITY_EDITOR)
+[CustomPropertyDrawer(typeof(HideAttributes))]
 public class Simple_Light_Pulse : MonoBehaviour
 {
-    //[Header("Variable Revealers")]
+    [Header("Variable Revealers")]
     public bool revealVariables = false;
-    //[HideAttributes("revealVariables", true)]
+    [HideAttributes("revealVariables", true)]
     public bool directionLight;
-    //[HideAttributes("revealVariables", true)]
+    [HideAttributes("revealVariables", true)]
     public bool spotLight;
-    //[HideAttributes("revealVariables", true)]
+    [HideAttributes("revealVariables", true)]
     public bool areaLight;
 
     [Header("Spot Light Variables")]
-    //[HideAttributes("spotLight", false)]
+    [HideAttributes("spotLight", false)]
     public float spotLightAngle = 60f;
 
     [Header("Directional Light Variables")]
-    //[HideAttributes("directionLight", false)]
+    [HideAttributes("directionLight", false)]
     public float CookieSize = 10;
 
 
     [Header("Area Light Varibles")]
-    //[HideAttributes("areaLight", false)]
+    [HideAttributes("areaLight", false)]
     public Shape AreaShape = Shape.RECTANGLE;
     public enum Shape { RECTANGLE, DISC }
-    //[HideAttributes("areaLight", false)]
+    [HideAttributes("areaLight", false)]
     public float width = 1;
-    //[HideAttributes("areaLight", false)]
+    [HideAttributes("areaLight", false)]
     public float Height = 1;
-    //[HideAttributes("areaLight", false)]
+    [HideAttributes("areaLight", false)]
     public float radius = 6;
 
 
@@ -136,41 +135,35 @@ public class Simple_Light_Pulse : MonoBehaviour
             objectLight.type = ug;
         }
 
-
-        /// cannot be edited or found on build 
-        /// 
-        //if (lightTypes == LightType.AREA)
-        //{
-        //    var ug = UnityEngine.LightType.Area;
-        //    objectLight.type = ug;
-        //    if (AreaShape == Shape.RECTANGLE)
-        //    {
-        //        objectLight.type = UnityEngine.LightType.Rectangle;
-        //        // For Area Light
-        //        objectLight.areaSize = new Vector2(width, Height);
-        //    }
-        //    else if (AreaShape == Shape.DISC)
-        //    {
-        //        objectLight.type = UnityEngine.LightType.Disc;
-        //        objectLight.areaSize = new Vector2(radius, 0);
-        //    }
-        //    else
-        //        return;
-
-        //}
+        if (lightTypes == LightType.AREA)
+        {
+            var ug = UnityEngine.LightType.Area;
+            objectLight.type = ug;
+            if (AreaShape == Shape.RECTANGLE)
+            {
+                objectLight.type = UnityEngine.LightType.Rectangle;
+                // For Area Light
+                objectLight.areaSize = new Vector2(width, Height);
+            }
+            else if (AreaShape == Shape.DISC)
+            {
+                objectLight.type = UnityEngine.LightType.Disc;
+                objectLight.areaSize = new Vector2(radius, 0);
+            }
+            else
+                return;
+        }
 
 
         #endregion
         // What mode are we rendering
         #region Mode Lighting
-        /// cannot be edited on build
-        /// 
-        //if (LightMode == LightingMode.REALTIME)
-        //    objectLight.lightmapBakeType = LightmapBakeType.Realtime;
-        //if (LightMode == LightingMode.MIXED)
-        //    objectLight.lightmapBakeType = LightmapBakeType.Mixed;
-        //if (LightMode == LightingMode.BAKED)
-        //    objectLight.lightmapBakeType = LightmapBakeType.Baked;
+        if (LightMode == LightingMode.REALTIME)
+            objectLight.lightmapBakeType = LightmapBakeType.Realtime;
+        if (LightMode == LightingMode.MIXED)
+            objectLight.lightmapBakeType = LightmapBakeType.Mixed;
+        if (LightMode == LightingMode.BAKED)
+            objectLight.lightmapBakeType = LightmapBakeType.Baked;
         #endregion
         // Different light value settings
         #region Light Unit Set Up
@@ -262,3 +255,4 @@ public class Simple_Light_Pulse : MonoBehaviour
         }
     }
 }
+#endif
