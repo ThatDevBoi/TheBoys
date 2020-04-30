@@ -9,6 +9,7 @@ public class Trigger_Dialogue : MonoBehaviour
 {
     // Public Variables
     // Array of strings used for our conversation
+    public bool using_VoiceActing = false;
     public string[] objectConversation;
     // Keycode can be changed in the inspector
     // The key is used to talk
@@ -66,91 +67,98 @@ public class Trigger_Dialogue : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //// if the player is being spawned by the Level Manager
-        //if (playerObject == null)
-        //{
-        //    // IDE Transform belonging to the player
-        //    playerObject = GameObject.Find("PC").GetComponent<Transform>();
-        //}
-
-        //// input cooldown
-        //if (keypressed)
-        //{
-        //    keyTimer += Time.deltaTime;
-        //    if (keyTimer >= time_Between_Inputs)
-        //    {
-        //        keyTimer = 0;
-        //        keypressed = false;
-        //    }
-        //}
-
-
-        //#region Conversation Logic
-        //// if the conversation is over
-        //if (conversationScroller >= objectConversation.Length)
-        //{
-
-        //    // reset 
-        //    conversationScroller = 0;
-        //    // tick boolean back
-        //    isTalking = false;
-        //}
-
-        //if (PC_Aproached_Me)
-        //{
-        //    // when in range
-        //    if (Vector3.Distance(transform.position, playerObject.position) < distanceToTalk && !isTalking)
-        //    {
-        //        // text shows
-        //        projectTextObject.text = startSring + " ";
-        //        // boolean ticks 
-        //        isTalking = true;
-        //    }
-        //    else if (Vector3.Distance(transform.position, playerObject.position) > distanceToTalk)
-        //    {
-        //        projectTextObject.text = startSring + " ";
-        //        isTalking = false;
-
-        //    }
-
-        //    // when boolean is true 
-        //    if (isTalking && !StoryEvent)
-        //    {
-        //        if (!keypressed)
-        //        {
-        //            startSring = "";
-        //            // Conversation starts
-        //            Conversation = objectConversation[conversationScroller];
-        //            if (keyTimer >= 0)
-        //            {
-        //                // when key is pressed 
-        //                if (Input.GetKeyDown(player.GetComponent<Player_Controller>().Player_Key_Binds[4]))
-        //                {
-        //                    keypressed = true;
-        //                    //if (conversationScroller == 1)
-        //                    //    projectTextObject.text = " ";
-
-        //                    //// increase array scroller by 1
-        //                    //conversationScroller++;
-        //                    //// call function to type write
-        //                    //typeWriterScript.ChangeText(Conversation, 0.5f);
-        //                    //player.GetComponent<Player_Controller>().speed = 0;
-        //                }
-        //            }
-        //            else
-        //                keypressed = false;
-        //        }
-        //        else
-        //        {
-        //            startSring = "Press E";
-        //            return;
-        //        }
-        //    }
-        //}
-        //#endregion
-        if(isTalking == false)
+        // This is a dialogue interactable object if the bool is false
+        if (!using_VoiceActing)
         {
-            StartVoiceAct();
+            // if the player is being spawned by the Level Manager
+            if (playerObject == null)
+            {
+                // IDE Transform belonging to the player
+                playerObject = GameObject.Find("PC").GetComponent<Transform>();
+            }
+
+            // input cooldown
+            if (keypressed)
+            {
+                keyTimer += Time.deltaTime;
+                if (keyTimer >= time_Between_Inputs)
+                {
+                    keyTimer = 0;
+                    keypressed = false;
+                }
+            }
+
+
+            #region Conversation Logic
+            // if the conversation is over
+            if (conversationScroller >= objectConversation.Length)
+            {
+
+                // reset 
+                conversationScroller = 0;
+                // tick boolean back
+                isTalking = false;
+            }
+            if (PC_Aproached_Me)
+            {
+                // when in range
+                if (Vector3.Distance(transform.position, playerObject.position) < distanceToTalk && !isTalking)
+                {
+                    // text shows
+                    projectTextObject.text = startSring + " ";
+                    // boolean ticks 
+                    isTalking = true;
+                }
+                else if (Vector3.Distance(transform.position, playerObject.position) > distanceToTalk)
+                {
+                    projectTextObject.text = startSring + " ";
+                    isTalking = false;
+
+                }
+
+                // when boolean is true 
+                if (isTalking && !StoryEvent)
+                {
+                    if (!keypressed)
+                    {
+                        startSring = "";
+                        // Conversation starts
+                        Conversation = objectConversation[conversationScroller];
+                        if (keyTimer >= 0)
+                        {
+                            // when key is pressed 
+                            if (Input.GetKeyDown(player.GetComponent<Player_Controller>().Player_Key_Binds[4]))
+                            {
+                                keypressed = true;
+                                //if (conversationScroller == 1)
+                                //    projectTextObject.text = " ";
+
+                                // increase array scroller by 1
+                                conversationScroller++;
+                                // call function to type write
+                                typeWriterScript.ChangeText(Conversation, 0.5f);
+                                player.GetComponent<Player_Controller>().speed = 0;
+                            }
+                        }
+                        else
+                            keypressed = false;
+                    }
+                    else
+                    {
+                        startSring = "Press E";
+                        return;
+                    }
+                }
+            }
+        }
+        #endregion
+        else    // the voice acting starts here 
+        {
+            if (isTalking == false)
+            {
+                StartVoiceAct();
+            }
+
         }
     }
 
@@ -158,9 +166,10 @@ public class Trigger_Dialogue : MonoBehaviour
     private AudioSource _AS;
     public float currentduration = 0.0f;
     AudioSource pcAudio;
-    int switcher = 0;
+    public int switcher = 0;
     public void StartVoiceAct()
     {
+        // component collection
         if (_AS == null)
         {
             // add Audio Source
@@ -170,37 +179,52 @@ public class Trigger_Dialogue : MonoBehaviour
             // add clip
             _AS.clip = voiceAct;
         }
-        if (switcher == 0)
+        if (switcher == 0)  // When in range of 3D sound
         {
-            _AS.Play();
+            _AS.Play(); // play the clip
             // Check to see where the clip duration is 
             // Make that check a value so we can pass it on if needed
             currentduration = _AS.time;
         }
-        else if(switcher == 1)
+        else if (switcher == 1 && _AS.isPlaying == true)
         {
-            Debug.LogError("PC Takes Over Now");
-            if(player.transform.GetChild(0).GetComponent<AudioSource>() == null)
+            Debug.LogWarning("PC Takes Over Now");
+            // component collection
+            if (player.transform.GetChild(0).GetComponent<AudioSource>() == null && _AS.isPlaying == true)
             {
+                // Add component 
                 pcAudio = player.transform.GetChild(0).gameObject.AddComponent<AudioSource>();
-                pcAudio.clip = voiceAct;
-                pcAudio.playOnAwake = true;
-                pcAudio.time = _AS.time;
-                _AS.Stop();
-                pcAudio.Play();
-                if (pcAudio.isPlaying == false)
+                if (pcAudio != null)
                 {
-                    pcAudio.Stop();
+                    pcAudio.clip = voiceAct;    // apply clip
+                    pcAudio.playOnAwake = true; // play as soon as possible
+                    pcAudio.time = _AS.time;    // play at the current time 
+
+                    _AS.Stop(); // Stop the 3D sound
+                    pcAudio.Play(); // Play the 2D sound 
                 }
             }
         }
 
-        // Check to see when the clip is over 
-        if (_AS.isPlaying == false)
+        if(pcAudio == null)
         {
-            _AS.Stop();         // Stop the clip 
+            return;
         }
-
+        else
+        {
+            if (pcAudio != null && pcAudio.isPlaying == false)
+            {
+                pcAudio.Stop();
+                DestroyImmediate(pcAudio);
+                pcAudio = null;
+                switcher = 0;
+            }
+            else if (_AS.isPlaying == false)
+            {
+                _AS.Stop();
+                switcher = 0;
+            }
+        }
     }
 
     #region Multiple Object Controller

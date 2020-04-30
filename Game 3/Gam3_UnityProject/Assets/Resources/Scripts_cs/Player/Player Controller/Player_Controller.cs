@@ -79,6 +79,15 @@ public class Player_Controller : MonoBehaviour
     #endregion
     private Animator walkingAnimatorController;
 
+    #region Zipline
+    [Header("Zipline")]
+    public bool usezipeline = false;
+    public Transform endPosition;
+    public float time = 5;
+    [HideInInspector]
+    public float elapsedTime = 0;
+    #endregion
+
     #region Debugging
     [HideInInspector]
     public bool Debugging;
@@ -298,8 +307,11 @@ public class Player_Controller : MonoBehaviour
             {
                 if(jumpGrounded)
                 {
-                    inputJump = true;
-                    StartCoroutine("Jump");
+                    if(!usezipeline)
+                    {
+                        inputJump = true;
+                        StartCoroutine("Jump");
+                    }
                 }
             }
             // Update overtime so we dont go back to the orginal jump position
@@ -314,9 +326,14 @@ public class Player_Controller : MonoBehaviour
     }
     void FixedUpdate()
     {
-        // Move Player Character
-        FPSMove();
-        Slope_Outcome();
+        if (!usezipeline)
+        {
+            // Move Player Character
+            FPSMove();
+            Slope_Outcome();
+        }
+        else
+            return;
     }
     #endregion
 
@@ -342,7 +359,6 @@ public class Player_Controller : MonoBehaviour
                     jumpGrounded = true;    // reset the jump
                     StopCoroutine("Jump");    // Stop Running this
                 }
-
             }
             yield return new WaitForEndOfFrame();
         }
@@ -736,6 +752,16 @@ public class Player_Controller : MonoBehaviour
         return true;
     }
     #endregion
+
+    public IEnumerator UseZipline()
+    {
+        while(elapsedTime < time)
+        {
+            transform.position = Vector3.Lerp(transform.position, endPosition.position, (elapsedTime / time));
+            elapsedTime += Time.deltaTime;
+            yield return new WaitForEndOfFrame();
+        }
+    }
 
     #region Charging Port (OnTriggerStay)
     // Base for charging port (For ammo and health)
