@@ -179,7 +179,7 @@ public class Trigger_Dialogue : MonoBehaviour
             // add clip
             _AS.clip = voiceAct;
         }
-        if (switcher == 0)  // When in range of 3D sound
+        if (switcher == 0 && pcAudio.isPlaying == false)  // When in range of 3D sound
         {
             _AS.Play(); // play the clip
             // Check to see where the clip duration is 
