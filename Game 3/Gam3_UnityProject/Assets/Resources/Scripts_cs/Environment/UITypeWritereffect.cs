@@ -89,10 +89,10 @@ public class UITypeWritereffect : MonoBehaviour
             text.text += c;
            
             yield return new WaitForSeconds(delayBetweenChars);
-            player.GetComponent<Player_Controller>().speed = 0;//stop player from moving while text is beign written
+            ///player.GetComponent<Player_Controller>().speed = 0;//stop player from moving while text is beign written
         }
         talking = false;
         
-        player.GetComponent<Player_Controller>().speed = player.GetComponent<Player_Controller>().currentSpeed;//restore player speed
+       // player.GetComponent<Player_Controller>().speed = player.GetComponent<Player_Controller>().currentSpeed;//restore player speed
     }
 }

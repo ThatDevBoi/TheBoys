@@ -104,6 +104,7 @@ public class Trigger_Dialogue : MonoBehaviour
                 // when in range
                 if (Vector3.Distance(transform.position, playerObject.position) < distanceToTalk && !isTalking)
                 {
+                    //GameObject.Find("PlayerUIController/Panel/Exposition_Text").GetComponent<TextMeshPro>().text= startSring;
                     // text shows
                     projectTextObject.text = startSring + " ";
                     // boolean ticks 
@@ -237,7 +238,7 @@ public class Trigger_Dialogue : MonoBehaviour
             switcher = 0;
             PC_Aproached_Me = true;
 
-            GameObject.Find("PlayerUIController/Panel").GetComponent<Panel_Fade>().dialouge = true;//this will tell the fade script to be deactivated DM
+            //GameObject.Find("PlayerUIController/Panel").GetComponent<Panel_Fade>().dialouge = true;//this will tell the fade script to be deactivated DM
             if (read)
             {
                 //Log.GetComponent<LogSystem>().textLog.text += objectConversation;
@@ -260,7 +261,7 @@ public class Trigger_Dialogue : MonoBehaviour
         {
             isTalking = false;
             switcher = 1;
-            GameObject.Find("PlayerUIController/Panel").GetComponent<Panel_Fade>().dialouge = false;//this will tell the fade script to be activated DM
+            //GameObject.Find("PlayerUIController/Panel").GetComponent<Panel_Fade>().dialouge = false;//this will tell the fade script to be activated DM
             startSring = "Press E";
             PC_Aproached_Me = false;
             // set the conversation to be shown as over
@@ -280,9 +281,9 @@ public class Trigger_Dialogue : MonoBehaviour
         while(projectTextObject == null && typeWriterScript == null)
         {
             // Find the text
-            projectTextObject = GameObject.Find("PlayerUIController/Panel/Exposition_Text").GetComponent<TextMeshPro>();
+            projectTextObject =  GameObject.Find("PlayerUIController/Panel/Exposition_Text").GetComponent<TextMeshPro>();// GetComponentInChildren<TextMeshPro>();
             // Find the typewriter
-            typeWriterScript = GameObject.Find("PlayerUIController/Panel/Exposition_Text").GetComponent<UITypeWritereffect>();
+            typeWriterScript =  GameObject.Find("PlayerUIController/Panel/Exposition_Text").GetComponent<UITypeWritereffect>();//GetComponentInChildren<UITypeWritereffect>(); 
             yield break;
         }
         
