@@ -180,7 +180,7 @@ public class Trigger_Dialogue : MonoBehaviour
             // add clip
             _AS.clip = voiceAct;
         }
-        if (switcher == 0 && pcAudio.isPlaying == false)  // When in range of 3D sound
+        if (switcher == 0 && pcAudio == null)  // When in range of 3D sound
         {
             _AS.Play(); // play the clip
             // Check to see where the clip duration is 
@@ -230,10 +230,30 @@ public class Trigger_Dialogue : MonoBehaviour
 
     #region Multiple Object Controller
     // Because we are using multiple objects We need a boolean to address which object we are at
-    private void OnTriggerEnter(Collider other)
+    private bool pressed = false;
+    private void OnTriggerStay(Collider other)
     {
         if (other.gameObject.name == "PC")
         {
+            if (!pressed)
+            {
+                GameObject.Find("PlayerUIController/Interact/Exposition_Text").GetComponent<TextMeshPro>().enabled = true;
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    startSring = "";
+                    Conversation = objectConversation[conversationScroller];    // Set up what the conversation involves
+                    typeWriterScript.ChangeText(Conversation, 2);   // Run The Conversation at hand 
+
+                    pressed = true;
+                    if (pressed)
+                        GameObject.Find("PlayerUIController/Interact/Exposition_Text").GetComponent<TextMeshPro>().enabled = false;
+
+                    ///GetComponentInChildren<TextMeshPro>().enabled = true;
+                    //GetComponentInChildren<TextMeshPro>().text = Conversation;
+
+                }
+            }
+
             isTalking = true;
             switcher = 0;
             PC_Aproached_Me = true;
@@ -254,33 +274,6 @@ public class Trigger_Dialogue : MonoBehaviour
             }
         }
     }
-    private bool pressed = false;
-    private void OnTriggerStay(Collider other)
-    {
-
-        if (other.gameObject.name == "PC")
-        {
-            if (!pressed)
-            {
-                GameObject.Find("PlayerUIController/Interact/Exposition_Text").GetComponent<TextMeshPro>().enabled = true;
-                if (Input.GetKeyDown(KeyCode.E))
-                {
-                    startSring = "";
-                    Conversation = objectConversation[conversationScroller];    // Set up what the conversation involves
-                    typeWriterScript.ChangeText(Conversation, 2);   // Run The Conversation at hand 
-                     
-                    pressed = true;
-                    if (pressed)
-                        GameObject.Find("PlayerUIController/Interact/Exposition_Text").GetComponent<TextMeshPro>().enabled = false;
-
-                    ///GetComponentInChildren<TextMeshPro>().enabled = true;
-                    //GetComponentInChildren<TextMeshPro>().text = Conversation;
-
-                }
-            }
-        }
-    }
-
     // We end the conversation with the object
     private void OnTriggerExit(Collider other)
     {
@@ -288,6 +281,8 @@ public class Trigger_Dialogue : MonoBehaviour
         {
             if (!pressed)
                 GameObject.Find("PlayerUIController/Interact/Exposition_Text").GetComponent<TextMeshPro>().enabled = false;
+
+
             isTalking = false;
             switcher = 1;
             //GameObject.Find("PlayerUIController/Panel").GetComponent<Panel_Fade>().dialouge = false;//this will tell the fade script to be activated DM
@@ -295,11 +290,11 @@ public class Trigger_Dialogue : MonoBehaviour
             PC_Aproached_Me = false;
             // set the conversation to be shown as over
             //Conversation = "Conversation Over";
-            //typeWriterScript.StopCoroutine(typeWriterScript.PlayText());
+            typeWriterScript.StopCoroutine(typeWriterScript.PlayText());
             // reset the array scroller
-            //conversationScroller = 0;
+            conversationScroller = 0;
             // TextMesh needs to know what to print 
-           // projectTextObject.text = Conversation;
+            projectTextObject.text = Conversation;
         }
     }
     #endregion
@@ -310,10 +305,10 @@ public class Trigger_Dialogue : MonoBehaviour
         while(projectTextObject == null && typeWriterScript == null)
         {
             // Find the text
-            projectTextObject =  GetComponentInChildren<TextMeshPro>();// GameObject.Find("PlayerUIController/Panel/Exposition_Text").GetComponent<TextMeshPro>();
+            projectTextObject =  GameObject.Find("PlayerUIController/Panel/Exposition_Text").GetComponent<TextMeshPro>();// GetComponentInChildren<TextMeshPro>();
             // Find the typewriter
-            typeWriterScript =GetComponentInChildren<UITypeWritereffect>(); 
-            yield break;  //GameObject.Find("PlayerUIController/Panel/Exposition_Text").GetComponent<UITypeWritereffect>();
+            typeWriterScript =  GameObject.Find("PlayerUIController/Panel/Exposition_Text").GetComponent<UITypeWritereffect>();//GetComponentInChildren<UITypeWritereffect>(); 
+            yield break;
         }
         
     }

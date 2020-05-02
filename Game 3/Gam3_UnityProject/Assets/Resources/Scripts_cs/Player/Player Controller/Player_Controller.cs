@@ -618,7 +618,7 @@ public class Player_Controller : MonoBehaviour
 
                 // New Logic
                 // Needs to be called when the player rigidbody velocity is not 0 as it means we are moving
-                gravityModifier = 35;
+                gravityModifier = 600;
                 Vector3 gravity = globalGravity * gravityModifier * Vector3.up;
                 playerPhysics.AddForce(gravity * Time.smoothDeltaTime, ForceMode.Acceleration);
             }
@@ -1339,7 +1339,7 @@ public class Player_Controller : MonoBehaviour
                         // make the gun go back to its hip position
                         weaponHolder.localPosition = Vector3.Lerp(weaponHolder.localPosition, originalPosition, Time.deltaTime * adsSpeed);
                         // change the camera FOV to be what it starts as (Zoom Out)
-                        cam_FirePosition.fieldOfView = Mathf.Lerp(cam_FirePosition.fieldOfView, currentFieldOfView, Time.deltaTime / aimDuration);
+                        cam_FirePosition.fieldOfView = Mathf.Lerp(cam_FirePosition.fieldOfView, currentFieldOfView, Time.deltaTime / aimDuration * 4);
                         lerp = 0;
                     }
                 }
