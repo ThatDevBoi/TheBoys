@@ -286,6 +286,8 @@ public class Trigger_Dialogue : MonoBehaviour
     {
         if (other.gameObject.name == "PC")
         {
+            if (!pressed)
+                GameObject.Find("PlayerUIController/Interact/Exposition_Text").GetComponent<TextMeshPro>().enabled = false;
             isTalking = false;
             switcher = 1;
             //GameObject.Find("PlayerUIController/Panel").GetComponent<Panel_Fade>().dialouge = false;//this will tell the fade script to be activated DM
