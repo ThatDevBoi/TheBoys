@@ -254,6 +254,33 @@ public class Trigger_Dialogue : MonoBehaviour
             }
         }
     }
+    private bool pressed = false;
+    private void OnTriggerStay(Collider other)
+    {
+
+        if (other.gameObject.name == "PC")
+        {
+            if (!pressed)
+            {
+                GameObject.Find("PlayerUIController/Interact/Exposition_Text").GetComponent<TextMeshPro>().enabled = true;
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    startSring = "";
+                    Conversation = objectConversation[conversationScroller];    // Set up what the conversation involves
+                    typeWriterScript.ChangeText(Conversation, 2);   // Run The Conversation at hand 
+                     
+                    pressed = true;
+                    if (pressed)
+                        GameObject.Find("PlayerUIController/Interact/Exposition_Text").GetComponent<TextMeshPro>().enabled = false;
+
+                    ///GetComponentInChildren<TextMeshPro>().enabled = true;
+                    //GetComponentInChildren<TextMeshPro>().text = Conversation;
+
+                }
+            }
+        }
+    }
+
     // We end the conversation with the object
     private void OnTriggerExit(Collider other)
     {
@@ -266,11 +293,11 @@ public class Trigger_Dialogue : MonoBehaviour
             PC_Aproached_Me = false;
             // set the conversation to be shown as over
             //Conversation = "Conversation Over";
-            typeWriterScript.StopCoroutine(typeWriterScript.PlayText());
+            //typeWriterScript.StopCoroutine(typeWriterScript.PlayText());
             // reset the array scroller
-            conversationScroller = 0;
+            //conversationScroller = 0;
             // TextMesh needs to know what to print 
-            projectTextObject.text = Conversation;
+           // projectTextObject.text = Conversation;
         }
     }
     #endregion
@@ -281,10 +308,10 @@ public class Trigger_Dialogue : MonoBehaviour
         while(projectTextObject == null && typeWriterScript == null)
         {
             // Find the text
-            projectTextObject =  GameObject.Find("PlayerUIController/Panel/Exposition_Text").GetComponent<TextMeshPro>();// GetComponentInChildren<TextMeshPro>();
+            projectTextObject =  GetComponentInChildren<TextMeshPro>();// GameObject.Find("PlayerUIController/Panel/Exposition_Text").GetComponent<TextMeshPro>();
             // Find the typewriter
-            typeWriterScript =  GameObject.Find("PlayerUIController/Panel/Exposition_Text").GetComponent<UITypeWritereffect>();//GetComponentInChildren<UITypeWritereffect>(); 
-            yield break;
+            typeWriterScript =GetComponentInChildren<UITypeWritereffect>(); 
+            yield break;  //GameObject.Find("PlayerUIController/Panel/Exposition_Text").GetComponent<UITypeWritereffect>();
         }
         
     }
