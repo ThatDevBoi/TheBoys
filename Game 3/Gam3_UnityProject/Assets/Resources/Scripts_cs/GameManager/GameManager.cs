@@ -57,15 +57,15 @@ public class GameManager : MonoBehaviour
     [Range(90, 120)]
     public float ult_CameraRotation;
     [Space(20)]
-
+    [Range(800, 1000)]
     public float ult_Speed;
-    public float ult_Lifetime;
-    public float ult_cooldown = 0;    // plays after ultimate is used so its not spammed
+    private float ult_Lifetime;
+    private float ult_cooldown = 0;    // plays after ultimate is used so its not spammed
     public static bool ult_initiated = false;
-    public bool coolDownUlt = false;
-
+    private bool coolDownUlt = false;
+    [HideInInspector]
     public bool ultReady = false;
-    public Slider ultraSlider;
+    private Slider ultraSlider;
 
 
 

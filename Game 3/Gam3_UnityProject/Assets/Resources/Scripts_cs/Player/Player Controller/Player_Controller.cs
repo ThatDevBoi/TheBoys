@@ -1091,7 +1091,7 @@ public class Player_Controller : MonoBehaviour
 
             // Functions
             AimDownSights();
-            //Punch();
+            Punch();
            
             #region Debuggng Key Press Logic
             // Press alL the keys listed together to see hidden variables
@@ -1661,25 +1661,24 @@ public class Player_Controller : MonoBehaviour
                 }
             }
         }
-
-        // Melee attack
-        //public void Punch()
-        //{
-        //    // if the player presses the key P then we play the animation and we must be punching
-        //    if (Input.GetKey(KeyCode.F))
-        //    {
-        //        isPunching = true;
-        //        // Play the animation
-        //        //Animator anim = GameObject.Find("Fist").GetComponent<Animator>();
-        //        punchController.SetBool("isPunching", true);
-        //    }
-        //    else    // else if the player didnt press p then we are not punching
-        //    {
-        //        isPunching = false;    // cant punch 
-        //        // dont play animations
-        //        punchController.SetBool("isPunching", false);
-        //    }
-        //}
+        // Melle attack
+        public void Punch()
+        {
+            // if the player presses the key P then we play the animation and we must be punching
+            if (Input.GetKey(KeyCode.F))
+            {
+                isPunching = true;
+                // Play the animation
+                //Animator anim = GameObject.Find("Fist").GetComponent<Animator>();
+                punchController.SetBool("isPunching", true);
+            }
+            else    // else if the player didnt press p then we are not punching
+            {
+                isPunching = false;    // cant punch 
+                // dont play animations
+                punchController.SetBool("isPunching", false);
+            }
+        }
 
         // Normal Reloading
         IEnumerator Reload()
