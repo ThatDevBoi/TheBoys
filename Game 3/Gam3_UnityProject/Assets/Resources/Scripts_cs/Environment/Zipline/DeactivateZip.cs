@@ -36,4 +36,11 @@ public class DeactivateZip : MonoBehaviour
         zipfunction.elapsedTime = 0;
         reset = true;
     }
+
+    private void OnTriggerExit(Collider other)
+    {
+        timerReset = 0.1f;
+        zipfunction.time = 10;
+        reset = false;
+    }
 }

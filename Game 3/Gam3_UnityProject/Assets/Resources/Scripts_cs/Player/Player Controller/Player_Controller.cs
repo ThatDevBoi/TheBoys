@@ -36,10 +36,10 @@ public class Player_Controller : MonoBehaviour
     public float fallspeed = 12.0f; // how fast the PC falls when jump is over
     public float jumpspeed = 7.0f; // how fast the player jumps
     public float maxJumpHeight = 3; // how high can the player jump
-    Vector3 groundPos;  // current or last ground position
-    float groundHeight;
-    bool inputJump = false;     
-    bool jumpGrounded = true;   // controls when we jump
+    public Vector3 groundPos;  // current or last ground position
+    public float groundHeight;
+    public bool we_jump = false;     
+    public bool jumpGrounded = true;   // controls when we jump
     #endregion
     #region Health
     [Header("Health n Damage")]
@@ -226,8 +226,8 @@ public class Player_Controller : MonoBehaviour
         walkingSound.volume = 0.3f;
         DetectWheel.rotation = new Quaternion(0, 0, 180, 0);
 
-        // Fixed ground position
-        groundPos = transform.position;
+        //// Fixed ground position
+        //groundPos = transform.position;
         // Height of ground 
         groundHeight = transform.position.y;
         // how far up we can jump
@@ -303,24 +303,41 @@ public class Player_Controller : MonoBehaviour
 
 
             // Jumping 
-            if(Input.GetKeyDown(Player_Key_Binds[8]))
+            if(Input.GetKeyDown(Player_Key_Binds[8]) && transform.position == groundPos)
             {
                 if(jumpGrounded)
                 {
-                    if(!usezipeline)
+                    maxJumpHeight = groundPos.y += 5;
+                    if (!usezipeline)
                     {
-                        inputJump = true;
+                        we_jump = true;
                         StartCoroutine("Jump");
                     }
                 }
             }
-            // Update overtime so we dont go back to the orginal jump position
-            groundPos = transform.position;
+            if (jumpGrounded | we_jump)
+            {
+                // Update overtime so we dont go back to the orginal jump position
+                groundPos = transform.position;
+                // We need to record if we change height of ground how high we can then jump in the loop
+                groundHeight = transform.position.y;
+            }
+            else
+                return;
+
             // when the player is on ground
             if (transform.position == groundPos)
+            {
                 jumpGrounded = true;    // we can jump
+            }
             else
+            {
                 jumpGrounded = false;   // we cant jump
+            }
+            //float distance = Mathf.Abs(groundPos.y - maxJumpHeight);
+            //Debug.Log(distance);
+
+            //distance = Mathf.Clamp(maxJumpHeight, -groundPos.y, groundPos.y);
 
         }
     }
@@ -346,10 +363,12 @@ public class Player_Controller : MonoBehaviour
             jumpGrounded = false;
             // when the current objects transform Y axis is greater than the max height to jump
             if (transform.position.y >= maxJumpHeight)
-                inputJump = false;  // Jump is finished
-            if (inputJump)  // however when the jump is true
+            {
+                we_jump = false;  // Jump is finished
+            }
+            if (we_jump)  // however when the jump is true
                 transform.Translate(Vector3.up * jumpspeed * Time.smoothDeltaTime); // we acend smoothly until we reach the max height
-            else if(!inputJump) // if not true 
+            else if(!we_jump) // if not true 
             {
                 transform.Translate(Vector3.down * fallspeed * Time.smoothDeltaTime);   // we decend down smoothly 
                 // when the current position on y is less than the ground position
@@ -358,6 +377,7 @@ public class Player_Controller : MonoBehaviour
                     transform.position = groundPos; // we land where ground is
                     jumpGrounded = true;    // reset the jump
                     StopCoroutine("Jump");    // Stop Running this
+
                 }
             }
             yield return new WaitForEndOfFrame();
