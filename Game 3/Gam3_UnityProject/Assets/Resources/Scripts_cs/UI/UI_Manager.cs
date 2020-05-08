@@ -89,7 +89,8 @@ public class UI_Manager : MonoBehaviour
         // Make sure the Canvas Component is off
         Options_Can.enabled = false;
         // Find the Drop Down Menu
-        fontMenu = Options_Can.transform.GetChild(5).GetComponentInChildren<TMP_Dropdown>();
+        fontMenu = Options_Can.transform.GetChild(5).gameObject.transform.GetChild(1).gameObject.transform.GetChild(0).GetComponent<TMP_Dropdown>();
+        Debug.Log(fontMenu.gameObject.name);
         // Find all the sliders in charge of manipulating the audio mixer groups
         volumeChangers = Options_Can.transform.GetChild(3).transform.GetChild(1).GetComponentsInChildren<Slider>(); // fill array
         // Find the Mouse Rotation Sensertivity Slider

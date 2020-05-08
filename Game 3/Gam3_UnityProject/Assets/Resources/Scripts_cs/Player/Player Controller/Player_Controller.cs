@@ -220,7 +220,7 @@ public class Player_Controller : MonoBehaviour
         // the speed we walk at needs to be the current speed we are allowed to walk at
         speed = currentSpeed;
         // the sensitivy of the mouse rotation 
-        cameraRotationRate = 45f;
+        cameraRotationRate = UI_Manager.playersSensertivity;
         xRotation = 0f;
         // set up audio volume
         walkingSound.volume = 0.3f;
@@ -255,6 +255,8 @@ public class Player_Controller : MonoBehaviour
             // Find pause Canvas
             pauseCan = GameObject.Find("Pause_Canvas");
             pauseCan.SetActive(false);
+            // the sensitivy of the mouse rotation 
+            cameraRotationRate = UI_Manager.playersSensertivity;
         }
         #endregion
         if (Input.GetKey(Player_Key_Binds[3]))
