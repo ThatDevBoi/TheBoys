@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 public class GameManager : MonoBehaviour
 {
     #region Level Manager Variables
@@ -9,7 +10,9 @@ public class GameManager : MonoBehaviour
     public GameObject[] Obsticles;  // the environment of the scene
     public GameObject[] AI;     // The AI in the current scene
     public GameObject Player_Character; // The player character that needs to spawn or be found
-
+    public int totalNPC;
+    private int currentNPC=0;
+    private int updateNPC;
     [Header("User Interface")]
     public GameObject PauseUI;  // UI element for pausing the game
     public GameObject restartUI;    // Restart UI spawns on player death
@@ -224,6 +227,8 @@ public class GameManager : MonoBehaviour
             NPCHead = NPC.gameObject.transform.GetChild(2);
             // Set Head Layer
             NPCHead.gameObject.layer = 14;
+            //set Total number of enemies in the scene DM
+            totalNPC++;
         }
         #endregion
 
@@ -233,11 +238,13 @@ public class GameManager : MonoBehaviour
         {
             obsticles.layer = 12;
         }
+        updateNPC = totalNPC;
     }
 
     // Update is called once per frame
     void Update()
     {
+        
         // call this to balance the games frames
         balanceGame();
         // find the texts
@@ -309,9 +316,33 @@ public class GameManager : MonoBehaviour
         }
 
         #endregion
+        if(updateNPC>=1)
+        enemyCounter();
+        
     }
+    #region Enemy Counter
+    void enemyCounter()
+    {
 
+       
+        var enemyList = GameObject.FindGameObjectsWithTag("NPC");
+       
+        foreach (GameObject NPC in enemyList)
+        {
+            currentNPC++;
+        }
 
+        if (currentNPC<updateNPC )
+        {
+            updateNPC = currentNPC;
+            currentNPC = 0;
+        }
+        else
+            currentNPC = 0;
+        GameObject.Find("PlayerUIController/Number").GetComponent<TextMeshProUGUI>().text = ("Remanining " + updateNPC +"/" + totalNPC);//Show in the UI how many enemies are left DM
+       
+    }
+    #endregion
     void balanceGame()
     {
         // if value is 0 or more

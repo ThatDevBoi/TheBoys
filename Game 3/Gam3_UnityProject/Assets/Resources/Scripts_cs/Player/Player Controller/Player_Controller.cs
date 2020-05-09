@@ -1064,14 +1064,14 @@ public class Player_Controller : MonoBehaviour
             #endregion
 
             // Remove when we have Fire type images
-            FireMethodColor[0] = Color.yellow;
-            FireMethodColor[0].a = 255;
+            //FireMethodColor[0] = Color.yellow;
+            //FireMethodColor[0].a = 255;
 
-            FireMethodColor[1] = Color.blue;
-            FireMethodColor[1].a = 255;
+            //FireMethodColor[1] = Color.blue;
+            //FireMethodColor[1].a = 255;
 
-            FireMethodColor[2] = Color.red;
-            FireMethodColor[2].a = 255;
+            //FireMethodColor[2] = Color.red;
+            //FireMethodColor[2].a = 255;
         }
 
         public virtual void Update()

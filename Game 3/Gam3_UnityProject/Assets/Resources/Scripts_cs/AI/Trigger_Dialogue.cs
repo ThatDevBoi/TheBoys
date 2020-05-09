@@ -235,24 +235,24 @@ public class Trigger_Dialogue : MonoBehaviour
     {
         if (other.gameObject.name == "PC")
         {
-            if (!pressed)
-            {
-                GameObject.Find("PlayerUIController/Interact/Exposition_Text").GetComponent<TextMeshPro>().enabled = true;
-                if (Input.GetKeyDown(KeyCode.E))
-                {
-                    startSring = "";
-                    Conversation = objectConversation[conversationScroller];    // Set up what the conversation involves
-                    typeWriterScript.ChangeText(Conversation, 2);   // Run The Conversation at hand 
+            //if (!pressed)
+            //{
+            //    GameObject.Find("PlayerUIController/Interact/Exposition_Text").GetComponent<TextMeshPro>().enabled = true;
+            //    if (Input.GetKeyDown(KeyCode.E))
+            //    {
+            //        startSring = "";
+            //        Conversation = objectConversation[conversationScroller];    // Set up what the conversation involves
+            //        typeWriterScript.ChangeText(Conversation, 2);   // Run The Conversation at hand 
 
-                    pressed = true;
-                    if (pressed)
-                        GameObject.Find("PlayerUIController/Interact/Exposition_Text").GetComponent<TextMeshPro>().enabled = false;
+            //        pressed = true;
+            //        if (pressed)
+            //            GameObject.Find("PlayerUIController/Interact/Exposition_Text").GetComponent<TextMeshPro>().enabled = false;
 
-                    ///GetComponentInChildren<TextMeshPro>().enabled = true;
-                    //GetComponentInChildren<TextMeshPro>().text = Conversation;
+            //        ///GetComponentInChildren<TextMeshPro>().enabled = true;
+            //        //GetComponentInChildren<TextMeshPro>().text = Conversation;
 
-                }
-            }
+            //    }
+            //}
 
             isTalking = true;
             switcher = 0;
@@ -305,9 +305,9 @@ public class Trigger_Dialogue : MonoBehaviour
         while(projectTextObject == null && typeWriterScript == null)
         {
             // Find the text
-            projectTextObject =  GameObject.Find("PlayerUIController/Panel/Exposition_Text").GetComponent<TextMeshPro>();// GetComponentInChildren<TextMeshPro>();
+           // projectTextObject =  GameObject.Find("PlayerUIController/Panel/Exposition_Text").GetComponent<TextMeshPro>();// GetComponentInChildren<TextMeshPro>();
             // Find the typewriter
-            typeWriterScript =  GameObject.Find("PlayerUIController/Panel/Exposition_Text").GetComponent<UITypeWritereffect>();//GetComponentInChildren<UITypeWritereffect>(); 
+           // typeWriterScript =  GameObject.Find("PlayerUIController/Panel/Exposition_Text").GetComponent<UITypeWritereffect>();//GetComponentInChildren<UITypeWritereffect>(); 
             yield break;
         }
         
