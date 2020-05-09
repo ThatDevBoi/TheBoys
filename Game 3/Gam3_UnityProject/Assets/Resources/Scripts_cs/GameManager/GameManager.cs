@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     public int totalNPC;
     private int currentNPC=0;
     private int updateNPC;
+    private bool npcCount=false;
     [Header("User Interface")]
     public GameObject PauseUI;  // UI element for pausing the game
     public GameObject restartUI;    // Restart UI spawns on player death
@@ -316,11 +317,19 @@ public class GameManager : MonoBehaviour
         }
 
         #endregion
-        if(updateNPC>=1)
-        enemyCounter();
-        
+
+        #region Enemy Counter
+        if (updateNPC >= 1)
+            enemyCounter();
+        else if(!npcCount)
+        {
+            npcCount = true;
+            GameObject.Find("PlayerUIController/Number").GetComponent<TextMeshProUGUI>().text = "";
+            GameObject.Find("PlayerUIController/Objective").GetComponent<TextMeshPro>().text = "Get the update";
+        }
+        #endregion
     }
-    #region Enemy Counter
+    #region Enemy Counter()
     void enemyCounter()
     {
 
