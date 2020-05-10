@@ -218,6 +218,7 @@ public class GameManager : MonoBehaviour
         // Setting up what objects are where
         // Could be handy later for saving CPU process 
         AI = GameObject.FindGameObjectsWithTag("NPC");
+        
 
         foreach (GameObject NPC in AI)
         {
@@ -319,13 +320,20 @@ public class GameManager : MonoBehaviour
         #endregion
 
         #region Enemy Counter
-        if (updateNPC >= 1)
-            enemyCounter();
-        else if(!npcCount)
+        if (totalNPC >=1)
         {
-            npcCount = true;
+            if (updateNPC >= 1)
+                enemyCounter();
+            else if (!npcCount)
+            {
+                npcCount = true;
+                GameObject.Find("PlayerUIController/Number").GetComponent<TextMeshProUGUI>().text = "";
+                GameObject.Find("PlayerUIController/Objective").GetComponent<TextMeshPro>().text = "Get the update";
+            }
+        }
+        else
+        {
             GameObject.Find("PlayerUIController/Number").GetComponent<TextMeshProUGUI>().text = "";
-            GameObject.Find("PlayerUIController/Objective").GetComponent<TextMeshPro>().text = "Get the update";
         }
         #endregion
     }
@@ -348,7 +356,7 @@ public class GameManager : MonoBehaviour
         }
         else
             currentNPC = 0;
-        GameObject.Find("PlayerUIController/Number").GetComponent<TextMeshProUGUI>().text = ("Remanining " + updateNPC +"/" + totalNPC);//Show in the UI how many enemies are left DM
+        GameObject.Find("PlayerUIController/Number").GetComponent<TextMeshProUGUI>().text = ("Remanining " + updateNPC +"/" + (totalNPC-1));//Show in the UI how many enemies are left DM
        
     }
     #endregion

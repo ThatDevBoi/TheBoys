@@ -1,9 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class Elevator : MonoBehaviour
 {
+    public GameObject miniLevel;
     BoxCollider triggerZone;
     public Vector3 colliderSize;
     public Vector3 colliderCenter;
@@ -28,6 +30,8 @@ public class Elevator : MonoBehaviour
         triggerZone.isTrigger = true;
         triggerZone.size = colliderSize;
         triggerZone.center = colliderCenter;
+        if (miniLevel)
+            miniLevel.SetActive(false);
         if(GameObject.Find("PC") == null)
         {
             return;
@@ -75,6 +79,7 @@ public class Elevator : MonoBehaviour
         // go up
         if (elevate)
         {
+            miniLevel.SetActive(true);
             transform.position = Vector3.MoveTowards(transform.position, endPosition, Time.deltaTime * speed);
         }
         else if(!elevate && triggerTime >=2)    // go down
@@ -97,15 +102,22 @@ public class Elevator : MonoBehaviour
         // when false
         if(!elevate)
         {
+            GameObject.Find("PlayerUIController/Interact/Exposition_Text").GetComponent<TextMeshPro>().enabled = true;
+
             // when key is pressed
-            if(Input.GetKeyDown(KeyCode.C))
+            if (Input.GetKeyDown(KeyCode.E))
             {
                 // we can now go up
                 elevate = true;
                 // + 1
                 triggerTime++;
+                if (elevate)
+                    GameObject.Find("PlayerUIController/Interact/Exposition_Text").GetComponent<TextMeshPro>().enabled = false;
+
             }
         }
+        
+       
     }
 
     private void OnTriggerEnter(Collider other)
@@ -122,6 +134,8 @@ public class Elevator : MonoBehaviour
         {
             parentPlayer = false;
             elevate = false;
+            GameObject.Find("PlayerUIController/Interact/Exposition_Text").GetComponent<TextMeshPro>().enabled = false;
+
         }
     }
 }
