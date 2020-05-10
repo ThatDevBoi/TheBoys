@@ -356,7 +356,7 @@ public class GameManager : MonoBehaviour
         }
         else
             currentNPC = 0;
-        GameObject.Find("PlayerUIController/Number").GetComponent<TextMeshProUGUI>().text = ("Remanining " + updateNPC +"/" + (totalNPC-1));//Show in the UI how many enemies are left DM
+        GameObject.Find("PlayerUIController/Number").GetComponent<TextMeshProUGUI>().text = ("Remanining " + updateNPC);//Show in the UI how many enemies are left DM
        
     }
     #endregion

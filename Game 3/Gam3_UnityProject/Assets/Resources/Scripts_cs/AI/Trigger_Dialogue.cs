@@ -269,7 +269,7 @@ public class Trigger_Dialogue : MonoBehaviour
             {
                 startSring = "";    // Make sure the start string is nothing
                 Conversation = objectConversation[conversationScroller];    // Set up what the conversation involves
-                typeWriterScript.ChangeText(Conversation, 2);   // Run The Conversation at hand 
+                //typeWriterScript.ChangeText(Conversation, 2);   // Run The Conversation at hand 
                 player.GetComponent<Player_Controller>().speed = 0; // Turn off the players current speed so players are influenced to read text
             }
         }
@@ -290,11 +290,11 @@ public class Trigger_Dialogue : MonoBehaviour
             PC_Aproached_Me = false;
             // set the conversation to be shown as over
             //Conversation = "Conversation Over";
-            typeWriterScript.StopCoroutine(typeWriterScript.PlayText());
+           // typeWriterScript.StopCoroutine(typeWriterScript.PlayText());
             // reset the array scroller
             conversationScroller = 0;
             // TextMesh needs to know what to print 
-            projectTextObject.text = Conversation;
+           // projectTextObject.text = Conversation;
         }
     }
     #endregion
