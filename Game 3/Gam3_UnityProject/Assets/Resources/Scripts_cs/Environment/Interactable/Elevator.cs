@@ -113,7 +113,7 @@ public class Elevator : MonoBehaviour
                 triggerTime++;
                 if (elevate)
                     GameObject.Find("PlayerUIController/Interact/Exposition_Text").GetComponent<TextMeshPro>().enabled = false;
-
+                
             }
         }
         
@@ -135,7 +135,10 @@ public class Elevator : MonoBehaviour
             parentPlayer = false;
             elevate = false;
             GameObject.Find("PlayerUIController/Interact/Exposition_Text").GetComponent<TextMeshPro>().enabled = false;
-
+            if (reachedPoint)
+            {
+                transform.position = Vector3.MoveTowards(transform.position, homePosition, Time.deltaTime * speed);
+            }
         }
     }
 }
