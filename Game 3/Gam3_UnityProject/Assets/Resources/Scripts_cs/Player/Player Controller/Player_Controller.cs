@@ -46,16 +46,31 @@ public class Player_Controller : MonoBehaviour
     public int maxHealth = 100;     // The max health the player is clamped at 
     public int currentHealth;   // the current health the player has 
     // This array if for the images that are on the Player Healthbar 
-    public Image[] sliderArray;
-#if UNITY_EDITOR
+    private Image[] sliderArray;
+
+    #if UNITY_EDITOR
     [LabelArray(new string[] { "High Health", "Medium Health", "Low Health" })]
-#endif
+    #endif
+
     public Color[] HealthBar_StageColors;   // The array of colors that gets called when the healthbar is altered (Taking damage)
     private TextMeshPro healthPercentageText;    // Health text that is shown from the currentHealth
     private Canvas respawnCan;   // The Canvas that appears when the player dies 
+    // Slider health bar
     [HideInInspector]
     public Slider healthBar;
-    private GameObject bloodSplash;
+    // Gyroscop UI effect
+    private GameObject damageFromWhatDirectionUI;
+
+    [Header("Damage Indicator")]
+    public Texture hurtEffect;  // effect that appears
+    private Transform currentPosition;  // current position of the player
+
+    public float previousHealth;    // current health
+    public float displayTime = 1.5f;    // time the texture displays for
+    private bool displayHurtEffect = false;  // when we display the texture
+
+
+    #endregion
     #endregion
     #region Slop
     [Header("Steps")]
@@ -137,7 +152,6 @@ public class Player_Controller : MonoBehaviour
     Shooting_Mechanic gunScript;
 
     #endregion
-    #endregion
 
     #region Start & Update
     // Start is called before the first frame update
@@ -202,6 +216,10 @@ public class Player_Controller : MonoBehaviour
         respawnCan = GameObject.Find("RestartCanvas").GetComponent<Canvas>();
         // Find all the images in the slider
         sliderArray = healthBar.transform.GetComponentsInChildren<Image>();
+
+        // Find this transform
+        currentPosition = this.gameObject.GetComponent<Transform>();
+        previousHealth = maxHealth; // set the correct health
         #endregion
 
         #region Edit Values / Variables and Properties
@@ -290,6 +308,26 @@ public class Player_Controller : MonoBehaviour
             {
                 currentHealth = maxHealth;
             }
+            if (previousHealth > maxHealth)
+                previousHealth = maxHealth;
+            // if the current player health is less than the damage indicator (We took damage)
+            if(currentHealth < previousHealth)
+            {
+                previousHealth = currentHealth; // set the new value as the health changed
+
+                if(displayHurtEffect == false)  // when the bool is false
+                {
+                    displayHurtEffect = true;   // we need it to be true for we took damage
+
+                    // Start function to stop the Texture from displaying
+                    StartCoroutine(StopDisplayingEffect());
+                }
+            }
+            // check for the health being more or equal to max 
+            if(currentHealth > previousHealth && currentHealth <= maxHealth)
+            {
+                previousHealth = currentHealth; // make sure we know the current health of the player for damage indication
+            }
             // Show on screen Health bar percentage with this text
             healthPercentageText.text = currentHealth + "%";
             #region Debuggng Key Press Logic
@@ -343,6 +381,7 @@ public class Player_Controller : MonoBehaviour
 
         }
     }
+
     void FixedUpdate()
     {
         if (!usezipeline)
@@ -556,6 +595,20 @@ public class Player_Controller : MonoBehaviour
         }
         #endregion
     }
+    // Apply the Texture on screen
+    private void OnGUI()
+    {
+        if (displayHurtEffect == true)
+        {
+            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), hurtEffect, ScaleMode.StretchToFill);
+        }
+    }
+    // Stop texture from being shown 
+    IEnumerator StopDisplayingEffect()
+    {
+        yield return new WaitForSeconds(displayTime);
+        displayHurtEffect = false;
+    }
     #endregion
 
     #region Players Hit Detection
@@ -594,12 +647,12 @@ public class Player_Controller : MonoBehaviour
         // Find the pointer
         RectTransform pointer = GameObject.Find("HitDetection/DetectionWheel/Rotater/Pointer").GetComponent<RectTransform>();
         // find the object we want to spawn in the assets
-        if (bloodSplash == null)
+        if (damageFromWhatDirectionUI == null)
         {
-            bloodSplash = Resources.Load<GameObject>("Prefabs_prefs/Player_PCpref/Feedback/Pistol/Damage_Indicator");
+            damageFromWhatDirectionUI = Resources.Load<GameObject>("Prefabs_prefs/Player_PCpref/Feedback/Pistol/Damage_Indicator");
         }
         // spawn object into the scene to indicate where the player got hit from
-        Instantiate(bloodSplash, pointer.position, directionOfHit * Quaternion.Euler(northDirection), pointer.transform);
+        Instantiate(damageFromWhatDirectionUI, pointer.position, directionOfHit * Quaternion.Euler(northDirection), pointer.transform);
         #endregion
 
     }

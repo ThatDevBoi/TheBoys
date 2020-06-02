@@ -100,6 +100,7 @@ public class AI : MonoBehaviour
     public Transform firePoint;
     public int SearchingAccuracy;
     public int AlertAccuracy;
+    private GameObject muzzleFlash;
     // PRIVATE
 
     // Hit logic for the array itself
@@ -235,6 +236,8 @@ public class AI : MonoBehaviour
         damageText = Resources.Load<GameObject>("Prefabs_prefs/AI_Aipref/Feedback/FloatingText");
         searchingGO = Resources.Load<GameObject>("Prefabs_prefs/AI_Aipref/Feedback/QuestionMark");
         AlertGO = Resources.Load<GameObject>("Prefabs_prefs/AI_Aipref/Feedback/!");
+
+        muzzleFlash = Resources.Load<GameObject>("Prefabs_prefs/Particles_VFXpref/Enemies/Enemy_Muzzle_Flash");
         #endregion
         // Placeholder //
         // Find Materials
@@ -716,6 +719,9 @@ public class AI : MonoBehaviour
             // if we hit the player
             if (hit.transform.gameObject.layer == 10)
             {
+                GameObject muzFlash = Instantiate(muzzleFlash, firePoint.position, Quaternion.identity) as GameObject;
+                muzFlash.transform.parent = firePoint.transform;
+                Destroy(muzFlash, 2);
                 Debug.Log("I Hit The Player");
                 //
                 //Canvas hitdetecter = playerPosition.gameObject.GetComponent<Canvas>();
