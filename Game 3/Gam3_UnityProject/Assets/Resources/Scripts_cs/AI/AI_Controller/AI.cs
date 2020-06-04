@@ -719,6 +719,9 @@ public class AI : MonoBehaviour
             // if we hit the player
             if (hit.transform.gameObject.layer == 10)
             {
+                // Flinch
+                hit.transform.gameObject.transform.GetChild(0).GetComponent<Player_Flinch>().ShouldShake = true;
+
                 GameObject muzFlash = Instantiate(muzzleFlash, firePoint.position, Quaternion.identity) as GameObject;
                 muzFlash.transform.parent = firePoint.transform;
                 Destroy(muzFlash, 2);

@@ -984,6 +984,7 @@ public class Player_Controller : MonoBehaviour
         public enum BulletType { Default, Explosive}
         // Explosive Bullets
         public float explosionRadius = 5.0f;
+        // power of moving physics objects
         public float explosiveForce = 20.0f;
         public float upforce = 1;
         #endregion
@@ -1125,6 +1126,13 @@ public class Player_Controller : MonoBehaviour
 
             //FireMethodColor[2] = Color.red;
             //FireMethodColor[2].a = 255;
+#if UNITY_EDITOR
+            // Variable in editor
+            explosiveForce = 200f;
+#else
+                // variable changes on build
+                explosiveForce = 800f;
+#endif
         }
 
         public virtual void Update()
@@ -1142,13 +1150,14 @@ public class Player_Controller : MonoBehaviour
                 currentAmmoText.text = currentAmmo.ToString();
                 // Text for current Backup Ammo
                 backUpAmmoText.text = backUpAmmo.ToString();
+
             }
 
             // Functions
             AimDownSights();
             Punch();
            
-            #region Debuggng Key Press Logic
+#region Debuggng Key Press Logic
             // Press alL the keys listed together to see hidden variables
             //R + Space Bar + Y
             if (Input.GetKey(KeyCode.R) && Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.Y))
@@ -1161,7 +1170,7 @@ public class Player_Controller : MonoBehaviour
             {
                 Debugging = false;
             }
-            #endregion
+#endregion
 
             // Max Ammo limit 
             // when the current ammo goes past the max amount 
@@ -1171,7 +1180,7 @@ public class Player_Controller : MonoBehaviour
             if (backUpAmmo > maxBackupAmmo)
                 backUpAmmo = maxBackupAmmo; // Backup Ammo will always = max amount of backup ammo we are allowed
 
-            #region Fire Modes n Bullet Types
+#region Fire Modes n Bullet Types
             // ShootingModeController
             // Press Q Key to increase or scroll through shooting types
 
@@ -1182,7 +1191,7 @@ public class Player_Controller : MonoBehaviour
             // Bullet Types 
             // 0 = Defualt 
             // 1 = Explosive
-            #region Shoot Mode Controller Checks
+#region Shoot Mode Controller Checks
             if (GameManager.ult_initiated == false)
             {
                 if (shootModeController == 0 && game_manager.singleFire == true)
@@ -1265,7 +1274,7 @@ public class Player_Controller : MonoBehaviour
                 if (bulletChange >= 2)
                     bulletChange = 0;
             }
-            #endregion
+#endregion
 
             switch (shootingMode)
             {
@@ -1287,7 +1296,7 @@ public class Player_Controller : MonoBehaviour
                     damage = 20;
                 break;
             }
-            #endregion
+#endregion
             // Depending on the inptut and fire mode we can shoot
             if (shootInput)
             {
@@ -1319,7 +1328,7 @@ public class Player_Controller : MonoBehaviour
                 fireTimer += Time.deltaTime;
 
 
-            #region Reloading
+#region Reloading
             if (currentAmmo <= 0 && backUpAmmo > 0 && !isReloading)
                 StartCoroutine(Reload());
             if (isReloading)
@@ -1329,7 +1338,7 @@ public class Player_Controller : MonoBehaviour
             {
                 StartCoroutine(Reload());
             }
-            #endregion
+#endregion
             // Are We Allowed to shoot?
             if (currentAmmo <= 0)   // No we have no ammo
                 isShooting = false;
@@ -1337,7 +1346,7 @@ public class Player_Controller : MonoBehaviour
                 isShooting = true;  // Yes we still have bullets 
 
 
-            #region Sound Switcher
+#region Sound Switcher
             if (isReloading && !isShooting && currentAmmo <= 0)
             {
                 gunAudioSource.clip = reloadSound;
@@ -1350,7 +1359,7 @@ public class Player_Controller : MonoBehaviour
             {
                 gunAudioSource.clip = shootingSound;
             }
-            #endregion
+#endregion
             // Accuracy
             if(Input.GetAxis("Fire1") != 0)
             {
@@ -1369,7 +1378,7 @@ public class Player_Controller : MonoBehaviour
 
         }
 
-        #region Accuracys
+#region Accuracys
         Vector3 BulletSpread(Vector3 originVector, int accuracy, bool showDebug = false, Vector3 debugPosition = default(Vector3))
         {
             // Set random values for the accuracy
@@ -1386,7 +1395,7 @@ public class Player_Controller : MonoBehaviour
             }
             return newVector;
         }
-        #endregion
+#endregion
 
         // player conmtroller script
         Player_Controller PlayerClass;
@@ -1465,8 +1474,10 @@ public class Player_Controller : MonoBehaviour
                                         // Muzzle Flash
                                         GameObject particle_point = GameObject.Find("Pistol/ironSights/FirePoint"); // Find the spawn position
                                         GameObject flashMuzzle = Instantiate(muzzleFlash, particle_point.transform.position, Quaternion.identity) as GameObject;
+                                        // FIX THE WEIRD FOLLOW BEHAVIOUR
                                         // Instaniate 
                                         GameObject bulletClone = Instantiate(bullet, particle_point.transform.position, Quaternion.identity) as GameObject;
+                                        
                                         Destroy(flashMuzzle, .5f);
                                         // Impact Effect
                                         GameObject impactHole = Instantiate(bulletHole, Hit.point, Quaternion.FromToRotation(Vector3.forward, Hit.normal)) as GameObject;
@@ -1500,29 +1511,38 @@ public class Player_Controller : MonoBehaviour
 
                                             }
 
-                                            if (Hit.collider.name == "Head" && Hit.collider.gameObject.layer != 20)
+                                            if(Hit.collider.gameObject.layer == 20)
                                             {
-                                                npc_audioSource = null;
-                                                enemyHit = Hit.collider.gameObject.GetComponentInParent<AI>();
-                                                enemyHit.pushback = true;
-                                                enemyHit.StartCoroutine(enemyHit.Knockback());
+                                                return;
                                             }
                                             else
                                             {
-                                                npc_audioSource.Play();
-                                                enemyHit = Hit.collider.gameObject.GetComponent<AI>();
-                                                enemyHit.pushback = true;
-                                                enemyHit.StartCoroutine(enemyHit.Knockback());
+                                                if (Hit.collider.name == "Head")
+                                                {
+                                                    npc_audioSource = null;
+                                                    enemyHit = Hit.collider.gameObject.GetComponentInParent<AI>();
+                                                    enemyHit.pushback = true;
+                                                    enemyHit.StartCoroutine(enemyHit.Knockback());
+                                                }
+                                                else
+                                                {
+                                                    npc_audioSource.Play();
+                                                    enemyHit = Hit.collider.gameObject.GetComponent<AI>();
+                                                    enemyHit.pushback = true;
+                                                    enemyHit.StartCoroutine(enemyHit.Knockback());
+                                                }
+
+                                                if (Hit.collider.gameObject.layer == 14)
+                                                {
+                                                    enemyHit.headShot = true;
+                                                }
+                                                else if (Hit.collider.gameObject.layer != 14)
+                                                {
+                                                    enemyHit.headShot = false;
+                                                }
                                             }
 
-                                            if (Hit.collider.gameObject.layer == 14)
-                                            {
-                                                enemyHit.headShot = true;
-                                            }
-                                            else if (Hit.collider.gameObject.layer != 14)
-                                            {
-                                                enemyHit.headShot = false;
-                                            }
+
 
                                             // Hurt the AI we hit
                                             if (enemyHit != null)
@@ -1564,10 +1584,10 @@ public class Player_Controller : MonoBehaviour
                                                     otherObjectPhysics.AddExplosionForce(explosiveForce, explosionPosition, explosionRadius, upforce, ForceMode.Impulse);
                                             }
                                         }
-                                        #region Debugging Shooting
+#region Debugging Shooting
                                         //Debug.Log("Hit" + Hit.transform.name);  // Show on console what we hit
                                         Debug.DrawRay(cam_FirePosition.transform.position, cam_FirePosition.transform.forward * Hit.distance, Color.red);
-                                        #endregion
+#endregion
                                     }
                                 }
                             }
@@ -1703,10 +1723,10 @@ public class Player_Controller : MonoBehaviour
                                                 otherObjectPhysics.AddExplosionForce(explosiveForce, explosionPosition, explosionRadius, upforce, ForceMode.Impulse);
                                         }
                                     }
-                                    #region Debugging Shooting
+#region Debugging Shooting
                                     Debug.Log("Hit" + Hit.transform.name);  // Show on console what we hit
                                     Debug.DrawRay(cam_FirePosition.transform.position, cam_FirePosition.transform.forward * Hit.distance, Color.red);
-                                    #endregion
+#endregion
                                 }
                             }
                         }
@@ -1798,6 +1818,6 @@ public class Player_Controller : MonoBehaviour
             gunAudioSource.PlayOneShot(reloadSound);
         }
     }
-    #endregion
+#endregion
 
 }

@@ -137,6 +137,7 @@ public class Mini_Boss_AI : MonoBehaviour
             // are we shooting the player?
             if(hit.transform.gameObject.layer == 10)
             {
+                hit.transform.GetChild(0).GetComponent<Player_Flinch>().ShouldShake = true;
                 Debug.Log("Hit player" + hit.transform.gameObject.name);
                 Player_Controller hitDamage = target.gameObject.GetComponent<Player_Controller>();
                 hitDamage.HitDetection(gameObject.GetComponent<Transform>());

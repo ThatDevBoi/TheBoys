@@ -13,6 +13,7 @@ public class MoveBullet : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // THIS MAKES THE BULLET FOLLOW THE CAM POSITION
         transform.Translate(Camera.main.transform.TransformDirection(Vector3.forward) * 3);
 
         Destroy(gameObject, 2f);
