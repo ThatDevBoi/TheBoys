@@ -82,4 +82,11 @@ public class VerticalMovement : MonoBehaviour
 
         }
     }
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.tag == "NPC")
+        {
+            Destroy(gameObject);
+        }
+    }
 }
