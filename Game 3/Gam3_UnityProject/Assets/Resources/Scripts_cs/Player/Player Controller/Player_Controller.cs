@@ -343,7 +343,7 @@ public class Player_Controller : MonoBehaviour
 
 
             // Jumping 
-            if(Input.GetKeyDown(Player_Key_Binds[8]) && transform.position == groundPos)
+            if(Input.GetKeyDown(Player_Key_Binds[8]) && transform.position == groundPos && !we_jump)
             {
                 if(jumpGrounded)
                 {
@@ -1117,21 +1117,16 @@ public class Player_Controller : MonoBehaviour
             gunAudioSource.clip = shootingSound;
             #endregion
 
-            // Remove when we have Fire type images
-            //FireMethodColor[0] = Color.yellow;
-            //FireMethodColor[0].a = 255;
-
-            //FireMethodColor[1] = Color.blue;
-            //FireMethodColor[1].a = 255;
-
-            //FireMethodColor[2] = Color.red;
-            //FireMethodColor[2].a = 255;
 #if UNITY_EDITOR
             // Variable in editor
             explosiveForce = 200f;
+            fireRange = 60;
+
 #else
-                // variable changes on build
-                explosiveForce = 800f;
+            // variable changes on build
+            explosiveForce = 1800f;
+            fireRange = 180;
+
 #endif
         }
 
@@ -1437,7 +1432,7 @@ public class Player_Controller : MonoBehaviour
                 return;
             
         }
-
+        public Collider[] objectsHit;
         // Casual Shooting
         public void  Fire()
         {
@@ -1573,15 +1568,30 @@ public class Player_Controller : MonoBehaviour
                                             bridge.GetComponent<Animator>().SetBool("Activate", true);
                                         }
 
-                                        if (CurrentBulletType == BulletType.Explosive)
+                                        if (CurrentBulletType == BulletType.Explosive && Hit.distance > explosionRadius)
                                         {
                                             Vector3 explosionPosition = Hit.transform.position;
-                                            Collider[] objectsHit = Physics.OverlapSphere(explosionPosition, explosionRadius);
+                                            objectsHit = Physics.OverlapSphere(explosionPosition, explosionRadius);
+                                            List<Collider> collidersToEdit = new List<Collider>();
+                                            
                                             foreach (Collider objectsInRange in objectsHit)
                                             {
                                                 Rigidbody otherObjectPhysics = objectsInRange.GetComponent<Rigidbody>();
                                                 if (otherObjectPhysics != null)
+                                                {
                                                     otherObjectPhysics.AddExplosionForce(explosiveForce, explosionPosition, explosionRadius, upforce, ForceMode.Impulse);
+                                                }
+                                                // Loop through array to remove player collider
+                                                for (int i = 0; i < objectsHit.Length; i++)
+                                                {
+                                                    if (objectsHit[i] == PlayerClass.playerCollision)
+                                                    {
+                                                        collidersToEdit.Remove(objectsHit[i]);
+                                                        objectsHit = collidersToEdit.ToArray();
+                                                        break;
+                                                    }
+                                                }
+                                                    
                                             }
                                         }
 #region Debugging Shooting
@@ -1712,18 +1722,33 @@ public class Player_Controller : MonoBehaviour
                                         bridge.GetComponent<Animator>().SetBool("Activate", true);
                                     }
 
-                                    if (CurrentBulletType == BulletType.Explosive)
+                                    if (CurrentBulletType == BulletType.Explosive && Hit.distance > explosionRadius)
                                     {
                                         Vector3 explosionPosition = Hit.transform.position;
-                                        Collider[] objectsHit = Physics.OverlapSphere(explosionPosition, explosionRadius);
+                                        objectsHit = Physics.OverlapSphere(explosionPosition, explosionRadius);
+                                        List<Collider> collidersToEdit = new List<Collider>();
+
                                         foreach (Collider objectsInRange in objectsHit)
                                         {
                                             Rigidbody otherObjectPhysics = objectsInRange.GetComponent<Rigidbody>();
                                             if (otherObjectPhysics != null)
+                                            {
                                                 otherObjectPhysics.AddExplosionForce(explosiveForce, explosionPosition, explosionRadius, upforce, ForceMode.Impulse);
+                                            }
+                                            // Loop through array to remove player collider
+                                            for (int j = 0; j < objectsHit.Length; j++)
+                                            {
+                                                if (objectsHit[j] == PlayerClass.playerCollision)
+                                                {
+                                                    collidersToEdit.Remove(objectsHit[j]);
+                                                    objectsHit = collidersToEdit.ToArray();
+                                                    break;
+                                                }
+                                            }
+
                                         }
                                     }
-#region Debugging Shooting
+                                    #region Debugging Shooting
                                     Debug.Log("Hit" + Hit.transform.name);  // Show on console what we hit
                                     Debug.DrawRay(cam_FirePosition.transform.position, cam_FirePosition.transform.forward * Hit.distance, Color.red);
 #endregion
