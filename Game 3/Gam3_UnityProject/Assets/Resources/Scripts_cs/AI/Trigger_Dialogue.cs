@@ -46,6 +46,7 @@ public class Trigger_Dialogue : MonoBehaviour
     public bool StoryEvent = false;
     bool DoOnce = false;
     bool read = false;
+    private bool neverReply = false;
     private GameObject Log;
     // Start is called before the first frame update
     void Start()
@@ -155,7 +156,7 @@ public class Trigger_Dialogue : MonoBehaviour
         #endregion
         else    // the voice acting starts here 
         {
-            if (isTalking == false)
+            if (isTalking == false && neverReply == false)
             {
                 StartVoiceAct();
             }
@@ -180,32 +181,44 @@ public class Trigger_Dialogue : MonoBehaviour
             // add clip
             _AS.clip = voiceAct;
         }
-        if (switcher == 0 && pcAudio == null)  // When in range of 3D sound
+        if(!neverReply)
         {
-            _AS.Play(); // play the clip
-            // Check to see where the clip duration is 
-            // Make that check a value so we can pass it on if needed
-            currentduration = _AS.time;
-        }
-        else if (switcher == 1 && _AS.isPlaying == true)
-        {
-            Debug.LogWarning("PC Takes Over Now");
-            // component collection
-            if (player.transform.GetChild(0).GetComponent<AudioSource>() == null && _AS.isPlaying == true)
+            if (switcher == 0 && pcAudio == null)  // When in range of 3D sound
             {
-                // Add component 
-                pcAudio = player.transform.GetChild(0).gameObject.AddComponent<AudioSource>();
-                if (pcAudio != null)
+                _AS.Play(); // play the clip
+                            // Check to see where the clip duration is 
+                            // Make that check a value so we can pass it on if needed
+                currentduration = _AS.time;
+                if (_AS.isPlaying == false)
                 {
-                    pcAudio.clip = voiceAct;    // apply clip
-                    pcAudio.playOnAwake = true; // play as soon as possible
-                    pcAudio.time = _AS.time;    // play at the current time 
-
-                    _AS.Stop(); // Stop the 3D sound
-                    pcAudio.Play(); // Play the 2D sound 
+                    neverReply = true;
                 }
             }
+            else if (switcher == 1 && _AS.isPlaying == true && neverReply == false)
+            {
+                Debug.LogWarning("PC Takes Over Now");
+                // component collection
+                if (player.transform.GetChild(0).GetComponent<AudioSource>() == null && _AS.isPlaying == true)
+                {
+                    // Add component 
+                    pcAudio = player.transform.GetChild(0).gameObject.AddComponent<AudioSource>();
+                    if (pcAudio != null)
+                    {
+                        pcAudio.clip = voiceAct;    // apply clip
+                        pcAudio.playOnAwake = true; // play as soon as possible
+                        pcAudio.time = _AS.time;    // play at the current time 
+
+                        _AS.Stop(); // Stop the 3D sound
+                        pcAudio.Play(); // Play the 2D sound 
+                        if (pcAudio.isPlaying == false)
+                            neverReply = true;
+                    }
+                }
+            }
+            else
+                return;
         }
+
 
         if(pcAudio == null)
         {

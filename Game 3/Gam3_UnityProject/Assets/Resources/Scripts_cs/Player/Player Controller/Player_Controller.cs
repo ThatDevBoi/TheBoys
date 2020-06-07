@@ -357,8 +357,14 @@ public class Player_Controller : MonoBehaviour
             }
             if (jumpGrounded | we_jump)
             {
-                // Update overtime so we dont go back to the orginal jump position
-                groundPos = transform.position;
+                if (we_jump)   // if we are jumping
+                {
+                    return; // we dont update
+                }
+                else
+                    // Update overtime so we dont go back to the orginal jump position
+                    groundPos = transform.position;
+
                 // We need to record if we change height of ground how high we can then jump in the loop
                 groundHeight = transform.position.y;
             }
@@ -374,10 +380,6 @@ public class Player_Controller : MonoBehaviour
             {
                 jumpGrounded = false;   // we cant jump
             }
-            //float distance = Mathf.Abs(groundPos.y - maxJumpHeight);
-            //Debug.Log(distance);
-
-            //distance = Mathf.Clamp(maxJumpHeight, -groundPos.y, groundPos.y);
 
         }
     }
@@ -1036,8 +1038,6 @@ public class Player_Controller : MonoBehaviour
         // Delete when we have images to show single fore - full auto etc
         private Color[] FireMethodColor = new Color[3];
 
-
-
         #endregion
         #endregion
         public virtual void Awake()
@@ -1324,7 +1324,9 @@ public class Player_Controller : MonoBehaviour
 
 
 #region Reloading
-            if (currentAmmo <= 0 && backUpAmmo > 0 && !isReloading)
+            if (currentAmmo <= 0 && backUpAmmo > 0 && !isReloading && PlayerClass.playerPhysics.velocity.z == 0 |
+                PlayerClass.playerPhysics.velocity.z != 0 | PlayerClass.playerPhysics.velocity.x == 0 |
+                PlayerClass.playerPhysics.velocity.x != 0)
                 StartCoroutine(Reload());
             if (isReloading)
                 return;
