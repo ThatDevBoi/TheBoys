@@ -6,6 +6,7 @@ using TMPro;
 public class Elevator : MonoBehaviour
 {
     public GameObject miniLevel;
+    public GameObject miniLevelrails;
     BoxCollider triggerZone;
     public Vector3 colliderSize;
     public Vector3 colliderCenter;
@@ -32,7 +33,9 @@ public class Elevator : MonoBehaviour
         triggerZone.center = colliderCenter;
         if (miniLevel)
             miniLevel.SetActive(false);
-        if(GameObject.Find("PC") == null)
+        if (miniLevelrails)
+            miniLevelrails.SetActive(false);
+        if (GameObject.Find("PC") == null)
         {
             return;
         }
@@ -80,6 +83,7 @@ public class Elevator : MonoBehaviour
         if (elevate)
         {
             miniLevel.SetActive(true);
+            miniLevelrails.SetActive(true);
             transform.position = Vector3.MoveTowards(transform.position, endPosition, Time.deltaTime * speed);
         }
         else if(!elevate && triggerTime >=2)    // go down
