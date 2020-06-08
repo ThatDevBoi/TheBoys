@@ -93,7 +93,13 @@ public class Gun_Upgrade : MonoBehaviour
                 if (!need_To_Press_C && nearObject)
                 {
                     gameManager.explosiveAmmo = true;
-                    Destroy(this.gameObject);
+                    Transform[] TurnOff;
+                    TurnOff = gameObject.transform.GetComponentsInChildren<Transform>();
+                    foreach(Transform trans in TurnOff)
+                    {
+                        trans.gameObject.SetActive(false);
+                        TurnOff[0].gameObject.SetActive(true);
+                    }
                 }
                 else
                 {
@@ -101,7 +107,13 @@ public class Gun_Upgrade : MonoBehaviour
                     if (Input.GetKeyDown(KeyCode.C))
                     {
                         gameManager.explosiveAmmo = true;
-                        Destroy(this.gameObject);
+                        Transform[] TurnOff;
+                        TurnOff = gameObject.transform.GetComponentsInChildren<Transform>();
+                        foreach (Transform trans in TurnOff)
+                        {
+                            trans.gameObject.SetActive(false);
+                            TurnOff[0].gameObject.SetActive(true);
+                        }
                     }
                 }
             }
@@ -110,7 +122,13 @@ public class Gun_Upgrade : MonoBehaviour
                 if (!need_To_Press_C && nearObject)
                 {
                     gameManager.fullAuto = true;
-                    Destroy(this.gameObject);
+                    Transform[] TurnOff;
+                    TurnOff = gameObject.transform.GetComponentsInChildren<Transform>();
+                    foreach (Transform trans in TurnOff)
+                    {
+                        trans.gameObject.SetActive(false);
+                        TurnOff[0].gameObject.SetActive(true);
+                    }
                 }
                 else
                 {
@@ -118,7 +136,13 @@ public class Gun_Upgrade : MonoBehaviour
                     if (Input.GetKeyDown(KeyCode.C))
                     {
                         gameManager.fullAuto = true;
-                        Destroy(this.gameObject);
+                        Transform[] TurnOff;
+                        TurnOff = gameObject.transform.GetComponentsInChildren<Transform>();
+                        foreach (Transform trans in TurnOff)
+                        {
+                            trans.gameObject.SetActive(false);
+                            TurnOff[0].gameObject.SetActive(true);
+                        }
                     }
                 }
             }
@@ -127,7 +151,13 @@ public class Gun_Upgrade : MonoBehaviour
                 if (!need_To_Press_C && nearObject)
                 {
                     gameManager.burstFire = true;
-                    Destroy(this.gameObject);
+                    Transform[] TurnOff;
+                    TurnOff = gameObject.transform.GetComponentsInChildren<Transform>();
+                    foreach (Transform trans in TurnOff)
+                    {
+                        trans.gameObject.SetActive(false);
+                        TurnOff[0].gameObject.SetActive(true);
+                    }
                 }
                 else
                 {
@@ -135,7 +165,13 @@ public class Gun_Upgrade : MonoBehaviour
                     if (Input.GetKeyDown(KeyCode.C))
                     {
                         gameManager.burstFire = true;
-                        Destroy(this.gameObject);
+                        Transform[] TurnOff;
+                        TurnOff = gameObject.transform.GetComponentsInChildren<Transform>();
+                        foreach (Transform trans in TurnOff)
+                        {
+                            trans.gameObject.SetActive(false);
+                            TurnOff[0].gameObject.SetActive(true);
+                        }
                     }
                 }
             }

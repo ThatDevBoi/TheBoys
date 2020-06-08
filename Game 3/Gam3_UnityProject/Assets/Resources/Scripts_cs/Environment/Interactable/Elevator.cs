@@ -67,8 +67,8 @@ public class Elevator : MonoBehaviour
             reachedPoint = false;
         }
 
-        if (triggerTime >= 2)
-            elevate = false;
+        //if (triggerTime >= 2)
+        //    elevate = false;
 
         // Parent player to the elevator
         if (parentPlayer)
