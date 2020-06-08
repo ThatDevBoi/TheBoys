@@ -103,25 +103,26 @@ public class Elevator : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        // when false
-        if(!elevate)
+        if(other.gameObject.name == "PC")
         {
-            GameObject.Find("PlayerUIController/Interact/Exposition_Text").GetComponent<TextMeshPro>().enabled = true;
-
-            // when key is pressed
-            if (Input.GetKeyDown(KeyCode.E))
+            // when false
+            if (!elevate)
             {
-                // we can now go up
-                elevate = true;
-                // + 1
-                triggerTime++;
-                if (elevate)
-                    GameObject.Find("PlayerUIController/Interact/Exposition_Text").GetComponent<TextMeshPro>().enabled = false;
-                
+                GameObject.Find("PlayerUIController/Interact/Exposition_Text").GetComponent<TextMeshPro>().enabled = true;
+
+                // when key is pressed
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    // we can now go up
+                    elevate = true;
+                    // + 1
+                    triggerTime++;
+                    if (elevate)
+                        GameObject.Find("PlayerUIController/Interact/Exposition_Text").GetComponent<TextMeshPro>().enabled = false;
+
+                }
             }
         }
-        
-       
     }
 
     private void OnTriggerEnter(Collider other)

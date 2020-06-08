@@ -264,6 +264,7 @@ public class Player_Controller : MonoBehaviour
         #endregion
     }
 
+    public float Jumpcooldown = 0;
     // Update is called once per frame
     void Update()
     {
@@ -343,43 +344,35 @@ public class Player_Controller : MonoBehaviour
 
 
             // Jumping 
-            if(Input.GetKeyDown(Player_Key_Binds[8]) && transform.position == groundPos && !we_jump)
+            if(Input.GetKeyDown(Player_Key_Binds[8]) && transform.position.y == groundPos.y && !we_jump)
             {
-                if(jumpGrounded)
+                if (jumpGrounded)
                 {
                     maxJumpHeight = groundPos.y += 5;
-                    if (!usezipeline)
+                    if (!usezipeline && jumpGrounded == true)
                     {
-                        we_jump = true;
-                        StartCoroutine("Jump");
+                        if(Jumpcooldown <= 0)
+                        {
+                            we_jump = true;
+                            StartCoroutine("Jump");
+                        }
                     }
                 }
             }
-            if (jumpGrounded | we_jump)
-            {
-                if (we_jump)   // if we are jumping
-                {
-                    return; // we dont update
-                }
-                else
-                    // Update overtime so we dont go back to the orginal jump position
-                    groundPos = transform.position;
 
+            Jumpcooldown -= Time.deltaTime;
+            if (Jumpcooldown == 0)
+                Jumpcooldown = 0;
+
+            if (jumpGrounded)
+            {
+                // Update overtime so we dont go back to the orginal jump position
+                groundPos = transform.position;
                 // We need to record if we change height of ground how high we can then jump in the loop
                 groundHeight = transform.position.y;
             }
             else
                 return;
-
-            // when the player is on ground
-            if (transform.position == groundPos)
-            {
-                jumpGrounded = true;    // we can jump
-            }
-            else
-            {
-                jumpGrounded = false;   // we cant jump
-            }
 
         }
     }
@@ -417,10 +410,11 @@ public class Player_Controller : MonoBehaviour
                 // when the current position on y is less than the ground position
                 if (transform.position.y < groundPos.y)
                 {
+                    groundPos = transform.position;
                     transform.position = groundPos; // we land where ground is
                     jumpGrounded = true;    // reset the jump
+                    Jumpcooldown = 0.8f;
                     StopCoroutine("Jump");    // Stop Running this
-
                 }
             }
             yield return new WaitForEndOfFrame();
